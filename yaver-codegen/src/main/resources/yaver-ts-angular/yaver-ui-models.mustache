@@ -1,0 +1,41 @@
+export const YaverUiModels : any = {
+{{#modelPackage}}
+{{#models}}
+{{#model}}
+	{{{classname}}}:[
+		{{#vars}}
+		{
+			id: '{{baseName}}',
+			{{#vendorExtensions.x-yaver-ui}}
+			{{#type}}type:'{{.}}',{{/type}}
+			{{#inputType}}inputType:'{{.}}',{{/inputType}}
+			{{#placeholder}}placeholder:'{{.}}',{{/placeholder}}
+			{{#label}}label:'{{.}}',{{/label}}
+				{{/vendorExtensions.x-yaver-ui}}
+			validators:  {
+				{{#required}}required: true,{{/required}}
+				{{#maxLength}}maxLength:{{.}},{{/maxLength}}
+				{{#minLength}}minLength:{{.}},{{/minLength}}
+				{{#maximum}}maximum:{{.}},{{/maximum}}
+				{{#minimum}}minimum:{{.}},{{/minimum}}
+				{{#pattern}}pattern:{{.}},{{/pattern}}
+				{{#vendorExtensions.x-validator-email}}email: true,{{/vendorExtensions.x-validator-email}}
+				{{#vendorExtensions.x-validator-creditcard}}creditcard: true,{{/vendorExtensions.x-validator-creditcard}}
+			},
+			errorMessages: {
+				{{#required}}required:'{{vendorExtensions.x-message-required}}',{{/required}}
+				{{#maxLength}}maxLength:'{{vendorExtensions.x-message-maxLength}}',{{/maxLength}}
+				{{#minLength}}minLength:'{{vendorExtensions.x-message-minLength}}',{{/minLength}}
+				{{#maximum}}maximum:'{{vendorExtensions.x-message-maximum}}',{{/maximum}}
+				{{#minimum}}minimum:'{{vendorExtensions.x-message-minimum}}',{{/minimum}}
+				{{#pattern}}pattern:'{{vendorExtensions.x-message-pattern}}',{{/pattern}}
+				{{#vendorExtensions.x-validator-email}}email:'{{vendorExtensions.x-message-email}}',{{/vendorExtensions.x-validator-email}}
+				{{#vendorExtensions.x-validator-creditcard}}creditcard:'{{vendorExtensions.x-message-creditcard}}',{{/vendorExtensions.x-validator-creditcard}}
+			},
+		}{{^@last}},{{/@last}}
+		{{/vars}}
+	]{{^@last}},{{/@last}}
+{{/model}}
+{{/models}}
+{{/modelPackage}}
+};

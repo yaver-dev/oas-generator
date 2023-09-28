@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>{{#useGenericHost}}
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo> <!-- setting GenerateAssemblyInfo to false causes this bug https://github.com/dotnet/project-system/issues/3934 -->{{/useGenericHost}}{{^useGenericHost}}
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo><!-- setting GenerateAssemblyInfo to false causes this bug https://github.com/dotnet/project-system/issues/3934 -->{{/useGenericHost}}
+    <TargetFramework{{#multiTarget}}s{{/multiTarget}}>{{targetFramework}}</TargetFramework{{#multiTarget}}s{{/multiTarget}}>
+    <AssemblyName>{{packageName}}</AssemblyName>
+    <PackageId>{{packageName}}</PackageId>
+    <OutputType>Library</OutputType>
+    <Authors>{{packageAuthors}}</Authors>
+    <Company>{{packageCompany}}</Company>
+    <AssemblyTitle>{{packageTitle}}</AssemblyTitle>
+    <Description>{{packageDescription}}</Description>
+    <Copyright>{{packageCopyright}}</Copyright>
+    <RootNamespace>{{packageName}}</RootNamespace>
+    <Version>{{packageVersion}}</Version>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\{{packageName}}.xml</DocumentationFile>{{#licenseId}}
+    <PackageLicenseExpression>{{.}}</PackageLicenseExpression>{{/licenseId}}
+    <RepositoryUrl>https://{{{gitHost}}}/{{{gitUserId}}}/{{{gitRepoId}}}.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>{{#releaseNote}}
+    <PackageReleaseNotes>{{.}}</PackageReleaseNotes>{{/releaseNote}}{{#packageTags}}
+    <PackageTags>{{{.}}}</PackageTags>{{/packageTags}}{{#nrt}}
+    <Nullable>{{#useGenericHost}}enable{{/useGenericHost}}{{^useGenericHost}}annotations{{/useGenericHost}}</Nullable>{{/nrt}}
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="FastEndpoints" Version="5.*"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="System"/>
+		<Using Include="FastEndpoints"/>
+	</ItemGroup>
+
+
+{{>netcore_project.additions}}</Project>

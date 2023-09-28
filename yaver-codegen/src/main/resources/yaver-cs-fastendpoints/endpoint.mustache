@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Net;
+using FastEndpoints;
+using Microsoft.AspNetCore.Http.HttpResults;
+using {{packageName}}.{{modelPackage}};
+
+{{#operations}}
+{{#operation}}
+namespace {{packageName}}.{{apiPackage}}.{{operationId}}
+{
+	public class {{operationIdCamelCase}}Request {
+		{{#pathParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/pathParams}}
+		{{#headerParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		[FromHeader("{{baseName}}")]
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/headerParams}}
+		{{#queryParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/queryParams}}
+		{{#bodyParam}}
+		[FromBody]
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/bodyParam}}
+		{{#formParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		{{#isFile}}
+		public Microsoft.AspNetCore.Http.IFormFile {{paramName}} { get; set; }
+		{{/isFile}}
+		{{^isFile}}
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/isFile}}
+		{{/formParams}}
+	}
+
+	{{#bodyParam}}
+	public class {{operationIdCamelCase}}RequestValidator : Validator<{{operationIdCamelCase}}Request> {
+		public {{operationIdCamelCase}}RequestValidator () =>
+			RuleFor(b => b.{{paramName}}).SetValidator(new {{dataType}}Validator());
+	}
+	{{/bodyParam}}
+
+	/// <summary>
+	/// {{summary}}
+	/// </summary>
+	{{#notes}}
+	/// <remarks>
+	/// {{.}}
+	/// </remarks>
+	{{/notes}}
+	public class {{operationIdCamelCase}}EndpointBase<TMapper> :Endpoint<{{operationIdCamelCase}}Request, {{{returnType}}}{{^returnType}}Object{{/returnType}}, TMapper> where TMapper : IMapper {
+		public override void Configure() {
+			{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}");
+			{{#formParams}}
+			{{#isFile}}
+			AllowFileUploads();
+			{{/isFile}}
+			{{/formParams}}
+			{{#authMethods}}
+			{{#isOAuth2}}
+			{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+			{{/isOAuth2}}
+			{{#isOpenId}}
+			{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+			{{/isOpenId}}
+			{{#isBasicBearer}}
+			{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+			{{/isBasicBearer}}
+			{{/authMethods}}
+			{{^authMethods}}
+			AllowAnonymous();
+			{{/authMethods}}
+			{{#bodyParam}}
+			Validator<{{operationIdCamelCase}}RequestValidator>();
+			{{/bodyParam}}
+
+		}
+	}
+}
+{{/operation}}
+{{/operations}}

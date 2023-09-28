@@ -1,0 +1,17 @@
+{{#models}}
+{{#model}}
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text;
+{{/model}}
+{{/models}}
+{{#models}}
+{{#model}}
+using FluentValidation;
+
+namespace {{packageName}}.{{modelPackage}};
+
+{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{#oneOf}}{{#-first}}{{>modelOneOf}}{{/-first}}{{/oneOf}}{{#anyOf}}{{#-first}}{{>modelAnyOf}}{{/-first}}{{/anyOf}}{{^oneOf}}{{^anyOf}}{{>modelGeneric}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
+{{/model}}
+{{/models}}
+
