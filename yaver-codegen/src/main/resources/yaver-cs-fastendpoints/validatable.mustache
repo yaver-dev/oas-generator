@@ -5,6 +5,10 @@ public class {{classname}}Validator : Validator<{{classname}}> {
 		{{#required}}
 		RuleFor(x => x.{{{name}}}).NotNull().NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
 		{{/required}}
+{{! isEnum }}
+		{{#isEnum}}
+		RuleFor(x => x.{{{name}}}).IsInEnum(){{#vendorExtensions.x-message-enum}}.WithMessage("{{vendorExtensions.x-message-enum}}"){{/vendorExtensions.x-message-enum}};
+		{{/isEnum}}
 		{{^isEnum}}
 {{! maxLength }}
 		{{#maxLength}}

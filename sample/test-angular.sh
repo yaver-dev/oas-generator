@@ -1,6 +1,6 @@
 #!/bin/bash
 
-java -cp ../cli/yaver-generator-cliiki jar i .jar \
+java -cp ../cli/yaver-generator-cli.jar \
 	org.openapitools.codegen.OpenAPIGenerator \
 	generate \
 	-g yaver-ts-angular \

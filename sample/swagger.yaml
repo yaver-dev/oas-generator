@@ -1,598 +1,315 @@
 openapi: 3.0.2
-
 servers:
   - description: Local Dev
     url: http://localhost:5000
   - description: Mock Service
-    url: https://yaver.agr.ist//AgrioBoPersonaClient
-  - description: Dev Api
-    url: https://dev.agr.ist/bo
-  - description: Demo Api
-    url: https://demo.agr.ist/bo
-  - description: Agriofinans Api
-    url: https://agrio.agr.ist/bo
-  - description: MayPay Api
-    url: https://maypay.agr.ist/bo
-
+    url: https://mocker.test.opiscloud.com/OpisMobileB2CClient
 info:
-  title: Agrio Persona Api
-  description: Agrio Persona Services Documentation
+  title: Opis Mobile Customer Api
+  description: Opis Mobile Customer Services Documentation
   contact:
-    email: admin@sophietech.com
-  version: 'v1'
-
-externalDocs:
-  description: Documentation
-  url: https://doc-agrio.azurewebsites.net/persona
-
+    email: admin@albatr.com
+  version: v1
 tags:
-  - name: Persona
-    description: Persona's operations
-  - name: PersonaReports
-    description: Persona Reports operations
-  - name: Dashboard Persona
-    description: Dashboard Persona's operations
-  - name: PersonaSettings
-    description: Persons's Settings operations
-  - name: IndividualCustomers
-    description: Persona's Individual Customers operations
-  - name: CorporateCustomers
-    description: Persona's Corporate Customers operations
-  - name: CustomerAccounts
-    description: Customer's Accounts operations
-  - name: CallCenter
-    description: CallCenter Operations
-  - name: AgentRequests
-    description: Agent Requests Operations
+  - name: Tenants
+    description: Mobile tenants operations
+  - name: Campaigns
+    description: Mobile campaigns operations
+  - name: Tariffs
+    description: Mobile tariffs operations
+  - name: Cards
+    description: Mobile cards operations
+  - name: Modules
+    description: Mobile module operations
+  - name: Notifications
+    description: Mobile notifications operations
 paths:
-  /personas:
-    post:
+  /tenants:
+    get:
       tags:
-        - Persona
-      summary: Create new Persona
-      description: Create new Persona
-      operationId: createPersona
+        - Tenants
+      summary: Get all Tenants
+      description: List of all Tenants
+      operationId: getTenants
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Term'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantListModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+  /tenants/{tenantIdentifier}:
+    get:
+      tags:
+        - Tenants
+      summary: Get Tenant by Id
+      description: Get Tenants by Id
+      operationId: getTenant
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /tenants/{tenantIdentifier}/campaigns:
+    get:
+      tags:
+        - Campaigns
+      summary: Get Mobile Campaign
+      description: Get Mobile Campaign
+      operationId: getCampaign
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Term'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
+
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignListModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /tenants/{tenantIdentifier}/campaigns/{campaignId}:
+    get:
+      tags:
+        - Campaigns
+      summary: Get Mobile Campaign
+      description: Get Mobile Campaign
+      operationId: getCampaigns
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
+        - $ref: '#/components/parameters/CampaignIdParameter'
+
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /tenants/{tenantIdentifier}/campaigns/{campaignId}/tariffs:
+    get:
+      tags:
+        - Tariffs
+      summary: Get all Mobile Tariffs by tenant identifier
+      description: Get all mobile platform tariffs by tenant identifier
+      operationId: getTariffs
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Term'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
+        - $ref: '#/components/parameters/CampaignIdParameter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffListModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /tenants/{tenantIdentifier}/campaigns/{campaignId}/tariffs/{tariffId}:
+    get:
+      tags:
+        - Tariffs
+      summary: Get Tariff
+      description: Get tariff by Id
+      operationId: getTariff
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
+        - $ref: '#/components/parameters/CampaignIdParameter'
+        - $ref: '#/components/parameters/TariffIdParameter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TariffModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /tenants/{tenantIdentifier}/cards/{cardNo}/transactions:
+    get:
+      tags:
+        - Cards
+      summary: Get Card Transactions
+      description: Get card transactions by cardNo
+      operationId: getCardTransactions
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Term'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
+        - $ref: '#/components/parameters/CardNoParameter'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardTransactionListModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /tenants/{tenantIdentifier}/modules/{moduleId}/lock:
+    post:
+      tags:
+        - Modules
+      summary: Lock Module
+      description: Lock module
+      operationId: lockModule
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/ModuleIdParameter'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
       requestBody:
-        description: Create Persona request
+        description: lock Module
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PersonaEditModel'
-        required: true
+              $ref: '#/components/schemas/ModuleLockRequestModel'
       responses:
         '201':
-          description: Created
+          description: locked
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PersonaViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-            Location:
-              $ref: '#/components/headers/Location'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-    get:
-      tags:
-        - Persona
-      summary: Get Personas
-      description: Get Persona List
-      operationId: getPersonas
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonaTypeParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PersonaListModel'
+                $ref: '#/components/schemas/ModuleLockModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /personas/{personasId}:
-    get:
-      tags:
-        - Persona
-      summary: Get Persona By Id
-      description: Get Persona By Id
-      operationId: getPersona
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonasIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PersonaViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-    put:
-      tags:
-        - Persona
-      summary: Update Persona By Id
-      description: Update Persona By Id
-      operationId: updatePersona
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonasIdParameter'
-      requestBody:
-        description: Update Persona request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PersonaEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
     delete:
       tags:
-        - Persona
-      summary: Delete Persona By Id
-      description: Delete Persona By Id
-      operationId: deletePersona
+        - Modules
+      summary: delete lock Module
+      description: cancel locked module
+      operationId: deleteLockModule
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonasIdParameter'
+        - $ref: '#/components/parameters/ModuleIdParameter'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
       responses:
         '204':
-          $ref: '#/components/responses/NoContent'
+          description: lock released
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/call-center/persona-by-phone:
-    get:
-      tags:
-        - CallCenter
-      summary: Get Persona By Phone
-      description: Get Persona By Id
-      operationId: getPersonaByPhone
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonasPhoneParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PersonaByPhoneViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/call-center/update-kcstatus:
-    put:
-      tags:
-        - CallCenter
-      summary: Update Persona's Keycloak Status
-      description: Update Persona's Keycloak Status
-      operationId: updatePersonasKcStatus
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonasPhoneParameter'
-      requestBody:
-        description: Update Persona's Keycloak Status
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PersonaKcStatusEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /personas/batch-personas-file:
+  /tenants/{tenantIdentifier}/modules/{moduleId}/play:
     post:
       tags:
-        - Persona
-      summary: Upload Batch Persona File
-      description: Upload Batch Persona File
-      operationId: uploadBatchPersonaFile
+        - Modules
+      summary: Play Module
+      description: Play Module
+      operationId: playModule
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/ModuleIdParameter'
+        - $ref: '#/components/parameters/TenantIdentifierParameter'
       requestBody:
-        description: Upload Batch Persona File
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/BatchPersonaFileModel'
+        description: play Module
         required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '416':
-          $ref: '#/components/responses/UploadBatchPersonaError'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /personas/export-batch-personas:
-    get:
-      tags:
-        - Persona
-      summary: Export Batch Persona
-      description: Export Batch Persona
-      operationId: exportBatchPersona
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            multipart/form-data:
-              schema:
-                $ref: '#/components/schemas/BatchPersonaFileModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/dashboard/cache:
-    get:
-      tags:
-        - Dashboard Persona
-      summary: Get Persona Dashboard Cache Data
-      description: Get Persona Dashboard Cache Data
-      operationId: getPersonaDashboardCache
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/KeyParameter'
-        - $ref: '#/components/parameters/VersionParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CacheViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-      #   - bearer: []
-      # x-yaver-security-roles: "superadmin,admin"
-      # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /personas/personas-reports/report:
-    get:
-      tags:
-        - PersonaReports
-      summary: Get Persona Reports by PersonaReportType
-      description: Get Persona Reports
-      operationId: getPersonaReports
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonaReportType'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/StartDate'
-        - $ref: '#/components/parameters/EndDate'
-
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PersonaReportsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-            Location:
-              $ref: '#/components/headers/Location'
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-      #   - bearer: []
-      # x-yaver-security-roles: "superadmin,admin"
-      # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /personas/personas-reports/export:
-    get:
-      tags:
-        - PersonaReports
-      summary: Export Persona Reports
-      description: Export Persona Reports
-      operationId: exportPersonaReport
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/PersonaReportType'
-        - $ref: '#/components/parameters/StartDate'
-        - $ref: '#/components/parameters/EndDate'
-      responses:
-        '200':
-          description: Success
-          content:
-            multipart/form-data:
-              schema:
-                $ref: '#/components/schemas/PersonaReportExportModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-            Location:
-              $ref: '#/components/headers/Location'
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-      #   - bearer: []
-      # x-yaver-security-roles: "superadmin,admin"
-      # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /personas/settings/account:
-    get:
-      tags:
-        - PersonaSettings
-      description: Get Account
-      summary: Get Account
-      operationId: getPersonaAccount
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AccountViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-      #   - bearer: []
-      # x-yaver-security-tenant-roles: "superadmin,admin,acc-mng,acc-mkr,acc-ofc"
-    put:
-      tags:
-        - PersonaSettings
-      summary: Update Account
-      description: Update Account
-      operationId: updatePersonaAccount
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-      requestBody:
-        description: updateAccount
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountViewModel'
-        required: true
+              $ref: '#/components/schemas/ModulePlayRequestModel'
       responses:
         '204':
-          $ref: '#/components/responses/NoContent'
+          description: Module started
         '400':
           $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /personas/settings/security/password:
-    put:
+  /cards:
+    post:
       tags:
-        - PersonaSettings
-      summary: Update Password
-      description: Update Password
-      operationId: updatePassword
+        - Cards
+      summary: Create User Card
+      description: Create user card by userId
+      operationId: createUserCard
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
       requestBody:
-        description: Update Password
+        description: Create user card
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PasswordEditModel'
-        required: true
+              $ref: '#/components/schemas/CardRequestModel'
       responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /personas/settings/security/preferences:
-    put:
-      tags:
-        - PersonaSettings
-      summary: Update Security Prefences
-      description: Update Security Prefences
-      operationId: updateSecurityPrefences
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-      requestBody:
-        description: Update Security Prefences
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SecurityPreferencesViewModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-    get:
-      tags:
-        - PersonaSettings
-      description: Get Security Prefences
-      summary: Get Security Prefences
-      operationId: getSecurityPrefences
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-      responses:
-        '200':
-          description: Success
+        '201':
+          description: Card created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SecurityPreferencesViewModel'
+                $ref: '#/components/schemas/CardModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-      #   - bearer: []
-      # x-yaver-security-tenant-roles: "superadmin,admin,acc-mng,acc-mkr,acc-ofc"
-  /personas/settings/notifications:
-    put:
-      tags:
-        - PersonaSettings
-      summary: Update Notifications Prefences
-      description: Update Notifications Prefences
-      operationId: updateNotificationsPrefences
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-      requestBody:
-        description: Update Notifications Prefences
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NotificationsPreferencesViewModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
     get:
       tags:
-        - PersonaSettings
-      description: Get Notifications Prefences
-      summary: Get Notifications Prefences
-      operationId: getNotificationsPrefences
+        - Cards
+      summary: Get User Cards
+      description: Get user cards by userId
+      operationId: getUserCards
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationsPreferencesViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-      #   - bearer: []
-      # x-yaver-security-tenant-roles: "superadmin,admin,acc-mng,acc-mkr,acc-ofc"
-  /persona/individual-customers:
-    get:
-      tags:
-        - IndividualCustomers
-      summary: Get Individual Customers
-      description: Get Individual Customers List
-      operationId: getIndividualCustomers
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Term'
         - $ref: '#/components/parameters/Sort'
       responses:
@@ -601,7 +318,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IndividualCustomersListModel'
+                $ref: '#/components/schemas/CardListModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
@@ -609,26 +326,23 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/individual-customers/{individualCustomerId}:
+  /cards/{cardNo}:
     get:
       tags:
-        - IndividualCustomers
-      summary: Get Individual Customer By Id
-      description: Get Individual Customer By Id
-      operationId: getIndividualCustomer
+        - Cards
+      summary: Get User Card
+      description: Get user card by userId
+      operationId: getUserCard
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IndividualCustomerIdParameter'
+        - $ref: '#/components/parameters/CardNoParameter'
       responses:
         '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IndividualCustomerViewModel'
+                $ref: '#/components/schemas/CardModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
@@ -636,21 +350,17 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/individual-customers/{individualCustomerId}/accounts:
+  /notifications:
     get:
       tags:
-        - IndividualCustomers
-      summary: Get Individual Customer's Accounts
-      description: Get Individual Customer's Accounts
-      operationId: getIndividualCustomersAccounts
+        - Notifications
+      summary: Get User Notifications
+      description: Get user notifications by userId
+      operationId: getUserNotifications
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IndividualCustomerIdParameter'
-        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Term'
         - $ref: '#/components/parameters/Sort'
       responses:
@@ -659,826 +369,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomersAccountsListModel'
+                $ref: '#/components/schemas/NotificationListModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/call-center/{individualCustomerId}/access-management-history:
-    get:
-      tags:
-        - CallCenter
-      summary: Get Individual Customer's Access Management History By Id
-      description: Get Individual Customer's Access Management History By Id
-      operationId: getAccessManagementHistory
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IndividualCustomerIdParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AccessManagementHistoryListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/individual-customers/{individualCustomerId}/available-limits:
-    get:
-      tags:
-        - IndividualCustomers
-      summary: Get Individual Customer's Available Limits
-      description: Get Individual Customer's Available Limits
-      operationId: getIndividualCustomersAvailableLimits
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IndividualCustomerIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AvailableLimitsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/individual-customers/{individualCustomerId}/aml-detail:
-    get:
-      tags:
-        - IndividualCustomers
-      summary: Get Individual Customer AML Detail By Id
-      description: Get Individual Customer AML Detail By Id
-      operationId: getIndividualCustomerAMLDetail
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IndividualCustomerIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AmlViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/corporate-customers:
-    get:
-      tags:
-        - CorporateCustomers
-      summary: Get Corporate Customers
-      description: Get Corporate Customers List
-      operationId: getCorporateCustomers
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CorporateCustomersListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/corporate-customers/{corporateCustomerId}:
-    get:
-      tags:
-        - CorporateCustomers
-      summary: Get Corporate Customer By Id
-      description: Get Corporate Customer By Id
-      operationId: getCorporateCustomer
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/CorporateCustomerIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CorporateCustomerViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/corporate-customers/{corporateCustomerId}/aml-detail:
-    get:
-      tags:
-        - CorporateCustomers
-      summary: Get Corporate Customer AML Detail By Id
-      description: Get Corporate Customer AML Detail By Id
-      operationId: getCorporateCustomerAMLDetail
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/CorporateCustomerIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AmlViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/corporate-customers/{corporateCustomerId}/accounts:
-    get:
-      tags:
-        - CorporateCustomers
-      summary: Get Corporate Customer's Accounts
-      description: Get Corporate Customer's Accounts
-      operationId: getCorporateCustomersAccounts
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/CorporateCustomerIdParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CustomersAccountsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/corporate-customers/{corporateCustomerId}/available-limits:
-    get:
-      tags:
-        - CorporateCustomers
-      summary: Get Corporate Customer's Available Limits
-      description: Get Corporate Customer's Available Limits
-      operationId: getCorporateCustomersAvailableLimits
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/CorporateCustomerIdParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AvailableLimitsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/corporate-customers/{corporateCustomerId}/documents:
-    get:
-      tags:
-        - CorporateCustomers
-      summary: Get Corporate Customer's Documents
-      description: Get Corporate Customer's Documents List
-      operationId: getCorporateCustomerDocuments
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/CorporateCustomerIdParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CorporateCustomerDocumentsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/customers-accounts:
-    get:
-      tags:
-        - CustomerAccounts
-      summary: Get Customer's Accounts
-      description: Get Customer's Accounts
-      operationId: getCustomersAccounts
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AllCustomersAccountsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/customers-accounts/{customerId}:
-    get:
-      tags:
-        - CustomerAccounts
-      summary: Get Customers Accounts Detail List By Id
-      description: Get Customer Accounts Detail List By Id
-      operationId: getCustomersAccountsDetail
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/CustomerIdParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CustomersAccountsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    # security:
-    #   - bearer: []
-    # x-yaver-security-tenant-roles: "superadmin,admin,em-mng,em-ofc,em-csh"
-  /persona/agent-requests/unblock-sim-card-requests:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Unblock Sim Card Requests
-      description: Get Unblock Sim Card Requests
-      operationId: getUnblockSimCardRequests
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestStateParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnblockSimCardRequestsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/unblock-sim-card-requests/{agentRequestId}:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Unblock Sim Card Request Detail By Id
-      description: Get Unblock Sim Card Request Detail By Id
-      operationId: getUnblockSimCardRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnblockSimCardRequestViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/unblock-sim-card-requests/{agentRequestId}/confirm:
-    put:
-      tags:
-        - AgentRequests
-      summary: Confirm Unblock Sim Card Request
-      description: Confirm Unblock Sim Card Request
-      operationId: confirmUnblockSimCardRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      requestBody:
-        description: Confirm Unblock Sim Card Request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UnblockSimCardRequestEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-
-  /persona/agent-requests/unblock-sim-card-requests/{agentRequestId}/reject:
-    put:
-      tags:
-        - AgentRequests
-      summary: Reject Unblock Sim Card Request
-      description: Reject Unblock Sim Card Request
-      operationId: rejectUnblockSimCardRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      requestBody:
-        description: Reject Unblock Sim Card Request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UnblockSimCardRequestEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/upgrade-account-requests:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Upgrade Account Requests
-      description: Get Upgrade Account Requests
-      operationId: getUpgradeAccountRequests
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestStateParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpgradeAccountRequestsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/upgrade-account-requests/{agentRequestId}:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Upgrade Account Request
-      description: Get Upgrade Account Request
-      operationId: getUpgradeAccountRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpgradeAccountRequestViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-  /persona/agent-requests/upgrade-account-requests/{agentRequestId}/confirm:
-    put:
-      tags:
-        - AgentRequests
-      summary: Confirm Upgrade Account Request
-      description: Confirm Upgrade Account Request
-      operationId: confirmUpgradeAccountRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      requestBody:
-        description: Confirm Upgrade Account Request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpgradeAccountRequestEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-
-  /persona/agent-requests/upgrade-account-requests/{agentRequestId}/reject:
-    patch:
-      tags:
-        - AgentRequests
-      summary: Reject Upgrade Account Request
-      description: Reject Upgrade Account Request
-      operationId: rejectUpgradeAccountRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/customer-request-and-complaints:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Customer Requests and Complaints
-      description: Get Customer Requests and Complaints
-      operationId: getCustomerRequestAndComplaints
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestStateParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CustomerRequestAndComplaintsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/customer-request-or-complaint/{agentRequestId}:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Customer Request or Complaint Detail By Id
-      description: Get Customer Request or Complaint Detail By Id
-      operationId: getCustomerRequestOrComplaint
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CustomerRequestOrComplaintViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/customer-request-or-complaint/{agentRequestId}/confirm:
-    put:
-      tags:
-        - AgentRequests
-      summary: Confirm Customer Request or Complaint
-      description: Confirm Customer Request or Complaint
-      operationId: confirmCustomerRequestOrComplaint
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      requestBody:
-        description: Confirm Customer Request or Complaint
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CustomerRequestOrComplaintEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/customer-request-or-complaint/{agentRequestId}/reject:
-    put:
-      tags:
-        - AgentRequests
-      summary: Reject Customer Request or Complaint
-      description: Reject Customer Request or Complaint
-      operationId: rejectCustomerRequestOrComplaint
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      requestBody:
-        description: Reject Customer Request or Complaint
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CustomerRequestOrComplaintEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/customer-request-and-complaints/titles-by-request-type:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Customer Requests and Complaints Titles By Request Type
-      description: Get Customer Requests and Complaints Titles By Request Type
-      operationId: getTitlesByRequestType
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/RequestTypeParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TitlesByRequestTypeListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/update-phone-requests:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Update Phone Requests
-      description: Get Update Phone Requests
-      operationId: getUpdatePhoneRequests
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestStateParameter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdatePhoneRequestsListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/update-phone-requests/{agentRequestId}:
-    get:
-      tags:
-        - AgentRequests
-      summary: Get Update Phone Request Detail By Id
-      description: Get Update Phone Request Detail By Id
-      operationId: getUpdatePhoneRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdatePhoneRequestViewModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/update-phone-requests/{agentRequestId}/confirm:
-    put:
-      tags:
-        - AgentRequests
-      summary: Confirm Update Phone Request
-      description: Confirm Update Phone Request
-      operationId: confirmUpdatePhoneRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      requestBody:
-        description: Confirm Update Phone Request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePhoneRequestEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
-  /persona/agent-requests/update-phone-requests/{agentRequestId}/reject:
-    put:
-      tags:
-        - AgentRequests
-      summary: Reject Update Phone Request
-      description: Reject Update Phone Request
-      operationId: rejectUpdatePhoneRequest
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/AgentRequestIdParameter'
-      requestBody:
-        description: Reject Update Phone Request
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePhoneRequestEditModel'
-        required: true
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      # security:
-    #       - bearer: []
-    # x-yaver-security-roles: "superadmin,admin"
-    # x-yaver-security-tenant-roles: "superadmin,admin,c-mng,c-ofc,c-mkr,m-mng,m-ofc,m-csh,f-fre,f-atc,f-wrk,v-mng,v-mfr,v-dst,e-mng,e-ofc"
 components:
   headers:
     Location:
@@ -1486,7 +382,7 @@ components:
         type: string
         format: url
       description: A link to created resource
-      example: 3
+      example: https://www.istanbul.com
     Content-Language:
       schema:
         type: string
@@ -1506,9 +402,7 @@ components:
     X-RateLimit-Reset:
       schema:
         type: string
-        format: date-time
       description: The UTC date/time at which the current rate limit window resets.
-
   parameters:
     AcceptLanguageParameter:
       name: Accept-Language
@@ -1519,6 +413,8 @@ components:
         enum:
           - tr
           - en
+          - tr-TR
+          - en-US
       description: language(s) client is able to understand, and which locale variant is preferred
       example: tr
     Offset:
@@ -1536,1653 +432,207 @@ components:
       schema:
         type: integer
         minimum: 1
-        maximum: 100
-        default: 10
+        maximum: 50
+        default: 20
     Term:
       name: term
       in: query
       description: Filter argument in which to retrieve the results. Basic text search on relevant fields
       schema:
         type: string
-        default: ''
+        default: isim
     Sort:
       name: sort
       in: query
       description: Order in which to retrieve the results. Multiple sort criteria can not be passed
       schema:
         type: string
-        default: ''
-    KeyParameter:
-      name: key
-      in: query
-      schema:
-        type: string
-      required: true
-      description: cache Key
-    VersionParameter:
-      name: version
-      in: query
-      schema:
-        type: string
-        format: uuid
-      required: true
-      description: version
-    # StartDate:
-    #   name: startDate
-    #   in: query
-    #   description: Start Date Filter
-    #   schema:
-    #     type: string
-    #     format: date-time
-    #     default: null
-    # EndDate:
-    #   name: endDate
-    #   in: query
-    #   description: End Date Filter
-    #   schema:
-    #     type: string
-    #     format: date-time
-    #     default: null
-    PersonasIdParameter:
-      name: personasId
-      in: path
-      schema:
-        type: string
-        format: uuid
-      required: true
-      description: Persona Id
-    PersonasPhoneParameter:
-      name: personasPhone
-      in: query
-      schema:
-        type: string
-      required: true
-      description: Persona's Phone Number
-    PersonaTypeParameter:
-      name: personaType
-      in: query
-      required: true
-      schema:
-        type: string
-        enum:
-          - Member_Legacy
-          - Member_Candidate
-          - Member_Invited
-          - Member_Approved
-          - Member_BadContact
-          - Member_BlockedContact
-          - Member_Rejected
-          - Employee
-          - Customer
-      example: Member_Candidate
-    StartDate:
-      name: startDate
-      in: query
-      required: true
-      description: Start Date Filter
-      schema:
-        type: string
-        format: date-time
-        default: null
-    EndDate:
-      name: endDate
-      in: query
-      required: true
-      description: End Date Filter
-      schema:
-        type: string
-        format: date-time
-        default: null
-    PersonaReportType:
-      name: personaReportType
-      in: query
-      required: true
-      schema:
-        type: string
-        enum:
-          - CLEAR_TARGET
-          - NOT_CLEAR_TARGET
-          - CANDIDATE_TARGET
-          - ALL
-          - ACTIVE_INVITATIONS
-      description: Persona Report Types
-      example: CLEAR_TARGET
-    IndividualCustomerIdParameter:
-      name: individualCustomerId
-      in: path
-      schema:
-        type: string
-        format: uuid
-      required: true
-      description: Individual Customer Id
-    CorporateCustomerIdParameter:
-      name: corporateCustomerId
-      in: path
-      schema:
-        type: string
-        format: uuid
-      required: true
-      description: Corporate Customer Id
-    CustomerIdParameter:
-      name: customerId
-      in: path
-      schema:
-        type: string
-        format: uuid
-      required: true
-      description: Customer Id
-    AgentRequestIdParameter:
-      name: agentRequestId
+        default: name
+    TenantIdentifierParameter:
+      name: tenantIdentifier
       in: path
       required: true
       schema:
         type: string
-      description: Agent Request Id
-    AgentRequestStateParameter:
-      name: agentRequestState
-      in: query
+        example: funnycenter1
+      description: Tenant Identifier
+    CampaignIdParameter:
+      name: campaignId
+      in: path
       required: true
       schema:
         type: string
-        enum:
-          - waiting_approval
-          - approved
-          - rejected
-      description: Agent Request State
-      example: waiting_approval
-    RequestTypeParameter:
-      name: requestType
-      in: query
+        format: uuid
+      description: Campaign Id
+    TariffIdParameter:
+      name: tariffId
+      in: path
       required: true
       schema:
         type: string
-        enum:
-          - request
-          - complaint
-      description: Agent Customer Request and Complaints Request Type
-      example: request
+        format: uuid
+      description: Tariff Id
+    CardNoParameter:
+      name: cardNo
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Card No
+    ModuleIdParameter:
+      name: moduleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Module Id
   responses:
     BadRequest:
       description: The specified resource was not valid
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
+            type: object
+            properties:
+              code:
+                type: string
+                example: fC9LZX
+              title:
+                type: string
+                example: Invalid request parameters
+              detail:
+                type: string
+                example: The provided resource parameters are not valid.
+              errors:
+                type: array
+                items:
+                  type: string
+                  example: validation error message
+            required:
+              - code
+              - title
+              - detail
       headers:
         Content-Language:
-          $ref: '#/components/headers/Content-Language'
-    Forbidden:
-      description: You are not allowed to take specified action
-      content:
-        application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
-      headers:
-        Content-Language:
-          $ref: '#/components/headers/Content-Language'
-    Conflict:
-      description: The specified resource already persisted
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorViewModel'
-      headers:
-        Content-Language:
-          $ref: '#/components/headers/Content-Language'
+            type: string
+            enum:
+              - tr-TR
+              - en-US
+          description: the language(s) intended for the audience
+          example: tr-TR
     NotFound:
       description: The specified resource was not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
+            type: object
+            properties:
+              code:
+                type: string
+                example: fC9LZX
+              title:
+                type: string
+                example: Invalid request parameters
+              detail:
+                type: string
+                example: The provided resource parameters are not valid.
+              errors:
+                type: array
+                items:
+                  type: string
+                  example: validation error message
+            required:
+              - code
+              - title
+              - detail
       headers:
         Content-Language:
-          $ref: '#/components/headers/Content-Language'
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
-      headers:
-        Content-Language:
-          $ref: '#/components/headers/Content-Language'
-    UnprocessableEntity:
-      description: Unprocessable entity
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorViewModel'
-      headers:
-        Content-Language:
-          $ref: '#/components/headers/Content-Language'
-    NoContent:
-      description: No Content
-    UploadBatchPersonaError:
-      description: The specified resource was already exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UploadBatchPersonaErrorModel'
-      headers:
-        Content-Language:
-          $ref: '#/components/headers/Content-Language'
+            type: string
+            enum:
+              - tr-TR
+              - en-US
+          description: the language(s) intended for the audience
+          example: tr-TR
   securitySchemes:
     bearer:
       type: apiKey
       name: Authorization
       in: header
       description: 'Authorization header using the Bearer scheme. Ex: "Authorization: Bearer {token}"'
-
   schemas:
-    # document models
-    DictionaryModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            placeholder: label.name
-          x-yaver-mock:
-            type: word
-            options:
-              length: 5
-    ErrorViewModel:
-      type: object
-      properties:
-        code:
-          type: string
-          example: fC9LZX
-        title:
-          type: string
-          example: Invalid request parameters
-        detail:
-          type: string
-          example: The provided resource parameters are not valid.
-        errors:
-          type: array
-          items:
-            type: string
-            example: validation error message
-      required:
-        - code
-        - title
-        - detail
-    AddressEditModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.name
-            label: label.name
-          x-yaver-mock:
-            type: word
-            options:
-              length: 5
-        addressType:
-          type: string
-          enum:
-            - none
-            - home
-            - work
-          x-yaver-ui:
-            type: SELECT
-            label: label.addressType
-            placeholder: label.addressType
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2]
-        country:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.country
-        city:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.city
-        district:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.district
-        town:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.town
-        neighborhood:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.neighborhood
-        zipCode:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.zipCode
-          x-yaver-mock:
-            type: word
-            options:
-              length: 5
-        address:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            placeholder: label.address
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 8
-    AddressViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.name
-            label: label.name
-          x-yaver-mock:
-            type: word
-            options:
-              length: 5
-        addressType:
-          type: string
-          enum:
-            - none
-            - home
-            - work
-          x-yaver-ui:
-            type: SELECT
-            label: label.addressType
-            placeholder: label.addressType
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2]
-        country:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.country
-        city:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.city
-        district:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.district
-        town:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.town
-        neighborhood:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            placeholder: label.neighborhood
-        zipCode:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.zipCode
-          x-yaver-mock:
-            type: word
-            options:
-              length: 5
-        address:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            placeholder: label.address
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 8
-    PersonaEditModel:
-      type: object
-      required:
-        - name
-        - surname
-      properties:
-        name:
-          type: string
-          maxLength: 50
-          minLength: 2
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.name
-            placeholder: placeholder.name
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 2
-              message: err.minLength
-          x-yaver-mock:
-            type: name
-        surname:
-          type: string
-          maxLength: 52
-          minLength: 3
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.surname
-            placeholder: placeholder.surname
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 2
-              message: err.minLength
-          x-yaver-mock:
-            type: name
-        tckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.tckn
-            placeholder: placeholder.tckn
-          x-yaver-validators:
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: ssn
-            options:
-              dashes: false
-        dateOfBirth:
-          type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.dateOfBirth
-            placeholder: placeholder.dateOfBirth
-          x-yaver-mock:
-            type: birthday
-            options:
-              string: true
-              american: false
-        phoneNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo
-            label: label.phoneNo
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        phoneNo2:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo2
-            label: label.phoneNo2
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        email:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.email
-            placeholder: placeholder.email
-          x-yaver-validators:
-            - type: email
-              message: err.invalidEmail
-          x-yaver-mock:
-            type: email
-        nameOfFather:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.nameOfFather
-            placeholder: placeholder.nameOfFather
-          x-yaver-mock:
-            type: name
-        defaultAddressId:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.defaultAddressId
-            placeholder: placeholder.defaultAddressId
-          x-yaver-mock:
-            type: guid
-        addresses:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/AddressEditModel'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.addresses
-        personaType:
-          type: string
-          enum:
-            - Member_Legacy
-            - Member_Candidate
-            - Member_Invited
-            - Member_Approved
-            - Member_BadContact
-            - Member_BlockedContact
-            - Member_Rejected
-            - Employee
-            - Customer
-          example: Member_Candidate
-          x-yaver-ui:
-            type: SELECT
-            label: label.personaType
-            placeholder: placeholder.personaType
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [100, 101, 102, 103, 104, 105, 106, 200, 300]
-        gender:
-          type: string
-          enum:
-            - none
-            - female
-            - male
-          x-yaver-ui:
-            type: SELECT
-            label: label.gender
-            placeholder: label.gender
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2]
-        hasSmsPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasSmsPermissionOn
-            offLabel: label.hasSmsPermissionOff
-          x-yaver-mock:
-            type: bool
-        hasEmailPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasEmailPermissionOn
-            offLabel: label.hasEmailPermissionOff
-          x-yaver-mock:
-            type: bool
-        hasCallPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasCallPermissionOn
-            offLabel: label.hasCallPermissionOff
-          x-yaver-mock:
-            type: bool
-    PersonaViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.name
-            placeholder: placeholder.name
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 2
-              message: err.minLength
-          x-yaver-mock:
-            type: name
-        surname:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.surname
-            placeholder: placeholder.surname
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 2
-              message: err.minLength
-          x-yaver-mock:
-            type: name
-        tckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.tckn
-            placeholder: placeholder.tckn
-          x-yaver-validators:
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: ssn
-            options:
-              dashes: false
-        dateOfBirth:
-          type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.dateOfBirth
-            placeholder: placeholder.dateOfBirth
-          x-yaver-mock:
-            type: birthday
-            options:
-              string: true
-              american: false
-        phoneNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo
-            label: label.phoneNo
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        phoneNo2:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo2
-            label: label.phoneNo2
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        email:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.email
-            placeholder: placeholder.email
-          x-yaver-validators:
-            - type: email
-              message: err.invalidEmail
-          x-yaver-mock:
-            type: email
-        nameOfFather:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.nameOfFather
-            placeholder: placeholder.nameOfFather
-          x-yaver-mock:
-            type: name
-        defaultAddressId:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.defaultAddressId
-            placeholder: placeholder.defaultAddressId
-          x-yaver-mock:
-            type: guid
-        addresses:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/AddressViewModel'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.addresses
-        personaType:
-          type: string
-          enum:
-            - Member_Legacy
-            - Member_Candidate
-            - Member_Invited
-            - Member_Approved
-            - Member_BadContact
-            - Member_BlockedContact
-            - Member_Rejected
-            - Employee
-            - Customer
-          example: Member_Candidate
-          x-yaver-ui:
-            type: SELECT
-            label: label.personaType
-            placeholder: placeholder.personaType
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [100, 101, 102, 103, 104, 105, 106, 200, 300]
-        gender:
-          type: string
-          enum:
-            - none
-            - female
-            - male
-          x-yaver-ui:
-            type: SELECT
-            label: label.gender
-            placeholder: label.gender
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2]
-        hasSmsPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasSmsPermissionOn
-            offLabel: label.hasSmsPermissionOff
-          x-yaver-mock:
-            type: bool
-        hasEmailPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasEmailPermissionOn
-            offLabel: label.hasEmailPermissionOff
-          x-yaver-mock:
-            type: bool
-        hasCallPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasCallPermissionOn
-            offLabel: label.hasCallPermissionOff
-          x-yaver-mock:
-            type: bool
-    PersonaByPhoneViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        nameOrTitle:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.name
-            placeholder: placeholder.name
-          x-yaver-mock:
-            type: name
-        tckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.tckn
-            placeholder: placeholder.tckn
-          x-yaver-mock:
-            type: ssn
-            options:
-              dashes: false
-        dateOfBirth:
-          type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.dateOfBirth
-            placeholder: placeholder.dateOfBirth
-          x-yaver-mock:
-            type: birthday
-            options:
-              string: true
-              american: false
-        kycLevel:
-          type: string
-          enum:
-            - Anonymous
-            - Approved
-            - Contracted
-            - Premium
-          x-yaver-ui:
-            type: SELECT
-            label: label.kycLevel
-            placeholder: placeholder.kycLevel
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2, 3]
-        amlStatus:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.amlStatus
-            placeholder: placeholder.amlStatus
-          x-yaver-mock:
-            type: string
-        kcStatus:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            label: label.kcStatus
-            onLabel: label.kcStatusOn
-            offLabel: label.kcStatusOff
-          x-yaver-mock:
-            type: bool
-        securityQuestion:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/MLTextModel'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.securityQuestion
-            label: label.securityQuestion
-        securityQuestionAnswerKeys:
-          type: array
-          items:
-            type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.securityQuestionAnswerKeys
-            placeholder: placeholder.securityQuestionAnswerKeys
-          x-yaver-mock:
-            type: integer
-    PersonaKcStatusEditModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        kcStatus:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            label: label.kcStatus
-            onLabel: label.kcStatusOn
-            offLabel: label.kcStatusOff
-          x-yaver-mock:
-            type: bool
-        securityQuestionAnswerKeys:
-          type: array
-          items:
-            type: object
-            properties:
-              key:
-                type: string
-                x-yaver-ui:
-                  type: INPUT
-                  inputType: text
-                x-yaver-mock:
-                  type: integer
-              value:
-                type: string
-                x-yaver-ui:
-                  type: INPUT
-                  inputType: text
-                x-yaver-mock:
-                  type: string
-    MLTextModel:
-      type: object
-      properties:
-        tr:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.tr
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 2
-              message: err.minLength
-        en:
-          type: string
-          example: 'some value'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.en
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 2
-              message: err.minLength
-    PersonaListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.name
-          x-yaver-mock:
-            type: word
-            options:
-              length: 15
-        surname:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.surname
-          x-yaver-mock:
-            type: word
-            options:
-              length: 15
-        phoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNumber
-            label: label.phoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        city:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.city
-          x-yaver-mock:
-            type: city
-        district:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.district
-          x-yaver-mock:
-            type: city
-        hasSmsPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasSmsPermissionOn
-            offLabel: label.hasSmsPermissionOff
-          x-yaver-mock:
-            type: bool
-        hasEmailPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasEmailPermissionOn
-            offLabel: label.hasEmailPermissionOff
-          x-yaver-mock:
-            type: bool
-        hasCallPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasCallPermissionOn
-            offLabel: label.hasCallPermissionOff
-          x-yaver-mock:
-            type: bool
-        rejectReason:
-          type: string
-          description: This field is return 0 when personaTypeParameter is not Member_BadContact or Member_BlockedContact
-          enum:
-            - None
-            - Member_BadContact
-            - Member_BlockedContact
-          x-yaver-ui:
-            type: SELECT
-            label: label.rejectReason
-            placeholder: label.rejectReason
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2]
-    PersonaListModel:
+    TenantListModel:
       type: object
       properties:
         totalCount:
           type: integer
           description: Total items count
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 0
+              max: 30
         items:
           type: array
           items:
-            $ref: '#/components/schemas/PersonaListItemModel'
-    BatchPersonaFileModel:
-      type: object
-      properties:
-        excelFile:
-          type: string
-          format: binary
-          x-yaver-ui:
-            type: INPUT
-            description: InputType can be download or upload. This will change in ui
-            label: label.excelFile
-            placeholder: placeholder.excelFile
-          x-yaver-validators:
-            - type: required
-              message: err.required
-    PersonaReportsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersonaReportsListItemModel'
-    PersonaReportsListItemModel:
+            $ref: '#/components/schemas/TenantListItemModel'
+    TenantListItemModel:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
           x-yaver-mock:
             type: guid
-        communicationDate:
+        identifier:
           type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.communicationDate
-            placeholder: placeholder.communicationDate
-          x-yaver-mock:
-            type: date
-            options:
-              string: true
-              american: false
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-          x-yaver-mock:
-            type: name
-        tckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.tckn
-            placeholder: placeholder.tckn
+          example: funnycenter1
           x-yaver-mock:
             type: word
             options:
-              length: 11
-        phoneNumber:
+              length: 8
+        name:
           type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNumber
-            label: label.phoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        phoneNumber2:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNumber2
-            label: label.phoneNumber2
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.maxLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        email:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.email
-            placeholder: placeholder.email
-          x-yaver-mock:
-            type: email
-        personaType:
-          type: string
-          enum:
-            - Member_Legacy
-            - Member_Candidate
-            - Member_Invited
-            - Member_Approved
-            - Member_BadContact
-            - Member_BlockedContact
-            - Member_Rejected
-            - Employee
-            - Customer
-          example: Member_Candidate
-          x-yaver-ui:
-            type: SELECT
-            label: label.personaType
-            placeholder: placeholder.personaType
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [100, 101, 102, 103, 104, 105, 106, 200, 300]
-        link:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: string
-            label: label.link
-            placeholder: placeholder.link
-          x-yaver-mock:
-            type: url
-        isLinkOpened:
-          type: boolean
-          x-yaver-ui:
-            type: INPUT
-            label: label.isLinkOpened
-            placeholder: placeholder.isLinkOpened
-          x-yaver-mock:
-            type: bool
-    PersonaReportExportModel:
-      type: object
-      properties:
-        excelFile:
-          type: string
-          format: binary
-          x-yaver-ui:
-            type: INPUT
-            inputType: download
-            label: label.excelFile
-            placeholder: placeholder.excelFile
-    UploadBatchPersonaErrorModel:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UploadBatchPersonaErrorItemModel'
-    UploadBatchPersonaErrorItemModel:
-      type: object
-      properties:
-        rowNumber:
-          type: integer
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 100
-        phoneNo:
-          type: string
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        errorMessage:
-          type: string
-          x-yaver-mock:
-            type: word
-            options:
-              length: 10
-    CacheViewModel:
-      type: object
-      properties:
-        version:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.version
-            placeholder: placeholder.version
-          x-yaver-mock:
-            type: guid
-        value:
-          type: string
-          format: text
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.value
-            placeholder: placeholder.value
-          x-yaver-mock:
-            type: first
-    # PersonasSettings models
-    AccountViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.fullName
-            label: label.fullName
-          x-yaver-mock:
-            type: name
-        customerNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.customerNo
-            label: label.customerNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 100000000
-        customerType:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.customerType
-            label: label.customerType
-          x-yaver-mock:
-            type: string
-        company:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.title
-            label: label.title
+          example: Mert Park
           x-yaver-mock:
             type: company
-        description:
+        logoUrl:
           type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.description
-            placeholder: placeholder.description
+          example: shorturl.at/EJZ04
           x-yaver-mock:
-            type: sentence
+            type: fixed
             options:
-              words: 8
-        phoneNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo
-            label: label.phoneNo
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-              american: false
-        email:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.email
-            placeholder: placeholder.email
-          x-yaver-mock:
-            type: email
-        address:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.address
-            placeholder: placeholder.address
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 8
-        language:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            label: label.language
-            placeholder: placeholder.language
-
-    PasswordEditModel:
-      type: object
-      properties:
-        currentPassword:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.currentPassword
-            label: label.currentPassword
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: string
-        currentPasswordRepeat:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.currentPasswordRepeat
-            label: label.currentPasswordRepeat
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 8
-              message: err.minLength
-          x-yaver-mock:
-            type: string
-    SecurityPreferencesViewModel:
+              value: https://picsum.photos/536/354
+    TenantModel:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
           x-yaver-mock:
             type: guid
-        isTwoFactorAuthentication:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.isTwoFactorAuthenticationOn
-            offLabel: label.isTwoFactorAuthenticationOff
-          x-yaver-mock:
-            type: bool
-        forcePasswordChange:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.forcePasswordChangeOn
-            offLabel: label.forcePasswordChangeOff
-          x-yaver-mock:
-            type: bool
-        isTwoFactorAuthenticationInCriticalTransaction:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.isTwoFactorAuthenticationInCriticalTransactionOn
-            offLabel: label.isTwoFactorAuthenticationInCriticalTransactionOff
-          x-yaver-mock:
-            type: bool
-
-    NotificationsPreferencesViewModel:
-      type: object
-      properties:
-        id:
+        identifier:
           type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
+          example: funnycenter1
           x-yaver-mock:
-            type: guid
-        sendMessageAndNotificationsByEmail:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageAndNotificationsByEmailOn
-            offLabel: label.sendMessageAndNotificationsByEmailOff
+            type: word
+            options:
+              length: 8
+        name:
+          type: string
+          example: Mert Park
           x-yaver-mock:
-            type: bool
-        sendMessageAndNotificationsBySms:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageAndNotificationsBySmsOn
-            offLabel: label.sendMessageAndNotificationsBySmsOff
+            type: company
+        logoUrl:
+          type: string
+          example: shorturl.at/EJZ04
           x-yaver-mock:
-            type: bool
-        sendMessageAndNotificationsByMobileApp:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageAndNotificationsByMobileAppOn
-            offLabel: label.sendMessageAndNotificationsByMobileAppOff
-          x-yaver-mock:
-            type: bool
-        sendMessageNewLogin:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageNewLoginOn
-            offLabel: label.sendMessageNewLoginOff
-          x-yaver-mock:
-            type: bool
-        sendMessageMoneyTransfer:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageMoneyTransferOn
-            offLabel: label.sendMessageMoneyTransferOff
-          x-yaver-mock:
-            type: bool
-        sendMessaegePaymentAndEparaTransfer:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessaegePaymentAndEparaTransferOn
-            offLabel: label.sendMessaegePaymentAndEparaTransferOff
-          x-yaver-mock:
-            type: bool
-        sendMessagePaymentAndEparaTransfer:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessagePaymentAndEparaTransferOn
-            offLabel: label.sendMessagePaymentAndEparaTransferOff
-          x-yaver-mock:
-            type: bool
-        sendMessageChangePassword:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageChangePasswordOn
-            offLabel: label.sendMessageChangePasswordOff
-          x-yaver-mock:
-            type: bool
-        sendMessageIncomingTransfer:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageIncomingTransferOn
-            offLabel: label.sendMessageIncomingTransferOff
-          x-yaver-mock:
-            type: bool
-        sendMessageSaleByVpos:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.sendMessageSaleByVposOn
-            offLabel: label.sendMessageSaleByVposOff
-          x-yaver-mock:
-            type: bool
-    IndividualCustomersListModel:
+            type: fixed
+            options:
+              value: https://picsum.photos/536/354
+    CampaignListModel:
       type: object
       properties:
         totalCount:
@@ -3192,315 +642,83 @@ components:
             type: integer
             options:
               min: 0
+              max: 30
         items:
           type: array
           items:
-            $ref: '#/components/schemas/IndividualCustomersListItemModel'
-    IndividualCustomersListItemModel:
+            $ref: '#/components/schemas/CampaignListItemModel'
+    CampaignListItemModel:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        nameOrTitle:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.nameOrTitle
-            placeholder: placeholder.nameOrTitle
-          x-yaver-mock:
-            type: name
-        phoneNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo
-            label: label.phoneNo
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-              american: false
-        tckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.tckn
-            placeholder: placeholder.tckn
-          x-yaver-validators:
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: ssn
-            options:
-              dashes: false
-        kycLevel:
-          type: string
-          enum:
-            - Anonymous
-            - Approved
-            - Contracted
-            - Premium
-          x-yaver-ui:
-            type: SELECT
-            label: label.kycLevel
-            placeholder: placeholder.kycLevel
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2, 3]
-        amlStatus:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.amlStatus
-            placeholder: placeholder.amlStatus
-          x-yaver-mock:
-            type: string
-    IndividualCustomerViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
           x-yaver-mock:
             type: guid
         name:
           type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.name
-            placeholder: placeholder.name
+          example: Mobile Campaigns
           x-yaver-mock:
-            type: name
-        surname:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.surname
-            placeholder: placeholder.surname
-          x-yaver-mock:
-            type: name
-        tckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.tckn
-            placeholder: placeholder.tckn
-          x-yaver-validators:
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: ssn
+            type: sentence
             options:
-              dashes: false
-        dateOfBirth:
+              words: 2
+        tenantIdentifier:
           type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.dateOfBirth
-            placeholder: placeholder.dateOfBirth
+          example: funnycenter1
           x-yaver-mock:
-            type: birthday
+            type: word
             options:
-              string: true
-              american: false
-        phoneNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo
-            label: label.phoneNo
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
+              length: 8
+        isActive:
+          type: boolean
+          example: false
           x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        phoneNo2:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo2
-            label: label.phoneNo2
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-        email:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.email
-            placeholder: placeholder.email
-          x-yaver-validators:
-            - type: email
-              message: err.invalidEmail
-          x-yaver-mock:
-            type: email
-        nameOfFather:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.nameOfFather
-            placeholder: placeholder.nameOfFather
-          x-yaver-mock:
-            type: name
-        defaultAddressId:
+            type: bool
+    CampaignModel:
+      type: object
+      properties:
+        id:
           type: string
           format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.defaultAddressId
-            placeholder: placeholder.defaultAddressId
           x-yaver-mock:
             type: guid
-        addresses:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/AddressViewModel'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.addresses
-        individualCustomerType:
+        name:
           type: string
-          enum:
-            - Member_Legacy
-            - Member_Candidate
-            - Member_Invited
-            - Member_Approved
-            - Member_BadContact
-            - Member_BlockedContact
-            - Member_Rejected
-            - Employee
-            - Customer
-          example: Member_Candidate
-          x-yaver-ui:
-            type: SELECT
-            label: label.individualCustomerType
-            placeholder: placeholder.individualCustomerType
+          example: Mobile Campaigns
           x-yaver-mock:
-            type: falsy
+            type: sentence
             options:
-              pool: [100, 101, 102, 103, 104, 105, 106, 200, 300]
-        gender:
+              words: 2
+        tenantIdentifier:
           type: string
-          enum:
-            - none
-            - female
-            - male
-          x-yaver-ui:
-            type: SELECT
-            label: label.gender
-            placeholder: label.gender
+          example: funnycenter1
           x-yaver-mock:
-            type: falsy
+            type: word
             options:
-              pool: [0, 1, 2]
-        hasSmsPermission:
+              length: 8
+        description:
+          type: string
+          example: 23 Nisan Çocuk bayramı kampanyası
+          x-yaver-mock:
+            type: sentence
+            options:
+              words: 5
+        isActive:
           type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasSmsPermissionOn
-            offLabel: label.hasSmsPermissionOff
+          example: false
           x-yaver-mock:
             type: bool
-        hasEmailPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasEmailPermissionOn
-            offLabel: label.hasEmailPermissionOff
-          x-yaver-mock:
-            type: bool
-        hasCallPermission:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            onLabel: label.hasCallPermissionOn
-            offLabel: label.hasCallPermissionOff
-          x-yaver-mock:
-            type: bool
-        kycLevel:
+        startDate:
           type: string
-          enum:
-            - Anonymous
-            - Approved
-            - Contracted
-            - Premium
-          x-yaver-ui:
-            type: SELECT
-            label: label.kycLevel
-            placeholder: placeholder.kycLevel
+          example: '2020-01-01T00:00:00.000Z'
           x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2, 3]
-        contractInfo:
+            type: isodate
+        endDate:
           type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.contractInfo
-            placeholder: placeholder.contractInfo
+          example: '2020-01-01T00:00:00.000Z'
           x-yaver-mock:
-            type: string
-    CorporateCustomersListModel:
+            type: isodate
+    TariffListModel:
       type: object
       properties:
         totalCount:
@@ -3510,677 +728,348 @@ components:
             type: integer
             options:
               min: 0
+              max: 30
         items:
           type: array
           items:
-            $ref: '#/components/schemas/CorporateCustomersListItemModel'
-    CorporateCustomersListItemModel:
+            $ref: '#/components/schemas/TariffListItemModel'
+    TariffListItemModel:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
           x-yaver-mock:
             type: guid
-        title:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.title
-            placeholder: placeholder.title
-          x-yaver-mock:
-            type: profession
-        firstName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.firstName
-            label: label.firstName
-          x-yaver-mock:
-            type: first
-        lastName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.lastName
-            label: label.lastName
-          x-yaver-mock:
-            type: last
-        phoneNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            prefix: '+90'
-            placeholder: placeholder.phoneNo
-            label: label.phoneNo
-          x-yaver-validators:
-            - type: minLength
-              param: 10
-              message: err.minLength
-            - type: maxLength
-              param: 10
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-              american: false
-        vknOrTckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.vknOrTckn
-            placeholder: placeholder.vknOrTckn
-          x-yaver-mock:
-            type: ssn
-        agentCode:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.agentCode
-            label: label.agentCode
-          x-yaver-validators:
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: string
-    CorporateCustomerViewModel:
-      type: object
-      properties:
-        id:
+        campaignId:
           type: string
           format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
           x-yaver-mock:
             type: guid
-        title:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.title
-            label: label.title
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: string
-        companyType:
-          type: string
-          enum:
-            - stock
-            - limited
-            - sole_proprietorship
-            - cooperative
-          x-yaver-ui:
-            type: SELECT
-            label: label.companyType
-            placeholder: placeholder.companyType
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2, 3]
-        vkn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.vkn
-            label: label.vkn
-          x-yaver-mock:
-            type: ssn
-        taxOffice:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.taxOffice
-            label: label.taxOffice
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: string
-        firstName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.firstName
-            label: label.firstName
-          x-yaver-mock:
-            type: first
-        lastName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.lastName
-            label: label.lastName
-          x-yaver-mock:
-            type: last
-        tckn:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.tckn
-            label: label.tckn
-          x-yaver-validators:
-            - type: required
-              message: err.required
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: ssn
-        phoneNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.phoneNo
-            placeholder: placeholder.phoneNo
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-              american: false
-        phoneNo2:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.phoneNo2
-            placeholder: placeholder.phoneNo2
-          x-yaver-mock:
-            type: phone
-            options:
-              mobile: true
-              american: false
-        companyEmail:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.companyEmail
-            label: label.companyEmail
-          x-yaver-mock:
-            type: email
-        address:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/AddressViewModel'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.addresses
-        agentCode:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.agentCode
-            label: label.agentCode
-          x-yaver-validators:
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: string
-    CorporateCustomerDocumentsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CorporateCustomerDocumentsListItemModel'
-    CorporateCustomerDocumentsListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        documentType:
-          type: string
-          enum:
-            - tax_board
-            - signature_circular
-            - operating_certificate
-            - trade_registry_gazette
-            - attendance_sheet
-          x-yaver-ui:
-            type: SELECT
-            label: label.documentType
-            placeholder: placeholder.documentType
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2, 3, 4]
-        expiryDate:
-          type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.expiryDate
-            placeholder: placeholder.expiryDate
-          x-yaver-mock:
-            type: date
-            options:
-              string: true
-              american: false
-    AmlViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        amlMatchStatus:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.amlMatchStatus
-            placeholder: placeholder.amlMatchStatus
-          x-yaver-mock:
-            type: string
-        amlRiskLevel:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.amlRiskLevel
-            placeholder: placeholder.amlRiskLevel
-          x-yaver-mock:
-            type: string
-        lastUpdatedDate:
-          type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.lastUpdatedDate
-            placeholder: placeholder.lastUpdatedDate
-          x-yaver-mock:
-            type: date
-            options:
-              string: true
-              american: false
-        amlResponseJson:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.amlResponseJson
-            placeholder: placeholder.amlResponseJson
-          x-yaver-mock:
-            type: string
-    CustomersAccountsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomersAccountsListItemModel'
-    CustomersAccountsListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        accountName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.accountName
-            label: label.accountName
-          x-yaver-mock:
-            type: string
-        currencyCode:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.currencyCode
-            label: label.currencyCode
-          x-yaver-mock:
-            type: string
-        currentBalance:
+        price:
           type: number
-          format: double
-          minimum: 0
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.currentBalance
-            label: label.currentBalance
+          example: 100
           x-yaver-mock:
             type: integer
             options:
-              min: 0
-        accountCreatedTime:
-          type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.accountCreatedTime
-            placeholder: placeholder.accountCreatedTime
-          x-yaver-mock:
-            type: birthday
-            options:
-              string: true
-              american: false
-        accountNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.accountNo
-            placeholder: placeholder.accountNo
-          x-yaver-mock:
-            type: string
-    AllCustomersAccountsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AllCustomersAccountsListItemModel'
-    AllCustomersAccountsListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        code:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.code
-            label: label.code
-          x-yaver-mock:
-            type: string
-        accountName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.accountName
-            label: label.accountName
-          x-yaver-mock:
-            type: string
-        debit:
+              min: 100
+              max: 300
+        bonus:
           type: number
-          format: double
-          minimum: 0
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.debit
-            label: label.debit
+          example: 50
           x-yaver-mock:
             type: integer
             options:
-              min: 0
+              min: 10
+              max: 60
         credit:
           type: number
-          format: double
-          minimum: 0
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.credit
-            label: label.credit
+          example: 50
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 10
+              max: 60
+    TariffModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+        campaignId:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+        price:
+          type: number
+          example: 100
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 100
+              max: 300
+        bonus:
+          type: number
+          example: 50
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 10
+              max: 60
+        credit:
+          type: number
+          example: 50
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 10
+              max: 60
+    CardTransactionListModel:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          description: Total items count
           x-yaver-mock:
             type: integer
             options:
               min: 0
+              max: 30
+        items:
+          $ref: '#/components/schemas/CardTransactionTypes'
+    CardTransactionListItemModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+        cardNo:
+          type: string
+          example: '1234567890123456'
+          x-yaver-mock:
+            type: cc
+        description:
+          type: string
+          example: Mizbo Oyun
+          x-yaver-mock:
+            type: sentence
+            options:
+              words: 3
+        createdAt:
+          type: string
+          description: transaction created date
+          example: '2020-01-01T00:00:00.000Z'
+          x-yaver-mock:
+            type: isodate
+        startDate:
+          type: string
+          description: transaction start date
+          example: '2020-01-01T00:00:00.000Z'
+          x-yaver-mock:
+            type: isodate
+        endDate:
+          type: string
+          description: transaction end date
+          example: '2020-01-01T00:00:00.000Z'
+          x-yaver-mock:
+            type: isodate
+        types:
+          $ref: '#/components/schemas/CardTypeModel'
+        amount:
+          type: number
+          format: float
+          example: 100
+          x-yaver-mock:
+            type: floating
+            options:
+              min: 100
+              max: 300
+    ModuleLockRequestModel:
+      type: object
+      properties:
+        tenantIdentifier:
+          type: string
+          example: funnycenter1
+          x-yaver-mock:
+            type: word
+            options:
+              length: 8
+        moduleId:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+    ModuleLockModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+        module:
+          $ref: '#/components/schemas/ModuleModel'
+    ModuleModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+        price:
+          type: number
+          example: 100
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 50
+              max: 200
+        machine:
+          $ref: '#/components/schemas/MachineModel'
+    MachineModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+        name:
+          type: string
+          example: mizbo
+          x-yaver-mock:
+            type: word
+            options:
+              length: 5
+        imageUrl:
+          type: string
+          example: shorturl.at/EJZ04
+          x-yaver-mock:
+            type: fixed
+            options:
+              value: https://picsum.photos/536/354
+    ModulePlayRequestModel:
+      type: object
+      properties:
+        tenantIdentifier:
+          type: string
+          example: funnycenter1
+          x-yaver-mock:
+            type: word
+            options:
+              length: 8
+        moduleId:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+    CardRequestModel:
+      type: object
+      properties:
+        tenantIdentifier:
+          type: string
+          example: funnycenter1
+          x-yaver-mock:
+            type: word
+            options:
+              length: 8
+        type:
+          type: string
+          enum:
+            - Cash
+            - Bonus
+            - Ticket
+            - Credit
+            - Guest
+            - TimeCredit
+            - TimeCash
+            - TimeUnlimited
+          example: Cash
+          x-yaver-mock:
+            type: pickone
+            options:
+              - Cash
+              - Bonus
+              - Ticket
+              - Credit
+              - Guest
+              - TimeCredit
+              - TimeCash
+              - TimeUnlimited
+    CardListModel:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          description: Total items count
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 0
+              max: 30
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardListItemModel'
+    CardListItemModel:
+      type: object
+      properties:
+        cardNo:
+          type: string
+          example: '1234567890123456'
+          x-yaver-mock:
+            type: cc
+        tenantIdentifier:
+          type: string
+          example: funnycenter1
+          x-yaver-mock:
+            type: word
+            options:
+              length: 8
+        cardTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardTransactionTypes'
+    CardTypeModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
         balance:
           type: number
           format: double
-          minimum: 0
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: label.balance
-            label: label.balance
+          example: 100
           x-yaver-mock:
-            type: integer
+            type: floating
             options:
-              min: 0
-        currencyCode:
-          type: string
-          example: '949'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.currencyCode
-            label: label.currencyCode
-          x-yaver-mock:
-            type: string
-    AvailableLimitsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/AvailableLimitsListItemModel'
-    AvailableLimitsListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        limitType:
-          type: string
-          enum:
-            - Topup_Card
-            - Transfer_P2P_In
-            - Transfer_P2P_Out
-            - Topup_ATM_Cash
-          x-yaver-ui:
-            type: SELECT
-            placeholder: placeholder.limitType
-            label: label.limitType
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2, 3]
-        dailyLimit:
+              min: 100
+              max: 300
+        type:
+          $ref: '#/components/schemas/CardTransactionTypes'
+        expirationDate:
           type: number
-          format: double
-          minimum: 0
-          example: 100.00
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.dailyLimit
-            label: label.dailyLimit
+          example: 100
           x-yaver-mock:
             type: integer
             options:
-              min: 0
-        monthlyLimit:
-          type: number
-          format: double
-          minimum: 0
-          example: 100.00
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.monthlyLimit
-            label: label.monthlyLimit
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-        yearlyLimit:
-          type: number
-          format: double
-          minimum: 0
-          example: 100.00
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.monthlyLimit
-            label: label.monthlyLimit
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-        currencyCode:
+              min: 100
+              max: 300
+        startDate:
           type: string
-          example: '949'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            placeholder: placeholder.currencyCode
-            label: label.currencyCode
+          example: '2020-01-01T00:00:00.000Z'
           x-yaver-mock:
-            type: string
-    AccessManagementHistoryListModel:
+            type: isodate
+        status:
+          $ref: '#/components/schemas/CardStatus'
+    CardModel:
       type: object
       properties:
-        totalCount:
-          type: integer
-          description: Total items count
-        items:
+        cardNo:
+          type: string
+          example: '1234567890123456'
+          x-yaver-mock:
+            type: cc
+        tenantIdentifier:
+          type: string
+          example: funnycenter1
+          x-yaver-mock:
+            type: word
+            options:
+              length: 8
+        cardTypes:
           type: array
           items:
-            $ref: '#/components/schemas/AccessManagementHistoryListItemModel'
-    AccessManagementHistoryListItemModel:
-      type: object
-      properties:
-        actionDate:
-          type: string
-          format: date-time
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.actionDate
-            placeholder: placeholder.actionDate
-          x-yaver-mock:
-            type: date
-            options:
-              string: true
-              american: false
-        action:
-          type: string
-          enum:
-            - block
-            - unblock
-          x-yaver-ui:
-            type: SELECT
-            label: label.action
-            placeholder: placeholder.action
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1]
-        isSuccess:
-          type: boolean
-          x-yaver-ui:
-            type: SWITCH
-            label: label.isSuccess
-            onLabel: label.isSuccessOn
-            offLabel: label.isSuccessOff
-          x-yaver-mock:
-            type: bool
-        user:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.user
-            placeholder: placeholder.user
-          x-yaver-mock:
-            type: name
-    # AgentRequests
-    UnblockSimCardRequestsListModel:
+            $ref: '#/components/schemas/CardTypeModel'
+    NotificationListModel:
       type: object
       properties:
         totalCount:
@@ -4190,956 +1079,82 @@ components:
             type: integer
             options:
               min: 0
-              max: 10000
+              max: 30
         items:
           type: array
           items:
-            $ref: '#/components/schemas/UnblockSimCardRequestsListItemModel'
-    UnblockSimCardRequestsListItemModel:
+            $ref: '#/components/schemas/NotificationListItemModel'
+    NotificationListItemModel:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
           x-yaver-mock:
             type: guid
-        requestDate:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
-          x-yaver-mock:
-            type: isodate
-        phoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.phoneNumber
-            placeholder: placeholder.phoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-    UnblockSimCardRequestViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        requestDate:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
-          x-yaver-mock:
-            type: isodate
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-        operator:
-          type: string
-          enum:
-            - B001
-            - BOO2
-            - B003
-            # B001 Türk Telekom
-            # B002 Turkcell
-            # B003 Vodafone
-          x-yaver-ui:
-            type: SELECT
-            label: label.operator
-            placeholder: placeholder.operator
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2]
-        phoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.phoneNumber
-            placeholder: placeholder.phoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        note:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.note
-            placeholder: placeholder.note
-          x-yaver-mock:
-            type: paragraph
-    UnblockSimCardRequestEditModel:
-      type: object
-      properties:
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        note:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.note
-            placeholder: placeholder.note
-          x-yaver-mock:
-            type: paragraph
-    UpgradeAccountRequestsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UpgradeAccountRequestsListItemModel'
-    UpgradeAccountRequestsListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        requestDate:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
-          x-yaver-mock:
-            type: isodate
-        phoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.phoneNumber
-            placeholder: placeholder.phoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-    UpgradeAccountRequestViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        requestDate:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
-          x-yaver-mock:
-            type: isodate
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        tckn:
-          type: string
-          example: '123*****123'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.tckn
-            placeholder: placeholder.tckn
-          x-yaver-validators:
-            - type: minLength
-              param: 11
-              message: err.minLength
-            - type: maxLength
-              param: 11
-              message: err.maxLength
-          x-yaver-mock:
-            type: ssn
-        dateOfBirth:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.dateOfBirth
-            placeholder: placeholder.dateOfBirth
-          x-yaver-mock:
-            type: isodate
-        hasIdentityCard:
-          type: boolean
-          x-yaver-ui:
-            type: CHECKBOX
-            indeterminate: false
-            placeholder: placeholder.hasIdentityCard
-            label: label.hasIdentityCard
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-mock:
-            type: bool
-        hasMembershipAgreement:
-          type: boolean
-          x-yaver-ui:
-            type: CHECKBOX
-            indeterminate: false
-            placeholder: placeholder.hasMembershipAgreement
-            label: label.hasMembershipAgreement
-          x-yaver-mock:
-            type: bool
-        kycLevel:
-          type: string
-          enum:
-            - Approved
-            - Contracted
-          x-yaver-ui:
-            type: SELECT
-            label: label.kycLevel
-            placeholder: placeholder.kycLevel
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [1, 2]
-    UpgradeAccountRequestEditModel:
-      type: object
-      properties:
-        kycLevel:
-          type: string
-          enum:
-            - Approved
-            - Contracted
-          x-yaver-validators:
-            - type: required
-              message: err.required
-          x-yaver-ui:
-            type: SELECT
-            label: label.kycLevel
-            placeholder: placeholder.kycLevel
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [1, 2]
-    CustomerRequestAndComplaintsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CustomerRequestAndComplaintsListItemModel'
-    CustomerRequestAndComplaintsListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        requestDate:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
-          x-yaver-mock:
-            type: isodate
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-        phoneNumber:
-          type: string
-          example:
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.phoneNumber
-            placeholder: placeholder.phoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        agentRequestType:
-          type: string
-          enum:
-            - request
-            - complaint
-          x-yaver-ui:
-            type: SELECT
-            label: label.agentRequestType
-            placeholder: placeholder.agentRequestType
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1]
-        title:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/DictionaryModel'
-          x-yaver-ui:
-            type: SELECT
-            label: label.heading
-            placeholder: placeholder.heading
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-    CustomerRequestOrComplaintViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        requestDate:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
-          x-yaver-mock:
-            type: isodate
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        phoneNumber:
-          type: string
-          example: '+905079283191'
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.phoneNumber
-            placeholder: placeholder.phoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        agentRequestType:
-          type: string
-          enum:
-            - request
-            - complaint
-          x-yaver-ui:
-            type: SELECT
-            label: label.agentRequestType
-            placeholder: placeholder.agentRequestType
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1]
         title:
           type: string
-          format: uuid
-          x-yaver-ui:
-            type: SELECT
-            label: label.heading
-            placeholder: placeholder.heading
+          example: 'Notification Title'
           x-yaver-mock:
-            type: guid
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
+            type: sentence
             options:
-              min: 0
-              max: 10000
-        note:
+              words: 3
+        description:
           type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.note
-            placeholder: placeholder.note
+          example: 'Notification Description'
           x-yaver-mock:
-            type: paragraph
-    CustomerRequestOrComplaintEditModel:
-      type: object
-      properties:
-        agentRequestType:
-          type: string
-          enum:
-            - request
-            - complaint
-          x-yaver-ui:
-            type: SELECT
-            label: label.agentRequestType
-            placeholder: placeholder.agentRequestType
-          x-yaver-mock:
-            type: falsy
+            type: sentence
             options:
-              pool: [0, 1]
-        title:
+              words: 5
+        isRead:
+          type: boolean
+          example: false
+          x-yaver-mock:
+            type: bool
+        createdAt:
           type: string
-          format: uuid
-          x-yaver-ui:
-            type: SELECT
-            label: label.heading
-            placeholder: placeholder.heading
-          x-yaver-mock:
-            type: guid
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        note:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.note
-            placeholder: placeholder.note
-          x-yaver-mock:
-            type: paragraph
-    TitlesByRequestTypeListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DictionaryModel'
-    UpdatePhoneRequestsListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/UpdatePhoneRequestsListItemModel'
-    UpdatePhoneRequestsListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        requestDate:
-          type: string
-          format: date-time
           example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
           x-yaver-mock:
             type: isodate
-        oldPhoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.oldPhoneNumber
-            placeholder: placeholder.oldPhoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        newPhoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.newPhoneNumber
-            placeholder: placeholder.newPhoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-    UpdatePhoneRequestViewModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-ui:
-            type: INPUT
-            inputType: hidden
-          x-yaver-mock:
-            type: guid
-        requestDate:
-          type: string
-          format: date-time
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-ui:
-            type: INPUT
-            inputType: date
-            label: label.requestDate
-            placeholder: placeholder.requestDate
-          x-yaver-mock:
-            type: isodate
-        fullName:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.fullName
-            placeholder: placeholder.fullName
-          x-yaver-mock:
-            type: name
-        agent:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.agent
-            placeholder: placeholder.agent
-          x-yaver-mock:
-            type: name
-        operator:
-          type: string
-          enum:
-            - B001
-            - BOO2
-            - B003
-            # B001 Türk Telekom
-            # B002 Turkcell
-            # B003 Vodafone
-          x-yaver-ui:
-            type: SELECT
-            label: label.operator
-            placeholder: placeholder.operator
-          x-yaver-mock:
-            type: falsy
-            options:
-              pool: [0, 1, 2]
-        oldPhoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.oldPhoneNumber
-            placeholder: placeholder.oldPhoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        newPhoneNumber:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.newPhoneNumber
-            placeholder: placeholder.newPhoneNumber
-          x-yaver-validators:
-            - type: minLength
-              param: 13
-              message: err.minLength
-            - type: maxLength
-              param: 13
-              message: err.maxLength
-          x-yaver-mock:
-            type: phone
-            options:
-              formatted: true
-              mobile: true
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        note:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.note
-            placeholder: placeholder.note
-          x-yaver-mock:
-            type: paragraph
-    UpdatePhoneRequestEditModel:
-      type: object
-      properties:
-        crmNo:
-          type: string
-          x-yaver-ui:
-            type: INPUT
-            inputType: text
-            label: label.crmNo
-            placeholder: placeholder.crmNo
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 10000
-        note:
-          type: string
-          x-yaver-ui:
-            type: TEXTAREA
-            label: label.note
-            placeholder: placeholder.note
-          x-yaver-mock:
-            type: paragraph
-x-yaver:
-  resources:
-    - name: Persona
-      schemas:
-        create: PersonaEditModel
-        view: PersonaViewModel
-        update: PersonaEditModel
-        list: PersonaListModel
-        list-item: PersonaListItemModel
-      operations:
-        create: createPersona
-        get: getPersona
-        update: updatePersona
-        list: getPersonas
-        delete: deletePersona
-    - name: IndividualCustomers
-      schemas:
-        view: IndividualCustomerViewModel
-        list: IndividualCustomersListModel
-        list-item: IndividualCustomersListItemModel
-      operations:
-        get: getIndividualCustomer
-        list: getIndividualCustomers
-    - name: CorporateCustomers
-      schemas:
-        view: CorporateCustomerViewModel
-        list: CorporateCustomersListModel
-        list-item: CorporateCustomersListItemModel
-      operations:
-        get: getCorporateCustomer
-        list: getCorporateCustomers
-    - name: CustomerAccounts
-      schemas:
-        view-list: CustomersAccountsListModel
-        list: AllCustomersAccountsListModel
-        list-item: AllCustomersAccountsListItemModel
-      operations:
-        get: getCustomersAccountsDetail
-        list: getCustomersAccounts
-    - name: AgentRequests
-      schemas:
-        view: UnblockSimCardRequestViewModel
-        list: UnblockSimCardRequestsListModel
-        list-item: UnblockSimCardRequestsListItemModel
-        update: UnblockSimCardRequestEditModel
-      operations:
-        get: getUnblockSimCardRequest
-        list: getUnblockSimCardRequests
-        confirm: confirmUnblockSimCardRequest
-        reject: rejectUnblockSimCardRequest
+    CardTransactionTypes:
+      type: string
+      enum:
+        - Cash
+        - Bonus
+        - Game
+        - Softplay
+        - Ticket
+        - Credit
+        - Guest
+        - TimeCredit
+        - TimeCash
+        - TimeUnlimited
+      example: Cash
+      x-message-enum: 'Cash,Bonus,Game,Softplay,Ticket,Credit,Guest,TimeCredit,TimeCash,TimeUnlimited'
+
+      x-yaver-mock:
+        type: pickone
+        options:
+          - Cash
+          - Bonus
+          - Game
+          - Softplay
+          - Ticket
+          - Guest
+          - Credit
+          - TimeCredit
+          - TimeCash
+          - TimeUnlimited
+    CardStatus:
+      type: string
+      enum:
+        - Active
+        - Passive
+        - Blocked
+      example: Active
+      x-yaver-mock:
+        type: pickone
+        options:
+          - Active
+          - Passive
+          - Blocked

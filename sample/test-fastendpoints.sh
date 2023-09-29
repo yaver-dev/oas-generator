@@ -1,5 +1,5 @@
 #!/bin/bash
-java -cp ../cli/yaver-codegen.jar:../cli/openapi-generator-cli.jar \
+java -cp ../cli/yaver-generator-cli.jar \
 	org.openapitools.codegen.OpenAPIGenerator \
 	generate \
 	-g yaver-cs-fastendpoints \
