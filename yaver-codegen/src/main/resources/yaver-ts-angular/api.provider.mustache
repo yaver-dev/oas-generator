@@ -1,0 +1,17 @@
+import { InjectionToken, makeEnvironmentProviders } from '@angular/core';
+import { {{configurationClassName}} } from './configuration';
+export const {{injectionTokenName}} = new InjectionToken<{{configurationClassName}}>('{{injectionTokenName}}')
+
+export function {{apiProviderName}}(config: {{configurationClassName}}) {
+  // const merged = {
+  //   ...defaultConfig,
+  //   ...config,
+  // };
+
+  return makeEnvironmentProviders([
+    {
+      provide: {{injectionTokenName}},
+      useValue: config,
+    },
+  ]);
+}

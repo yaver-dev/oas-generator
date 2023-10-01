@@ -18,6 +18,7 @@
 package dev.yaver.codegen;
 
 import io.swagger.v3.oas.models.media.Schema;
+
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen;
 import org.openapitools.codegen.meta.features.DocumentationFeature;
@@ -109,8 +110,8 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
         apiTemplateFiles.put("api.service.mustache", ".ts");
         languageSpecificPrimitives.add("Blob");
         typeMapping.put("file", "Blob");
-        apiPackage = "api";
-        modelPackage = "model";
+        apiPackage = "projects/yaverlib/src/services";
+        modelPackage = "projects/yaverlib/src/models";
 
         this.cliOptions.add(new CliOption(NPM_REPOSITORY,
                 "Use this property to set an url your private npmRepo in the package.json"));
@@ -180,22 +181,31 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
     @Override
     public void processOpts() {
         super.processOpts();
+        String libDirectory = getIndexDirectory() + "projects/yaverlib";
+        String srcDirectory = libDirectory + "/src";
+
+        supportingFiles.add(new SupportingFile("angular.mustache", getIndexDirectory(), "angular.json"));
+
+        supportingFiles.add(new SupportingFile("README.mustache", libDirectory, "README.md"));
+        supportingFiles.add(new SupportingFile("lib.package.mustache", libDirectory, "package.json"));
+        supportingFiles.add(new SupportingFile("ng-package.mustache", libDirectory, "ng-package.json"));
+        supportingFiles.add(new SupportingFile("tsconfig.lib.mustache", libDirectory, "tsconfig.lib.json"));
+
         supportingFiles.add(
-                new SupportingFile("models.mustache", modelPackage().replace('.', File.separatorChar), "models.ts"));
+                new SupportingFile("models.mustache",
+                        srcDirectory, "models/models.ts"));
         supportingFiles
-                .add(new SupportingFile("apis.mustache", apiPackage().replace('.', File.separatorChar), "api.ts"));
+                .add(new SupportingFile("apis.mustache",
+                        srcDirectory, "services/api.ts"));
         supportingFiles.add(
-                new SupportingFile("yaver-ui-models.mustache", getIndexDirectory(), "yaver-ui-models.ts"));
-        supportingFiles.add(new SupportingFile("index.mustache", getIndexDirectory(), "index.ts"));
-        supportingFiles.add(new SupportingFile("api.module.mustache", getIndexDirectory(), "api.module.ts"));
-        supportingFiles.add(new SupportingFile("configuration.mustache", getIndexDirectory(), "configuration.ts"));
-        supportingFiles.add(new SupportingFile("variables.mustache", getIndexDirectory(), "variables.ts"));
-        supportingFiles.add(new SupportingFile("encoder.mustache", getIndexDirectory(), "encoder.ts"));
-        supportingFiles.add(new SupportingFile("param.mustache", getIndexDirectory(), "param.ts"));
-        // supportingFiles.add(new SupportingFile("gitignore", "", ".gitignore"));
-        // supportingFiles.add(new SupportingFile("git_push.sh.mustache", "",
-        // "git_push.sh"));
-        supportingFiles.add(new SupportingFile("README.mustache", getIndexDirectory(), "README.md"));
+                new SupportingFile("yaver-ui-models.mustache", srcDirectory, "yaver-ui-models.ts"));
+        supportingFiles.add(new SupportingFile("public-api.mustache", srcDirectory, "public-api.ts"));
+        supportingFiles.add(new SupportingFile("configuration.mustache", srcDirectory, "configuration.ts"));
+        supportingFiles.add(new SupportingFile("variables.mustache", srcDirectory, "variables.ts"));
+        supportingFiles.add(new SupportingFile("encoder.mustache", srcDirectory, "encoder.ts"));
+        supportingFiles.add(new SupportingFile("param.mustache", srcDirectory, "param.ts"));
+
+        supportingFiles.add(new SupportingFile("api.provider.mustache", srcDirectory, "api.provider.ts"));
 
         // determine NG version
         SemVer ngVersion;
@@ -254,25 +264,18 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
 
         additionalProperties.put(NG_VERSION, ngVersion);
 
-        if (additionalProperties.containsKey(API_MODULE_PREFIX)) {
-            String apiModulePrefix = additionalProperties.get(API_MODULE_PREFIX).toString();
-            validateClassPrefixArgument("ApiModule", apiModulePrefix);
-
-            additionalProperties.put("apiModuleClassName", apiModulePrefix + "ApiModule");
-        } else {
-            additionalProperties.put("apiModuleClassName", "ApiModule");
-        }
         if (additionalProperties.containsKey(CONFIGURATION_PREFIX)) {
             String configurationPrefix = additionalProperties.get(CONFIGURATION_PREFIX).toString();
             validateClassPrefixArgument("Configuration", configurationPrefix);
 
             additionalProperties.put("configurationClassName", configurationPrefix + "Configuration");
-            additionalProperties.put("configurationParametersInterfaceName",
-                    configurationPrefix + "ConfigurationParameters");
+            additionalProperties.put("apiProviderName", "provide" + configurationPrefix);
+            additionalProperties.put("injectionTokenName", underscore(configurationPrefix) + "_CONFIG");
         } else {
             additionalProperties.put("configurationClassName", "Configuration");
             additionalProperties.put("configurationParametersInterfaceName", "ConfigurationParameters");
         }
+
         if (additionalProperties.containsKey(SERVICE_SUFFIX)) {
             serviceSuffix = additionalProperties.get(SERVICE_SUFFIX).toString();
             validateClassSuffixArgument("Service", serviceSuffix);
@@ -346,8 +349,6 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
         } else if (ngVersion.atLeast("9.0.0")) {
             additionalProperties.put("rxjsVersion", "6.5.3");
         }
-
-        supportingFiles.add(new SupportingFile("ng-package.mustache", getIndexDirectory(), "ng-package.json"));
 
         // Specific ng-packagr configuration
         if (ngVersion.atLeast("16.0.0")) {
@@ -486,6 +487,9 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
                         insideCurly--;
 
                         pathBuffer.append(paramExpander.buildPathEntry());
+                        String subsitute = "this.configuration.";
+                        pathBuffer = pathBuffer.replace(pathBuffer.indexOf(subsitute),
+                                pathBuffer.indexOf(subsitute) + subsitute.length(), "");
                         hasSomeEncodableParams = true;
                         break;
                     default:

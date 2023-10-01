@@ -1,35 +1,207 @@
 openapi: 3.0.2
+
 servers:
   - description: Local Dev
     url: http://localhost:5000
   - description: Mock Service
-    url: https://mocker.test.opiscloud.com/OpisMobileB2CClient
+    url: https://mock.api.opiscloud.com/admin
+  - description: Dev Api
+    url: https://dev.api.opiscloud.com/admin
+  - description: Test Api
+    url: https://test.api.opiscloud.com/admin
+  - description: Prod Api
+    url: https://api.opiscloud.com/admin
+
 info:
-  title: Opis Mobile Customer Api
-  description: Opis Mobile Customer Services Documentation
+  title: Opis Admin Api
+  description: Opis Admin Services Documentation
   contact:
     email: admin@albatr.com
-  version: v1
+  version: 'v1'
+
 tags:
+  - name: Database Servers
+    description: Database server management operations
   - name: Tenants
-    description: Mobile tenants operations
-  - name: Campaigns
-    description: Mobile campaigns operations
-  - name: Tariffs
-    description: Mobile tariffs operations
-  - name: Cards
-    description: Mobile cards operations
-  - name: Modules
-    description: Mobile module operations
-  - name: Notifications
-    description: Mobile notifications operations
+    description: Tenant management operations
+  - name: Machine Types
+    description: Machine Types management operations
+
 paths:
+  # Database Servers----------------------------------------------------
+
+  /database-servers:
+    post:
+      tags:
+        - Database Servers
+      summary: Creates new database server
+      description: Creates new database server
+      operationId: createDatabaseServer
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+      requestBody:
+        description: Create database server request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseServerViewModel'
+        required: true
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedResponseModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+            Location:
+              $ref: '#/components/headers/Location'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        409:
+          $ref: '#/components/responses/Conflict'
+      security:
+        - OpenID: [hedehodo, zurnas]
+
+    get:
+      tags:
+        - Database Servers
+      description: Get all database servers
+      operationId: getDatabaseServers
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Term'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseServerListModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+      security:
+        - bearerAuth: [hedehodo]
+
+  /database-servers/{id}:
+    get:
+      tags:
+        - Database Servers
+      summary: Get specified database server
+      description: Get specified database server
+      operationId: getDatabaseServer
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/IdParameter'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseServerViewModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: [hedehodo]
+
+    patch:
+      tags:
+        - Database Servers
+      summary: Updates database server
+      description: Updates database server
+      operationId: updateDatabaseServer
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/IdParameter'
+      requestBody:
+        description: Database server update request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseServerViewModel'
+        required: true
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: [hedehodo]
+
+    delete:
+      tags:
+        - Database Servers
+      summary: Deletes database server
+      description: Deletes database server
+      operationId: deleteDatabaseServer
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/IdParameter'
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: [hedehodo]
+
+    # Tenants----------------------------------------------------
   /tenants:
+    post:
+      tags:
+        - Tenants
+      summary: Creates new tenant
+      description: Creates new tenant
+      operationId: createTenant
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+      requestBody:
+        description: Create tenant request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantCreateModel'
+        required: true
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedResponseModel'
+          headers:
+            Content-Language:
+              $ref: '#/components/headers/Content-Language'
+            Location:
+              $ref: '#/components/headers/Location'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        409:
+          $ref: '#/components/responses/Conflict'
+      security:
+        - OpenID: [write]
+
     get:
       tags:
         - Tenants
-      summary: Get all Tenants
-      description: List of all Tenants
+      summary: Get all tenants
+      description: Get all tenants
       operationId: getTenants
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
@@ -38,7 +210,7 @@ paths:
         - $ref: '#/components/parameters/Term'
         - $ref: '#/components/parameters/Sort'
       responses:
-        '200':
+        200:
           description: Success
           content:
             application/json:
@@ -47,265 +219,131 @@ paths:
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
-  /tenants/{tenantIdentifier}:
+        400:
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - OAuth2: [read]
+
+  /tenants/{id}:
     get:
       tags:
         - Tenants
-      summary: Get Tenant by Id
-      description: Get Tenants by Id
+      summary: Get tenant
+      description: Get tenant
       operationId: getTenant
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
+        - $ref: '#/components/parameters/IdParameter'
       responses:
-        '200':
+        200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TenantModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
+                $ref: '#/components/schemas/TenantViewModel'
+        400:
           $ref: '#/components/responses/BadRequest'
-        '404':
+        404:
           $ref: '#/components/responses/NotFound'
-  /tenants/{tenantIdentifier}/campaigns:
-    get:
-      tags:
-        - Campaigns
-      summary: Get Mobile Campaign
-      description: Get Mobile Campaign
-      operationId: getCampaign
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
 
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CampaignListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /tenants/{tenantIdentifier}/campaigns/{campaignId}:
-    get:
+    patch:
       tags:
-        - Campaigns
-      summary: Get Mobile Campaign
-      description: Get Mobile Campaign
-      operationId: getCampaigns
+        - Tenants
+      summary: Update tenant
+      description: Update tenant
+      operationId: updateTenant
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
-        - $ref: '#/components/parameters/CampaignIdParameter'
-
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CampaignModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /tenants/{tenantIdentifier}/campaigns/{campaignId}/tariffs:
-    get:
-      tags:
-        - Tariffs
-      summary: Get all Mobile Tariffs by tenant identifier
-      description: Get all mobile platform tariffs by tenant identifier
-      operationId: getTariffs
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
-        - $ref: '#/components/parameters/CampaignIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TariffListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /tenants/{tenantIdentifier}/campaigns/{campaignId}/tariffs/{tariffId}:
-    get:
-      tags:
-        - Tariffs
-      summary: Get Tariff
-      description: Get tariff by Id
-      operationId: getTariff
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
-        - $ref: '#/components/parameters/CampaignIdParameter'
-        - $ref: '#/components/parameters/TariffIdParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TariffModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /tenants/{tenantIdentifier}/cards/{cardNo}/transactions:
-    get:
-      tags:
-        - Cards
-      summary: Get Card Transactions
-      description: Get card transactions by cardNo
-      operationId: getCardTransactions
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
-        - $ref: '#/components/parameters/CardNoParameter'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CardTransactionListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /tenants/{tenantIdentifier}/modules/{moduleId}/lock:
-    post:
-      tags:
-        - Modules
-      summary: Lock Module
-      description: Lock module
-      operationId: lockModule
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/ModuleIdParameter'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
+        - $ref: '#/components/parameters/IdParameter'
+      # requestBody:
+      #   content:
+      #     multipart/form-data:
+      #       schema:
+      #         $ref: "#/components/schemas/TenantUpdateModel"
+      #   required: true
       requestBody:
-        description: lock Module
-        required: true
+        description: update tenant request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ModuleLockRequestModel'
+              $ref: '#/components/schemas/TenantViewModel'
+        required: true
       responses:
-        '201':
-          description: locked
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ModuleLockModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
           $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: [hedehodo]
+
     delete:
       tags:
-        - Modules
-      summary: delete lock Module
-      description: cancel locked module
-      operationId: deleteLockModule
+        - Tenants
+      summary: Delete tenant
+      description: Delete tenant
+      operationId: deleteTenant
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/ModuleIdParameter'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
+        - $ref: '#/components/parameters/IdParameter'
       responses:
-        '204':
-          description: lock released
-        '400':
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
           $ref: '#/components/responses/BadRequest'
-        '404':
+        404:
           $ref: '#/components/responses/NotFound'
-  /tenants/{tenantIdentifier}/modules/{moduleId}/play:
+      security:
+        - bearerAuth: [hedehodo]
+
+    # Machine Types----------------------------------------------------
+
+  /machine-types:
     post:
       tags:
-        - Modules
-      summary: Play Module
-      description: Play Module
-      operationId: playModule
-      parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/ModuleIdParameter'
-        - $ref: '#/components/parameters/TenantIdentifierParameter'
-      requestBody:
-        description: play Module
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ModulePlayRequestModel'
-      responses:
-        '204':
-          description: Module started
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /cards:
-    post:
-      tags:
-        - Cards
-      summary: Create User Card
-      description: Create user card by userId
-      operationId: createUserCard
+        - Machine Types
+      summary: Create new machine-type for tenant
+      description: Create new machine-type for tenant
+      operationId: createMachineType
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
       requestBody:
-        description: Create user card
-        required: true
+        description: Create machine-type request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CardRequestModel'
+              $ref: '#/components/schemas/MachineTypeViewModel'
+        required: true
       responses:
-        '201':
-          description: Card created
+        201:
+          description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CardModel'
+                $ref: '#/components/schemas/CreatedResponseModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
-        '400':
+            Location:
+              $ref: '#/components/headers/Location'
+        400:
           $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          $ref: '#/components/responses/Conflict'
+      security:
+        - bearerAuth: [hedehodo]
+
     get:
       tags:
-        - Cards
-      summary: Get User Cards
-      description: Get user cards by userId
-      operationId: getUserCards
+        - Machine Types
+      summary: Get all machine-type of tenant
+      description: Get all machine-type of tenant
+      operationId: getMachineTypes
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
         - $ref: '#/components/parameters/Offset'
@@ -313,68 +351,94 @@ paths:
         - $ref: '#/components/parameters/Term'
         - $ref: '#/components/parameters/Sort'
       responses:
-        '200':
+        200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CardListModel'
+                $ref: '#/components/schemas/MachineTypeListModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
-        '400':
+        400:
           $ref: '#/components/responses/BadRequest'
-        '404':
+        404:
           $ref: '#/components/responses/NotFound'
-  /cards/{cardNo}:
+      security:
+        - bearerAuth: [hedehodo]
+
+  /machine-types/{id}:
     get:
       tags:
-        - Cards
-      summary: Get User Card
-      description: Get user card by userId
-      operationId: getUserCard
+        - Machine Types
+      summary: Get tenant machine-type
+      description: Get tenant machine-type
+      operationId: getMachineType
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/CardNoParameter'
+        - $ref: '#/components/parameters/IdParameter'
       responses:
-        '200':
+        200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CardModel'
+                $ref: '#/components/schemas/MachineTypeViewModel'
           headers:
             Content-Language:
               $ref: '#/components/headers/Content-Language'
-        '400':
+        400:
           $ref: '#/components/responses/BadRequest'
-        '404':
+        404:
           $ref: '#/components/responses/NotFound'
-  /notifications:
-    get:
+      security:
+        - bearerAuth: [hedehodo]
+
+    patch:
       tags:
-        - Notifications
-      summary: Get User Notifications
-      description: Get user notifications by userId
-      operationId: getUserNotifications
+        - Machine Types
+      summary: Update tenant machine-type
+      description: Update tenant machine-type
+      operationId: updateMachineType
       parameters:
         - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/IdParameter'
+      requestBody:
+        description: Create machine-type request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MachineTypeViewModel'
+        required: true
       responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationListModel'
-          headers:
-            Content-Language:
-              $ref: '#/components/headers/Content-Language'
-        '400':
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
           $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: [hedehodo]
+
+    delete:
+      tags:
+        - Machine Types
+      summary: Delete tenant machine-type
+      description: Delete tenant machine-type
+      operationId: deleteMachineType
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: '#/components/parameters/IdParameter'
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: [hedehodo]
+
 components:
   headers:
     Location:
@@ -382,7 +446,6 @@ components:
         type: string
         format: url
       description: A link to created resource
-      example: https://www.istanbul.com
     Content-Language:
       schema:
         type: string
@@ -391,6 +454,11 @@ components:
           - en-US
       description: the language(s) intended for the audience
       example: tr-TR
+    X-Total-Count:
+      schema:
+        type: integer
+      description: Total items count
+      example: 3
     X-RateLimit-Limit:
       schema:
         type: integer
@@ -402,7 +470,9 @@ components:
     X-RateLimit-Reset:
       schema:
         type: string
+        format: date-time
       description: The UTC date/time at which the current rate limit window resets.
+
   parameters:
     AcceptLanguageParameter:
       name: Accept-Language
@@ -437,132 +507,498 @@ components:
     Term:
       name: term
       in: query
-      description: Filter argument in which to retrieve the results. Basic text search on relevant fields
+      description:
+        Filter argument in which to retrieve the results. Basic text search on
+        relevant fields
       schema:
         type: string
-        default: isim
+        default: ''
     Sort:
       name: sort
       in: query
-      description: Order in which to retrieve the results. Multiple sort criteria can not be passed
+      description:
+        Order in which to retrieve the results. Multiple sort criteria can not
+        be passed
       schema:
         type: string
-        default: name
-    TenantIdentifierParameter:
-      name: tenantIdentifier
+        default: ''
+    IdParameter:
+      name: id
       in: path
-      required: true
-      schema:
-        type: string
-        example: funnycenter1
-      description: Tenant Identifier
-    CampaignIdParameter:
-      name: campaignId
-      in: path
-      required: true
       schema:
         type: string
         format: uuid
-      description: Campaign Id
-    TariffIdParameter:
-      name: tariffId
-      in: path
       required: true
-      schema:
-        type: string
-        format: uuid
-      description: Tariff Id
-    CardNoParameter:
-      name: cardNo
-      in: path
-      required: true
-      schema:
-        type: string
-      description: Card No
-    ModuleIdParameter:
-      name: moduleId
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-      description: Module Id
+      description: Resource Id
+
   responses:
     BadRequest:
       description: The specified resource was not valid
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              code:
-                type: string
-                example: fC9LZX
-              title:
-                type: string
-                example: Invalid request parameters
-              detail:
-                type: string
-                example: The provided resource parameters are not valid.
-              errors:
-                type: array
-                items:
-                  type: string
-                  example: validation error message
-            required:
-              - code
-              - title
-              - detail
+            $ref: '#/components/schemas/ErrorViewModel'
       headers:
         Content-Language:
+          $ref: '#/components/headers/Content-Language'
+    Conflict:
+      description: The specified resource already persisted
+      content:
+        application/json:
           schema:
-            type: string
-            enum:
-              - tr-TR
-              - en-US
-          description: the language(s) intended for the audience
-          example: tr-TR
+            $ref: '#/components/schemas/ErrorViewModel'
+      headers:
+        Content-Language:
+          $ref: '#/components/headers/Content-Language'
     NotFound:
       description: The specified resource was not found
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              code:
-                type: string
-                example: fC9LZX
-              title:
-                type: string
-                example: Invalid request parameters
-              detail:
-                type: string
-                example: The provided resource parameters are not valid.
-              errors:
-                type: array
-                items:
-                  type: string
-                  example: validation error message
-            required:
-              - code
-              - title
-              - detail
+            $ref: '#/components/schemas/ErrorViewModel'
       headers:
         Content-Language:
+          $ref: '#/components/headers/Content-Language'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
           schema:
-            type: string
-            enum:
-              - tr-TR
-              - en-US
-          description: the language(s) intended for the audience
-          example: tr-TR
+            $ref: '#/components/schemas/ErrorViewModel'
+      headers:
+        Content-Language:
+          $ref: '#/components/headers/Content-Language'
+    NoContent:
+      description: No Content
+
   securitySchemes:
-    bearer:
-      type: apiKey
-      name: Authorization
-      in: header
-      description: 'Authorization header using the Bearer scheme. Ex: "Authorization: Bearer {token}"'
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes: {}
+    OpenID:
+      type: openIdConnect
+      openIdConnectUrl: https://qpay-auth.test.agr.ist/realms/employees/.well-known/openid-configuration
+
   schemas:
+    ErrorViewModel:
+      type: object
+      properties:
+        code:
+          type: string
+          example: fC9LZX
+        title:
+          type: string
+          example: Invalid request parameters
+        detail:
+          type: string
+          example: The provided resource parameters are not valid.
+        errors:
+          type: array
+          items:
+            type: string
+            example: validation error message
+      required:
+        - code
+        - title
+        - detail
+
+    CreatedResponseModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+    # Database Servers----------------------------------------------------
+    DatabaseServerViewModel:
+      type: object
+      required:
+        - host
+        - port
+        - name
+        - connectionStringFormat
+        - type
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-ui:
+            type: INPUT
+            inputType: hidden
+          x-yaver-mock:
+            type: guid
+        host:
+          type: string
+          example: opis.database.windows.net
+          x-validator-email: true
+          x-message-email: err.creditcard
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.databaseServer.host
+            label: label.databaseServer.host
+          x-yaver-mock:
+            type: domain
+        port:
+          type: integer
+          example: 5432
+          x-yaver-ui:
+            type: INPUT
+            inputType: number
+            placeholder: placeholder.databaseServer.port
+            label: label.databaseServer.port
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 10000
+              max: 60000
+        name:
+          type: string
+          example: opis-staging
+          x-message-required: err.required
+          maxLength: 20
+          x-message-maxLength: err.maxLength
+          minLength: 5
+          x-message-minLength: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.databaseServer.name
+            label: label.databaseServer.name
+          x-yaver-mock:
+            type: word
+        connectionStringFormat:
+          type: string
+          x-validator-creditcard: true
+          x-message-creditcard: err.creditcard
+          example: Server={0};Port={1};Database={2};User Id={3};Password={4};
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.databaseServer.connectionStringFormat
+            label: label.databaseServer.connectionStringFormat
+          x-yaver-mock:
+            type: word
+        isDefault:
+          type: boolean
+          x-yaver-ui:
+            type: SWITCH
+            placeholder: placeholder.databaseServer.isDefault
+            label: label.databaseServer.isDefault
+          x-yaver-mock:
+            type: bool
+        isAvailable:
+          type: boolean
+          x-yaver-ui:
+            type: SWITCH
+            placeholder: placeholder.databaseServer.isAvailable
+            label: label.databaseServer.isAvailable
+          x-yaver-mock:
+            type: bool
+    DatabaseServerListItemModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+        host:
+          type: string
+          example: opis.database.windows.net
+          x-yaver-mock:
+            type: domain
+        port:
+          type: integer
+          example: 5432
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 10000
+              max: 60000
+        name:
+          type: string
+          example: opis-stating
+          x-yaver-mock:
+            type: word
+        connectionStringFormat:
+          type: string
+          example: Server={0};Port={1};Database={2};User Id={3};Password={4};
+          x-yaver-mock:
+            type: word
+        isDefault:
+          type: boolean
+          example: true
+          x-yaver-mock:
+            type: bool
+        isAvailable:
+          type: boolean
+          example: true
+          x-yaver-mock:
+            type: bool
+    DatabaseServerListModel:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          description: Total items count
+          x-yaver-mock:
+            type: integer
+            options:
+              min: 0
+              max: 30
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatabaseServerListItemModel'
+      example:
+        totalCount: 1
+        items:
+          - id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+            host: demo.database.linux.net
+            port: 5432
+            name: opis-staging
+            connectionStringFormat: Server={0};Port={1};Database={2};User Id={3};Password={4};
+            isDefault: true
+
+            status: available
+    # Tenants-------------------------------------------------------------
+    TenantCreateModel:
+      type: object
+      properties:
+        databaseId:
+          type: string
+          format: uuid
+          x-yaver-validators:
+            - type: required
+              message: err.required
+          x-yaver-ui:
+            type: SELECT
+            placeholder: placeholder.tenant.dbid
+            label: label.tenant.dbid
+        identifier:
+          type: string
+          example: caremark
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: pattern
+              param: ^([a-z]\w*){6,32}$
+              message: err.tenant.invalid-identifier
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.identifier
+            label: label.tenant.identifier
+        name:
+          type: string
+          example: ALBA  Health and Beauty Care Ltd.
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: maxLength
+              param: 128
+              message: err.maxLength
+            - type: minLength
+              param: 2
+              message: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.name
+            label: label.tenant.name
+        brand:
+          type: string
+          example: OPIS
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: maxLength
+              param: 128
+              message: err.maxLength
+            - type: minLength
+              param: 2
+              message: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.brand
+            label: label.tenant.brand
+
+    TenantViewModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-mock:
+            type: guid
+          x-yaver-ui:
+            type: INPUT
+            inputType: hidden
+        databaseId:
+          type: string
+          format: uuid
+          x-yaver-ui:
+            type: SELECT
+            placeholder: placeholder.tenant.dbid
+            label: label.tenant.dbid
+        identifier:
+          type: string
+          example: caremark
+          x-yaver-mock:
+            type: word
+            options:
+              length: 5
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.identifier
+            label: label.tenant.identifier
+        name:
+          type: string
+          example: Caremark Health and Beauty Care Ltd.
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: maxLength
+              param: 128
+              message: err.maxLength
+            - type: minLength
+              param: 2
+              message: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.name
+            label: label.tenant.name
+          x-yaver-mock:
+            type: company
+        brand:
+          type: string
+          example: Caremark
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: maxLength
+              param: 128
+              message: err.maxLength
+            - type: minLength
+              param: 2
+              message: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.brand
+            label: label.tenant.brand
+          x-yaver-mock:
+            type: word
+            options:
+              length: 5
+        authorizedPerson:
+          type: string
+          example: Pembe Panter
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: maxLength
+              param: 64
+              message: err.maxLength
+            - type: minLength
+              param: 2
+              message: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.authorizedPerson
+            label: label.tenant.authorizedPerson
+          x-yaver-mock:
+            type: name
+        email:
+          type: string
+          example: pembe@panter.com
+          x-yaver-validators:
+            - type: email
+              message: err.invalid-email
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.email
+            label: label.tenant.email
+          x-yaver-mock:
+            type: email
+        phoneNumber:
+          type: string
+          example: '+905321234567'
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.phone
+            label: label.tenant.phone
+          x-yaver-mock:
+            type: phone
+        address:
+          type: string
+          example: Falanca Avenue, Filanca Street, 12345, Istanbul, Turkey
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: maxLength
+              param: 128
+              message: err.maxLength
+            - type: minLength
+              param: 2
+              message: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.address
+            label: label.tenant.address
+          x-yaver-mock:
+            type: address
+        defaultCardKey:
+          type: string
+          example: AABBCCDDEEFF
+          x-yaver-validators:
+            - type: maxLength
+              param: 12
+              message: err.maxLength
+            - type: minLength
+              param: 12
+              message: err.minLength
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: label.tenant.cardKey
+        logoUrl:
+          type: string
+          example: https://picsum.photos/536/354
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.tenant.logoUrl
+            label: label.tenant.logoUrl
+          x-yaver-mock:
+            type: fixed
+            options:
+              value: https://picsum.photos/536/354
+        isActive:
+          type: boolean
+          example: true
+          x-yaver-ui:
+            type: SWITCH
+            label: label.tenant.isActive
+          x-yaver-mock:
+            type: bool
+
     TenantListModel:
       type: object
       properties:
@@ -578,6 +1014,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TenantListItemModel'
+
     TenantListItemModel:
       type: object
       properties:
@@ -588,401 +1025,112 @@ components:
             type: guid
         identifier:
           type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        name:
-          type: string
-          example: Mert Park
-          x-yaver-mock:
-            type: company
-        logoUrl:
-          type: string
-          example: shorturl.at/EJZ04
-          x-yaver-mock:
-            type: fixed
-            options:
-              value: https://picsum.photos/536/354
-    TenantModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        identifier:
-          type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        name:
-          type: string
-          example: Mert Park
-          x-yaver-mock:
-            type: company
-        logoUrl:
-          type: string
-          example: shorturl.at/EJZ04
-          x-yaver-mock:
-            type: fixed
-            options:
-              value: https://picsum.photos/536/354
-    CampaignListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 30
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CampaignListItemModel'
-    CampaignListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          example: Mobile Campaigns
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 2
-        tenantIdentifier:
-          type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        isActive:
-          type: boolean
-          example: false
-          x-yaver-mock:
-            type: bool
-    CampaignModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          example: Mobile Campaigns
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 2
-        tenantIdentifier:
-          type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        description:
-          type: string
-          example: 23 Nisan Çocuk bayramı kampanyası
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 5
-        isActive:
-          type: boolean
-          example: false
-          x-yaver-mock:
-            type: bool
-        startDate:
-          type: string
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-mock:
-            type: isodate
-        endDate:
-          type: string
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-mock:
-            type: isodate
-    TariffListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 30
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TariffListItemModel'
-    TariffListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        campaignId:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        price:
-          type: number
-          example: 100
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 100
-              max: 300
-        bonus:
-          type: number
-          example: 50
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 10
-              max: 60
-        credit:
-          type: number
-          example: 50
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 10
-              max: 60
-    TariffModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        campaignId:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        price:
-          type: number
-          example: 100
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 100
-              max: 300
-        bonus:
-          type: number
-          example: 50
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 10
-              max: 60
-        credit:
-          type: number
-          example: 50
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 10
-              max: 60
-    CardTransactionListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 30
-        items:
-          $ref: '#/components/schemas/CardTransactionTypes'
-    CardTransactionListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        cardNo:
-          type: string
-          example: '1234567890123456'
-          x-yaver-mock:
-            type: cc
-        description:
-          type: string
-          example: Mizbo Oyun
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 3
-        createdAt:
-          type: string
-          description: transaction created date
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-mock:
-            type: isodate
-        startDate:
-          type: string
-          description: transaction start date
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-mock:
-            type: isodate
-        endDate:
-          type: string
-          description: transaction end date
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-mock:
-            type: isodate
-        types:
-          $ref: '#/components/schemas/CardTypeModel'
-        amount:
-          type: number
-          format: float
-          example: 100
-          x-yaver-mock:
-            type: floating
-            options:
-              min: 100
-              max: 300
-    ModuleLockRequestModel:
-      type: object
-      properties:
-        tenantIdentifier:
-          type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        moduleId:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-    ModuleLockModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        module:
-          $ref: '#/components/schemas/ModuleModel'
-    ModuleModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        price:
-          type: number
-          example: 100
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 50
-              max: 200
-        machine:
-          $ref: '#/components/schemas/MachineModel'
-    MachineModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        name:
-          type: string
-          example: mizbo
+          example: caremark
           x-yaver-mock:
             type: word
             options:
               length: 5
+        name:
+          type: string
+          example: Caremark Health and Beauty Care Ltd.
+          x-yaver-mock:
+            type: company
+        brand:
+          type: string
+          example: Caremark
+          x-yaver-mock:
+            type: word
+            options:
+              length: 5
+        isActive:
+          type: boolean
+          example: true
+          x-yaver-mock:
+            type: bool
+
+    # Machine Types-------------------------------------------------------
+
+    MachineTypeViewModel:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          x-yaver-ui:
+            type: INPUT
+            inputType: hidden
+          x-yaver-mock:
+            type: guid
+        name:
+          type: string
+          example: Sumac
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.machineType.name
+            label: label.machineType.name
+          x-yaver-validators:
+            - type: required
+              message: err.required
+            - type: minLength
+              param: 2
+              message: err.minLength
+          x-yaver-mock:
+            type: animal
+        description:
+          type: string
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.machineType.description
+            label: label.machineType.description
+          x-yaver-mock:
+            type: sentence
+        manufacturer:
+          type: string
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.machineType.manufacturer
+            label: label.machineType.manufacturer
+          x-yaver-mock:
+            type: company
+        dimensions:
+          type: string
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.machineType.dimensions
+            label: label.machineType.dimensions
         imageUrl:
           type: string
-          example: shorturl.at/EJZ04
+          x-yaver-ui:
+            type: INPUT
+            inputType: text
+            placeholder: placeholder.machineType.imageUrl
+            label: label.machineType.imageUrl
           x-yaver-mock:
             type: fixed
             options:
               value: https://picsum.photos/536/354
-    ModulePlayRequestModel:
+    MachineTypeListItemModel:
       type: object
       properties:
-        tenantIdentifier:
-          type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        moduleId:
+        id:
           type: string
           format: uuid
           x-yaver-mock:
             type: guid
-    CardRequestModel:
-      type: object
-      properties:
-        tenantIdentifier:
+        name:
           type: string
-          example: funnycenter1
+          example: Sumac
           x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        type:
+            type: animal
+        manufacturer:
           type: string
-          enum:
-            - Cash
-            - Bonus
-            - Ticket
-            - Credit
-            - Guest
-            - TimeCredit
-            - TimeCash
-            - TimeUnlimited
-          example: Cash
           x-yaver-mock:
-            type: pickone
-            options:
-              - Cash
-              - Bonus
-              - Ticket
-              - Credit
-              - Guest
-              - TimeCredit
-              - TimeCash
-              - TimeUnlimited
-    CardListModel:
+            type: company
+    MachineTypeListModel:
       type: object
       properties:
         totalCount:
@@ -996,165 +1144,4 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/CardListItemModel'
-    CardListItemModel:
-      type: object
-      properties:
-        cardNo:
-          type: string
-          example: '1234567890123456'
-          x-yaver-mock:
-            type: cc
-        tenantIdentifier:
-          type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        cardTypes:
-          type: array
-          items:
-            $ref: '#/components/schemas/CardTransactionTypes'
-    CardTypeModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        balance:
-          type: number
-          format: double
-          example: 100
-          x-yaver-mock:
-            type: floating
-            options:
-              min: 100
-              max: 300
-        type:
-          $ref: '#/components/schemas/CardTransactionTypes'
-        expirationDate:
-          type: number
-          example: 100
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 100
-              max: 300
-        startDate:
-          type: string
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-mock:
-            type: isodate
-        status:
-          $ref: '#/components/schemas/CardStatus'
-    CardModel:
-      type: object
-      properties:
-        cardNo:
-          type: string
-          example: '1234567890123456'
-          x-yaver-mock:
-            type: cc
-        tenantIdentifier:
-          type: string
-          example: funnycenter1
-          x-yaver-mock:
-            type: word
-            options:
-              length: 8
-        cardTypes:
-          type: array
-          items:
-            $ref: '#/components/schemas/CardTypeModel'
-    NotificationListModel:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          description: Total items count
-          x-yaver-mock:
-            type: integer
-            options:
-              min: 0
-              max: 30
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationListItemModel'
-    NotificationListItemModel:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          x-yaver-mock:
-            type: guid
-        title:
-          type: string
-          example: 'Notification Title'
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 3
-        description:
-          type: string
-          example: 'Notification Description'
-          x-yaver-mock:
-            type: sentence
-            options:
-              words: 5
-        isRead:
-          type: boolean
-          example: false
-          x-yaver-mock:
-            type: bool
-        createdAt:
-          type: string
-          example: '2020-01-01T00:00:00.000Z'
-          x-yaver-mock:
-            type: isodate
-    CardTransactionTypes:
-      type: string
-      enum:
-        - Cash
-        - Bonus
-        - Game
-        - Softplay
-        - Ticket
-        - Credit
-        - Guest
-        - TimeCredit
-        - TimeCash
-        - TimeUnlimited
-      example: Cash
-      x-message-enum: 'Cash,Bonus,Game,Softplay,Ticket,Credit,Guest,TimeCredit,TimeCash,TimeUnlimited'
-
-      x-yaver-mock:
-        type: pickone
-        options:
-          - Cash
-          - Bonus
-          - Game
-          - Softplay
-          - Ticket
-          - Guest
-          - Credit
-          - TimeCredit
-          - TimeCash
-          - TimeUnlimited
-    CardStatus:
-      type: string
-      enum:
-        - Active
-        - Passive
-        - Blocked
-      example: Active
-      x-yaver-mock:
-        type: pickone
-        options:
-          - Active
-          - Passive
-          - Blocked
+            $ref: '#/components/schemas/MachineTypeListItemModel'

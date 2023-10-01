@@ -1,3 +1,5 @@
+import { HttpParams } from '@angular/common/http';
+
 /**
  * Standard parameter styles defined by OpenAPI spec
  */
@@ -8,8 +10,7 @@ export type StandardParamStyle =
   | 'simple'
   | 'spaceDelimited'
   | 'pipeDelimited'
-  | 'deepObject'
-  ;
+  | 'deepObject';
 
 /**
  * The OpenAPI standard {@link StandardParamStyle}s may be extended by custom styles by the user.
@@ -25,13 +26,12 @@ export type ParamLocation = 'query' | 'header' | 'path' | 'cookie';
  * Standard types as defined in <a href="https://swagger.io/specification/#data-types">OpenAPI Specification: Data Types</a>
  */
 export type StandardDataType =
-  | "integer"
-  | "number"
-  | "boolean"
-  | "string"
-  | "object"
-  | "array"
-  ;
+  | 'integer'
+  | 'number'
+  | 'boolean'
+  | 'string'
+  | 'object'
+  | 'array';
 
 /**
  * Standard {@link DataType}s plus your own types/classes.
@@ -42,16 +42,15 @@ export type DataType = StandardDataType | string;
  * Standard formats as defined in <a href="https://swagger.io/specification/#data-types">OpenAPI Specification: Data Types</a>
  */
 export type StandardDataFormat =
-  | "int32"
-  | "int64"
-  | "float"
-  | "double"
-  | "byte"
-  | "binary"
-  | "date"
-  | "date-time"
-  | "password"
-  ;
+  | 'int32'
+  | 'int64'
+  | 'float'
+  | 'double'
+  | 'byte'
+  | 'binary'
+  | 'date'
+  | 'date-time'
+  | 'password';
 
 export type DataFormat = StandardDataFormat | string;
 
@@ -62,8 +61,155 @@ export interface Param {
   name: string;
   value: unknown;
   in: ParamLocation;
-  style: ParamStyle,
+  style: ParamStyle;
   explode: boolean;
   dataType: DataType;
   dataFormat: DataFormat | undefined;
 }
+
+export const addToHttpParams = (
+  httpParams: HttpParams,
+  value: any,
+  key?: string
+): HttpParams => {
+  if (typeof value === 'object' && value instanceof Date === false) {
+    httpParams = addToHttpParamsRecursive(httpParams, value);
+  } else {
+    httpParams = addToHttpParamsRecursive(httpParams, value, key);
+  }
+  return httpParams;
+};
+
+const addToHttpParamsRecursive = (
+  httpParams: HttpParams,
+  value?: any,
+  key?: string
+): HttpParams => {
+  if (value == null) {
+    return httpParams;
+  }
+
+  if (typeof value === 'object') {
+    if (Array.isArray(value)) {
+      (value as any[]).forEach(
+        (elem) => (httpParams = addToHttpParamsRecursive(httpParams, elem, key))
+      );
+    } else if (value instanceof Date) {
+      if (key != null) {
+        httpParams = httpParams.append(
+          key,
+          (value as Date).toISOString().substring(0, 10)
+        );
+      } else {
+        throw Error('key may not be null if value is Date');
+      }
+    } else {
+      Object.keys(value).forEach(
+        (k) =>
+          (httpParams = addToHttpParamsRecursive(
+            httpParams,
+            value[k],
+            key != null ? `${key}.${k}` : k
+          ))
+      );
+    }
+  } else if (key != null) {
+    httpParams = httpParams.append(key, value);
+  } else {
+    throw Error('key may not be null if value is not object or array');
+  }
+  return httpParams;
+};
+
+/**
+ * Select the correct accept content-type to use for a request.
+ * Uses {@link Configuration#isJsonMime} to determine the correct accept content-type.
+ * If no content type is found return the first found type if the contentTypes is not empty
+ * @param accepts - the array of content types that are available for selection.
+ * @returns the selected content-type or <code>undefined</code> if no selection could be made.
+ */
+export const selectHeaderAccept = (accepts: string[]): string | undefined => {
+  if (accepts.length === 0) {
+    return undefined;
+  }
+
+  const type = accepts.find((x: string) => isJsonMime(x));
+  if (type === undefined) {
+    return accepts[0];
+  }
+  return type;
+};
+
+/**
+ * Check if the given MIME is a JSON MIME.
+ * JSON MIME examples:
+ *   application/json
+ *   application/json; charset=UTF8
+ *   APPLICATION/JSON
+ *   application/vnd.company+json
+ * @param mime - MIME (Multipurpose Internet Mail Extensions)
+ * @return True if the given MIME is JSON, false otherwise.
+ */
+export const isJsonMime = (mime: string): boolean => {
+  const jsonMime: RegExp = new RegExp(
+    '^(application/json|[^;/ \t]+/[^;/ \t]+[+]json)[ \t]*(;.*)?$',
+    'i'
+  );
+  return (
+    mime !== null &&
+    (jsonMime.test(mime) ||
+      mime.toLowerCase() === 'application/json-patch+json')
+  );
+};
+
+export const encodeParam = (param: Param): string => {
+  // This implementation exists as fallback for missing configuration
+  // and for backwards compatibility to older typescript-angular generator versions.
+  // It only works for the 'simple' parameter style.
+  // Date-handling only works for the 'date-time' format.
+  // All other styles and Date-formats are probably handled incorrectly.
+  //
+  // But: if that's all you need (i.e.: the most common use-case): no need for customization!
+
+  const value =
+    param.dataFormat === 'date-time' && param.value instanceof Date
+      ? (param.value as Date).toISOString()
+      : param.value;
+
+  return encodeURIComponent(String(value));
+};
+
+/**
+ * Select the correct content-type to use for a request.
+ * Uses {@link Configuration#isJsonMime} to determine the correct content-type.
+ * If no content type is found return the first found type if the contentTypes is not empty
+ * @param contentTypes - the array of content types that are available for selection
+ * @returns the selected content-type or <code>undefined</code> if no selection could be made.
+ */
+export const selectHeaderContentType = (
+  contentTypes: string[]
+): string | undefined => {
+  if (contentTypes.length === 0) {
+    return undefined;
+  }
+
+  const type = contentTypes.find((x: string) => isJsonMime(x));
+  if (type === undefined) {
+    return contentTypes[0];
+  }
+  return type;
+};
+
+/**
+ * @param consumes string[] mime-types
+ * @return true: consumes contains 'multipart/form-data', false: otherwise
+ */
+export const canConsumeForm = (consumes: string[]): boolean => {
+  const form = 'multipart/form-data';
+  for (const consume of consumes) {
+    if (form === consume) {
+      return true;
+    }
+  }
+  return false;
+};
