@@ -110,8 +110,8 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
         apiTemplateFiles.put("api.service.mustache", ".ts");
         languageSpecificPrimitives.add("Blob");
         typeMapping.put("file", "Blob");
-        apiPackage = "projects/yaverlib/src/services";
-        modelPackage = "projects/yaverlib/src/models";
+        apiPackage = "src/services";
+        modelPackage = "src/models";
 
         this.cliOptions.add(new CliOption(NPM_REPOSITORY,
                 "Use this property to set an url your private npmRepo in the package.json"));
@@ -181,15 +181,18 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
     @Override
     public void processOpts() {
         super.processOpts();
-        String libDirectory = getIndexDirectory() + "projects/yaverlib";
+        String libDirectory = getIndexDirectory();// + "projects/yaverlib";
         String srcDirectory = libDirectory + "/src";
 
-        supportingFiles.add(new SupportingFile("angular.mustache", getIndexDirectory(), "angular.json"));
+        // supportingFiles.add(new SupportingFile("angular.mustache",
+        // getIndexDirectory(), "angular.json"));
 
         supportingFiles.add(new SupportingFile("README.mustache", libDirectory, "README.md"));
-        supportingFiles.add(new SupportingFile("lib.package.mustache", libDirectory, "package.json"));
+        // supportingFiles.add(new SupportingFile("lib.package.mustache", libDirectory,
+        // "package.json"));
         supportingFiles.add(new SupportingFile("ng-package.mustache", libDirectory, "ng-package.json"));
-        supportingFiles.add(new SupportingFile("tsconfig.lib.mustache", libDirectory, "tsconfig.lib.json"));
+        // supportingFiles.add(new SupportingFile("tsconfig.lib.mustache", libDirectory,
+        // "tsconfig.lib.json"));
 
         supportingFiles.add(
                 new SupportingFile("models.mustache",

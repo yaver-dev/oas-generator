@@ -3,8 +3,8 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "yaverlib": ["dist/yaverlib"],
-      "yaverlib/*": ["dist/yaverlib/*"]
+      "yaverlib": ["dist"],
+      "yaverlib/*": ["dist/*"]
     },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
@@ -15,7 +15,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
@@ -23,15 +22,18 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "lib": ["ES2022", "dom"],
+    "declaration": true,
+    "declarationMap": false,
+    "inlineSources": true,
+    "types": []
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
-  }
+    "strictTemplates": true,
+    "compilationMode": "partial"
+  },
+  "exclude": ["**/*.spec.ts"]
 }

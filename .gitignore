@@ -1,4 +1,5 @@
 sample/out
 yaver-codegen/target
 tmp
-cli/codegen.cli.zip 
+cli/codegen.cli.zip
+cli/yaver-generator-cli.jar

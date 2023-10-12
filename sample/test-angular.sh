@@ -13,7 +13,7 @@ java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \
 	--additional-properties=useSingleRequestParameter=true \
 	--additional-properties=ngVersion=16
 
-# cd out/lib
+cd out/lib
 
-# npm i
-# npm run build
+npm i
+npx ng-packagr
