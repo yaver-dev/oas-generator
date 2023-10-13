@@ -49,7 +49,9 @@ export interface {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterIn
  * {{&description}}
  */
 {{/description}}
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class {{classname}} {
 	protected configuration = inject({{injectionTokenName}});
 	public defaultHeaders = new HttpHeaders();
