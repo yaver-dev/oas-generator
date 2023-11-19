@@ -11,7 +11,7 @@ java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \
 	--additional-properties=configurationPrefix=YaverTest \
 	--additional-properties=npmVersion=7.1.2 \
 	--additional-properties=useSingleRequestParameter=true \
-	--additional-properties=ngVersion=16
+	--additional-properties=ngVersion=17
 
 cd out/lib
 
