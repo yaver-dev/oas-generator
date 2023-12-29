@@ -22,6 +22,8 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.servers.Server;
+
+import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.languages.AbstractCSharpCodegen;
 import org.openapitools.codegen.meta.features.*;
@@ -35,6 +37,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -461,6 +464,13 @@ public class YaverCsFastendpoints extends AbstractCSharpCodegen {
     }
 
     @Override
+    public String addRegularExpressionDelimiter(String pattern) {
+        // Default implementation does add delimiters but it does not work for dotnet,
+        // thats why we override it
+        return pattern;
+    }
+
+    @Override
     public void postProcessParameter(CodegenParameter parameter) {
         super.postProcessParameter(parameter);
         postProcessEmitDefaultValue(parameter.vendorExtensions);
@@ -623,7 +633,8 @@ public class YaverCsFastendpoints extends AbstractCSharpCodegen {
 
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("netcore_project.mustache", packageFolder, packageName + ".csproj"));
-        // supportingFiles.add(new SupportingFile("Project.nuspec.mustache", packageFolder, packageName + ".nuspec"));
+        // supportingFiles.add(new SupportingFile("Project.nuspec.mustache",
+        // packageFolder, packageName + ".nuspec"));
 
         // include the spec in the output
         supportingFiles.add(new SupportingFile("openapi.mustache", "api", "openapi.yaml"));
