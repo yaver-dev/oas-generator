@@ -63,7 +63,7 @@ namespace {{packageName}}.{{apiPackage}}.{{operationId}}
 	/// {{.}}
 	/// </remarks>
 	{{/notes}}
-	public class {{operationIdCamelCase}}EndpointBase<TMapper> :Endpoint<{{operationIdCamelCase}}Request, {{{returnType}}}{{^returnType}}Object{{/returnType}}, TMapper> where TMapper : IMapper {
+	public class {{operationIdCamelCase}}EndpointBase<TMapper> :Endpoint<{{operationIdCamelCase}}Request, {{{returnType}}}{{^returnType}}Object{{/returnType}}, TMapper> where TMapper : class, IMapper {
 		public override void Configure() {
 			{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}");
 			{{#formParams}}
