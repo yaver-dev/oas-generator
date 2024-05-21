@@ -3,7 +3,13 @@ public class {{classname}}Validator : Validator<{{classname}}> {
 		{{#vars}}
 {{! required }}
 		{{#required}}
-		RuleFor(x => x.{{{name}}}).NotNull().NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		RuleFor(x => x.{{{name}}}).NotNull(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{#isString}}
+		RuleFor(x => x.{{{name}}}).NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{/isString}}
+		{{#isArray}}
+		RuleFor(x => x.{{{name}}}).NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{/isArray}}
 		{{/required}}
 {{! isEnum }}
 		{{#isEnum}}

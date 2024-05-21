@@ -26,7 +26,7 @@
 		{{/example}}
 		{{^conditionalSerialization}}
 
-		public {{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^isContainer}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; set; }
+		public {{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^isContainer}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; set; } // {{required}}
 		{{#isReadOnly}}
 
 		/// <summary>
@@ -70,7 +70,7 @@
 		{{#vars}}
 		{{^isInherited}}
 		{{^isEnum}}
-		public {{{dataType}}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}set; }
+		public {{{dataType}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}set; } // {{required}}
 		{{/isEnum}}
 		{{/isInherited}}
 		{{/vars}}
