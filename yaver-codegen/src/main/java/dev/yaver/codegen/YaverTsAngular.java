@@ -79,7 +79,7 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
     public static final String STRING_ENUMS_DESC = "Generate string enums instead of objects for enum values.";
     public static final String QUERY_PARAM_OBJECT_FORMAT = "queryParamObjectFormat";
 
-    protected String ngVersion = "16.1.2";
+    protected String ngVersion = "18.0.0";
     protected String npmRepository = null;
     private boolean useSingleRequestParameter = false;
     protected String serviceSuffix = "Service";
@@ -170,7 +170,7 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
 
     @Override
     public String getHelp() {
-        return "Generates a TypeScript Angular (9.x - 16.x) client library.";
+        return "Generates a TypeScript Angular (9.x - 18.x) client library.";
     }
 
     @Override
@@ -316,8 +316,10 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
 
         // Set the typescript version compatible to the Angular version
         // based on https://angular.io/guide/versions#actively-supported-versions
-        if (ngVersion.atLeast("17.0.0")) {
-            additionalProperties.put("tsVersion", ">=5.2 <5.3");
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("tsVersion", ">=5.4.0 <5.5.0");
+        } else if (ngVersion.atLeast("17.0.0")) {
+            additionalProperties.put("tsVersion", ">=4.9.3 <5.3.0");
         } else if (ngVersion.atLeast("16.1.0")) {
             additionalProperties.put("tsVersion", ">=4.9.3 <5.2.0");
         } else if (ngVersion.atLeast("16.0.0")) {
@@ -341,8 +343,10 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
         }
 
         // Set the rxJS version compatible to the Angular version
-        if (ngVersion.atLeast("17.0.0")) {
-            additionalProperties.put("rxjsVersion", "7.8.1");
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("rxjsVersion", "7.4.0");
+        } else if (ngVersion.atLeast("17.0.0")) {
+            additionalProperties.put("rxjsVersion", "7.4.0");
         } else if (ngVersion.atLeast("16.0.0")) {
             additionalProperties.put("rxjsVersion", "7.4.0");
         } else if (ngVersion.atLeast("15.0.0")) {
@@ -358,8 +362,14 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
         }
 
         // Specific ng-packagr configuration
-        if (ngVersion.atLeast("17.0.0")) {
-            additionalProperties.put("ngPackagrVersion", "17.0.0");
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("ngPackagrVersion", "18.0.0");
+            // tsTickle is not required and there is no available version compatible with
+            // versions of TypeScript compatible with Angular 18.
+        } else if (ngVersion.atLeast("17.0.0")) {
+            additionalProperties.put("ngPackagrVersion", "17.0.3");
+            // tsTickle is not required and there is no available version compatible with
+            // versions of TypeScript compatible with Angular 17.
         } else if (ngVersion.atLeast("16.0.0")) {
             additionalProperties.put("ngPackagrVersion", "16.0.0");
             // tsTickle is not required and there is no available version compatible with
@@ -389,7 +399,9 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
         }
 
         // set zone.js version
-        if (ngVersion.atLeast("17.0.0")) {
+        if (ngVersion.atLeast("18.0.0")) {
+            additionalProperties.put("zonejsVersion", "0.14.7");
+        } else if (ngVersion.atLeast("17.0.0")) {
             additionalProperties.put("zonejsVersion", "0.14.0");
         } else if (ngVersion.atLeast("16.0.0")) {
             additionalProperties.put("zonejsVersion", "0.13.0");
