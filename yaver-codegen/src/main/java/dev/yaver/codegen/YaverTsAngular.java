@@ -17,9 +17,32 @@
 
 package dev.yaver.codegen;
 
-import io.swagger.v3.oas.models.media.Schema;
+import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
+import static org.openapitools.codegen.utils.StringUtils.camelize;
+import static org.openapitools.codegen.utils.StringUtils.dashize;
+import static org.openapitools.codegen.utils.StringUtils.underscore;
 
-import org.openapitools.codegen.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.openapitools.codegen.CliOption;
+import org.openapitools.codegen.CodegenDiscriminator;
+import org.openapitools.codegen.CodegenModel;
+import org.openapitools.codegen.CodegenOperation;
+import org.openapitools.codegen.CodegenParameter;
+import org.openapitools.codegen.CodegenProperty;
+import org.openapitools.codegen.CodegenType;
+import org.openapitools.codegen.SupportingFile;
 import org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen;
 import org.openapitools.codegen.meta.features.DocumentationFeature;
 import org.openapitools.codegen.meta.features.GlobalFeature;
@@ -33,14 +56,7 @@ import org.openapitools.codegen.utils.SemVer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.commons.lang3.StringUtils.capitalize;
-import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
-import static org.openapitools.codegen.utils.StringUtils.*;
+import io.swagger.v3.oas.models.media.Schema;
 
 public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
     private final Logger LOGGER = LoggerFactory.getLogger(YaverTsAngular.class);
@@ -317,7 +333,7 @@ public class YaverTsAngular extends AbstractTypeScriptClientCodegen {
         // Set the typescript version compatible to the Angular version
         // based on https://angular.io/guide/versions#actively-supported-versions
         if (ngVersion.atLeast("18.0.0")) {
-            additionalProperties.put("tsVersion", ">=5.4.0 <5.5.0");
+            additionalProperties.put("tsVersion", ">=5.4.0 <=5.5.3");
         } else if (ngVersion.atLeast("17.0.0")) {
             additionalProperties.put("tsVersion", ">=4.9.3 <5.3.0");
         } else if (ngVersion.atLeast("16.1.0")) {
