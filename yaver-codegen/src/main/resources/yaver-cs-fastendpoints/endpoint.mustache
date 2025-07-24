@@ -28,8 +28,8 @@ namespace {{packageName}}.{{apiPackage}}.{{operationId}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		[FromHeader("{{baseName}}")]
-		public {{dataType}} {{paramName}} { get; set; }
+		[FromHeader(headerName: "{{baseName}}", isRequired: {{#required}}true{{/required}}{{^required}}false{{/required}})]
+		public {{dataType}}{{^required}}?{{/required}} {{paramName}} { get; set; }
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>

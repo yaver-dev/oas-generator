@@ -17,7 +17,7 @@ info:
   description: Opis Admin Services Documentation
   contact:
     email: admin@albatr.com
-  version: 'v1'
+  version: "v1"
 
 tags:
   - name: Database Servers
@@ -38,13 +38,14 @@ paths:
       description: Creates new database server
       operationId: createDatabaseServer
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/Tenant"
       requestBody:
         description: Create database server request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DatabaseServerViewModel'
+              $ref: "#/components/schemas/DatabaseServerViewModel"
         required: true
       responses:
         201:
@@ -52,16 +53,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreatedResponseModel'
+                $ref: "#/components/schemas/CreatedResponseModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
             Location:
-              $ref: '#/components/headers/Location'
+              $ref: "#/components/headers/Location"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         409:
-          $ref: '#/components/responses/Conflict'
+          $ref: "#/components/responses/Conflict"
       security:
         - OpenID: [hedehodo, zurnas]
 
@@ -71,21 +72,21 @@ paths:
       description: Get all database servers
       operationId: getDatabaseServers
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Term"
+        - $ref: "#/components/parameters/Sort"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DatabaseServerListModel'
+                $ref: "#/components/schemas/DatabaseServerListModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
       security:
         - bearerAuth: [hedehodo]
 
@@ -97,22 +98,22 @@ paths:
       description: Get specified database server
       operationId: getDatabaseServer
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DatabaseServerViewModel'
+                $ref: "#/components/schemas/DatabaseServerViewModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -123,22 +124,22 @@ paths:
       description: Updates database server
       operationId: updateDatabaseServer
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       requestBody:
         description: Database server update request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DatabaseServerViewModel'
+              $ref: "#/components/schemas/DatabaseServerViewModel"
         required: true
       responses:
         204:
-          $ref: '#/components/responses/NoContent'
+          $ref: "#/components/responses/NoContent"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -149,15 +150,15 @@ paths:
       description: Deletes database server
       operationId: deleteDatabaseServer
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       responses:
         204:
-          $ref: '#/components/responses/NoContent'
+          $ref: "#/components/responses/NoContent"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -170,13 +171,13 @@ paths:
       description: Creates new tenant
       operationId: createTenant
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
       requestBody:
         description: Create tenant request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TenantCreateModel'
+              $ref: "#/components/schemas/TenantCreateModel"
         required: true
       responses:
         201:
@@ -184,16 +185,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreatedResponseModel'
+                $ref: "#/components/schemas/CreatedResponseModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
             Location:
-              $ref: '#/components/headers/Location'
+              $ref: "#/components/headers/Location"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         409:
-          $ref: '#/components/responses/Conflict'
+          $ref: "#/components/responses/Conflict"
       security:
         - OpenID: [write]
 
@@ -204,25 +205,25 @@ paths:
       description: Get all tenants
       operationId: getTenants
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Term"
+        - $ref: "#/components/parameters/Sort"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TenantListModel'
+                $ref: "#/components/schemas/TenantListModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
         400:
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
       security:
         - OAuth2: [read]
 
@@ -234,19 +235,19 @@ paths:
       description: Get tenant
       operationId: getTenant
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TenantViewModel'
+                $ref: "#/components/schemas/TenantViewModel"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
 
     patch:
       tags:
@@ -255,8 +256,8 @@ paths:
       description: Update tenant
       operationId: updateTenant
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       # requestBody:
       #   content:
       #     multipart/form-data:
@@ -268,15 +269,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TenantViewModel'
+              $ref: "#/components/schemas/TenantViewModel"
         required: true
       responses:
         204:
-          $ref: '#/components/responses/NoContent'
+          $ref: "#/components/responses/NoContent"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -287,15 +288,15 @@ paths:
       description: Delete tenant
       operationId: deleteTenant
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       responses:
         204:
-          $ref: '#/components/responses/NoContent'
+          $ref: "#/components/responses/NoContent"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -309,13 +310,13 @@ paths:
       description: Create new machine-type for tenant
       operationId: createMachineType
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
       requestBody:
         description: Create machine-type request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MachineTypeViewModel'
+              $ref: "#/components/schemas/MachineTypeViewModel"
         required: true
       responses:
         201:
@@ -323,18 +324,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreatedResponseModel'
+                $ref: "#/components/schemas/CreatedResponseModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
             Location:
-              $ref: '#/components/headers/Location'
+              $ref: "#/components/headers/Location"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
         409:
-          $ref: '#/components/responses/Conflict'
+          $ref: "#/components/responses/Conflict"
       security:
         - bearerAuth: [hedehodo]
 
@@ -345,25 +346,25 @@ paths:
       description: Get all machine-type of tenant
       operationId: getMachineTypes
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Term'
-        - $ref: '#/components/parameters/Sort'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Term"
+        - $ref: "#/components/parameters/Sort"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MachineTypeListModel'
+                $ref: "#/components/schemas/MachineTypeListModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -375,22 +376,22 @@ paths:
       description: Get tenant machine-type
       operationId: getMachineType
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MachineTypeViewModel'
+                $ref: "#/components/schemas/MachineTypeViewModel"
           headers:
             Content-Language:
-              $ref: '#/components/headers/Content-Language'
+              $ref: "#/components/headers/Content-Language"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -401,22 +402,22 @@ paths:
       description: Update tenant machine-type
       operationId: updateMachineType
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       requestBody:
         description: Create machine-type request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MachineTypeViewModel'
+              $ref: "#/components/schemas/MachineTypeViewModel"
         required: true
       responses:
         204:
-          $ref: '#/components/responses/NoContent'
+          $ref: "#/components/responses/NoContent"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -427,15 +428,15 @@ paths:
       description: Delete tenant machine-type
       operationId: deleteMachineType
       parameters:
-        - $ref: '#/components/parameters/AcceptLanguageParameter'
-        - $ref: '#/components/parameters/IdParameter'
+        - $ref: "#/components/parameters/AcceptLanguageParameter"
+        - $ref: "#/components/parameters/IdParameter"
       responses:
         204:
-          $ref: '#/components/responses/NoContent'
+          $ref: "#/components/responses/NoContent"
         400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: "#/components/responses/BadRequest"
         404:
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
       security:
         - bearerAuth: [hedehodo]
 
@@ -487,6 +488,14 @@ components:
           - en-US
       description: language(s) client is able to understand, and which locale variant is preferred
       example: tr
+    Tenant:
+      name: Tenant
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Tenant Id to which the request is related
+      example: "falan"
     Offset:
       name: offset
       in: query
@@ -507,21 +516,19 @@ components:
     Term:
       name: term
       in: query
-      description:
-        Filter argument in which to retrieve the results. Basic text search on
+      description: Filter argument in which to retrieve the results. Basic text search on
         relevant fields
       schema:
         type: string
-        default: ''
+        default: ""
     Sort:
       name: sort
       in: query
-      description:
-        Order in which to retrieve the results. Multiple sort criteria can not
+      description: Order in which to retrieve the results. Multiple sort criteria can not
         be passed
       schema:
         type: string
-        default: ''
+        default: ""
     IdParameter:
       name: id
       in: path
@@ -537,37 +544,37 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
+            $ref: "#/components/schemas/ErrorViewModel"
       headers:
         Content-Language:
-          $ref: '#/components/headers/Content-Language'
+          $ref: "#/components/headers/Content-Language"
     Conflict:
       description: The specified resource already persisted
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
+            $ref: "#/components/schemas/ErrorViewModel"
       headers:
         Content-Language:
-          $ref: '#/components/headers/Content-Language'
+          $ref: "#/components/headers/Content-Language"
     NotFound:
       description: The specified resource was not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
+            $ref: "#/components/schemas/ErrorViewModel"
       headers:
         Content-Language:
-          $ref: '#/components/headers/Content-Language'
+          $ref: "#/components/headers/Content-Language"
     Unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorViewModel'
+            $ref: "#/components/schemas/ErrorViewModel"
       headers:
         Content-Language:
-          $ref: '#/components/headers/Content-Language'
+          $ref: "#/components/headers/Content-Language"
     NoContent:
       description: No Content
 
@@ -758,11 +765,11 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/DatabaseServerListItemModel'
+            $ref: "#/components/schemas/DatabaseServerListItemModel"
       example:
         totalCount: 1
         items:
-          - id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+          - id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
             host: demo.database.linux.net
             port: 5432
             name: opis-staging
@@ -937,7 +944,7 @@ components:
             type: email
         phoneNumber:
           type: string
-          example: '+905321234567'
+          example: "+905321234567"
           x-yaver-ui:
             type: INPUT
             inputType: text
@@ -1013,7 +1020,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/TenantListItemModel'
+            $ref: "#/components/schemas/TenantListItemModel"
 
     TenantListItemModel:
       type: object
@@ -1144,4 +1151,4 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/MachineTypeListItemModel'
+            $ref: "#/components/schemas/MachineTypeListItemModel"
