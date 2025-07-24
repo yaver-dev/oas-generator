@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{4F9DEAE5-078F-E77A-2E4A-FEB6FFE226FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "out", "out", "{3468F334-89EC-43D3-CA9D-9C1F5CE621EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{057665A2-6972-B225-BF12-E80DFF3BDE70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaver.Sample", "sample\out\src\Yaver.Sample\Yaver.Sample.csproj", "{243DBB04-FA63-4386-E707-097E051B7928}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{243DBB04-FA63-4386-E707-097E051B7928}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{243DBB04-FA63-4386-E707-097E051B7928}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{243DBB04-FA63-4386-E707-097E051B7928}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{243DBB04-FA63-4386-E707-097E051B7928}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3468F334-89EC-43D3-CA9D-9C1F5CE621EC} = {4F9DEAE5-078F-E77A-2E4A-FEB6FFE226FF}
+		{057665A2-6972-B225-BF12-E80DFF3BDE70} = {3468F334-89EC-43D3-CA9D-9C1F5CE621EC}
+		{243DBB04-FA63-4386-E707-097E051B7928} = {057665A2-6972-B225-BF12-E80DFF3BDE70}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20F7596F-5B78-4604-900D-12E1BFD75CFA}
+	EndGlobalSection
+EndGlobal
