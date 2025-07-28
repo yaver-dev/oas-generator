@@ -1,0 +1,57 @@
+using {{packageName}}.{{modelPackage}};
+
+namespace {{packageName}}.{{baseName}}.Api;
+{{#operations}}
+{{#operation}}
+
+	{{#hasParams}}
+	public record {{operationIdCamelCase}}Request {
+		{{#pathParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/pathParams}}
+		{{#headerParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		[FromHeader("{{baseName}}")]
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/headerParams}}
+		{{#queryParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/queryParams}}
+		{{#bodyParam}}
+		[FromBody]
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/bodyParam}}
+		{{#formParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		{{#isFile}}
+		public Microsoft.AspNetCore.Http.IFormFile {{paramName}} { get; set; }
+		{{/isFile}}
+		{{^isFile}}
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/isFile}}
+		{{/formParams}}
+	}
+	{{/hasParams}}
+{{/operation}}
+{{/operations}}
+
+{{#operations}}
+{{#operation}}
+	{{#bodyParam}}
+	public class {{operationIdCamelCase}}RequestValidator : Validator<{{operationIdCamelCase}}Request> {
+		public {{operationIdCamelCase}}RequestValidator () =>
+			RuleFor(b => b.{{paramName}}).SetValidator(new {{dataType}}Validator());
+	}
+	{{/bodyParam}}
+{{/operation}}
+{{/operations}}

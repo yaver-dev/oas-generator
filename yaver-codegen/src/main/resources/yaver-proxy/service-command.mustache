@@ -1,0 +1,60 @@
+using {{packageName}}.{{modelPackage}};
+
+namespace {{packageName}}.{{baseName}}.Service;
+{{#operations}}
+{{#operation}}
+
+	{{#hasParams}}
+	public class {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>> {
+		{{#pathParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/pathParams}}
+		{{#headerParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/headerParams}}
+		{{#queryParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/queryParams}}
+		{{#bodyParam}}
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/bodyParam}}
+		{{#formParams}}
+		/// <summary>
+		/// {{description}}
+		/// </summary>
+		{{#isFile}}
+		public Microsoft.AspNetCore.Http.IFormFile {{paramName}} { get; set; }
+		{{/isFile}}
+		{{^isFile}}
+		public {{dataType}} {{paramName}} { get; set; }
+		{{/isFile}}
+		{{/formParams}}
+	}
+	{{/hasParams}}
+	{{^hasParams}}
+	public record {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>> {
+		public object? Empty { get; set; }
+	}
+	{{/hasParams}}
+{{/operation}}
+{{/operations}}
+
+{{#operations}}
+{{#operation}}
+	{{#bodyParam}}
+	public class {{operationIdCamelCase}}CommandValidator : Validator<{{operationIdCamelCase}}Command> {
+		public {{operationIdCamelCase}}CommandValidator () =>
+			RuleFor(b => b.{{paramName}}).SetValidator(new {{dataType}}Validator());
+	}
+	{{/bodyParam}}
+{{/operation}}
+{{/operations}}

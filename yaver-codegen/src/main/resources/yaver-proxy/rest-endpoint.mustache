@@ -1,0 +1,67 @@
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+using {{packageName}}.{{modelPackage}};
+
+namespace {{packageName}}.{{baseName}}.Api;
+public class {{baseName}}Api : Group
+{
+  public {{baseName}}Api() => Configure("", ep => { });
+}
+{{#operations}}
+{{#operation}}
+//	{{#hasParams}}{{operationIdCamelCase}}Request{{/hasParams}}{{^hasParams}}EmptyRequest{{/hasParams}},
+/// <summary>
+/// {{summary}}
+/// </summary>
+{{#notes}}
+/// <remarks>
+/// {{.}}
+/// </remarks>
+{{/notes}}
+public class {{operationIdCamelCase}}Endpoint:Endpoint<
+	{{operationIdCamelCase}}Request,
+	{{{returnType}}}{{^returnType}}Object{{/returnType}}> {
+	public override void Configure() {
+		{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}");
+		Group<{{baseName}}Api>();
+		{{#formParams}}
+		{{#isFile}}
+		AllowFileUploads();
+		{{/isFile}}
+		{{/formParams}}
+		{{#authMethods}}
+		{{#isOAuth2}}
+		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+		{{/isOAuth2}}
+		{{#isOpenId}}
+		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+		{{/isOpenId}}
+		{{#isBasicBearer}}
+		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+		{{/isBasicBearer}}
+		{{/authMethods}}
+		{{^authMethods}}
+		AllowAnonymous();
+		{{/authMethods}}
+		{{#bodyParam}}
+		Validator<{{operationIdCamelCase}}RequestValidator>();
+		{{/bodyParam}}
+	}
+	//{{#hasParams}}{{operationIdCamelCase}}Request{{/hasParams}}{{^hasParams}}EmptyRequest{{/hasParams}}
+	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
+	await req.ToCommand()
+		.RemoteExecuteAsync(ct)
+		.SendAsync(HttpContext, 200, ct)
+		.ConfigureAwait(false);
+}
+
+{{^hasParams}}
+	public record {{operationIdCamelCase}}Request {
+		public object? Empty { get; set; }
+	}
+{{/hasParams}}
+{{/operation}}
+{{/operations}}

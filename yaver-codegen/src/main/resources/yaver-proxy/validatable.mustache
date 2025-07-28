@@ -1,0 +1,51 @@
+public class {{classname}}Validator : Validator<{{classname}}> {
+	public {{classname}}Validator() {
+		{{#vars}}
+{{! required }}
+		{{#required}}
+		RuleFor(x => x.{{{name}}}).NotNull(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{#isString}}
+		RuleFor(x => x.{{{name}}}).NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{/isString}}
+		{{#isArray}}
+		RuleFor(x => x.{{{name}}}).NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{/isArray}}
+		{{/required}}
+{{! isEnum }}
+		{{#isEnum}}
+		RuleFor(x => x.{{{name}}}).IsInEnum(){{#vendorExtensions.x-message-enum}}.WithMessage("{{vendorExtensions.x-message-enum}}"){{/vendorExtensions.x-message-enum}};
+		{{/isEnum}}
+		{{^isEnum}}
+{{! maxLength }}
+		{{#maxLength}}
+		RuleFor(x => x.{{{name}}}).MaximumLength({{maxLength}}){{#vendorExtensions.x-message-maxLength}}.WithMessage("{{vendorExtensions.x-message-maxLength}}"){{/vendorExtensions.x-message-maxLength}};
+		{{/maxLength}}
+{{! minLength }}
+		{{#minLength}}
+		RuleFor(x => x.{{{name}}}).MinimumLength({{minLength}}){{#vendorExtensions.x-message-minLength}}.WithMessage("{{vendorExtensions.x-message-minLength}}"){{/vendorExtensions.x-message-minLength}};
+		{{/minLength}}
+{{! maximum }}
+		{{#maximum}}
+		RuleFor(x => x.{{{name}}}).LessThanOrEqualTo({{maximum}}){{#vendorExtensions.x-message-maximum}}.WithMessage("{{vendorExtensions.x-message-maximum}}"){{/vendorExtensions.x-message-maximum}};
+		{{/maximum}}
+{{! minimum }}
+		{{#minimum}}
+		RuleFor(x => x.{{{name}}}).GreaterThanOrEqualTo({{minimum}}){{#vendorExtensions.x-message-minimum}}.WithMessage("{{vendorExtensions.x-message-minimum}}"){{/vendorExtensions.x-message-minimum}};
+		{{/minimum}}
+{{! pattern  }}
+		{{#pattern}}
+		RuleFor(x => x.{{{name}}}).Matches("{{{pattern}}}"){{#vendorExtensions.x-message-pattern}}.WithMessage("{{vendorExtensions.x-message-pattern}}"){{/vendorExtensions.x-message-pattern}};
+		{{/pattern}}
+{{! email }}
+		{{#vendorExtensions.x-validator-email}}
+		RuleFor(x => x.{{{name}}}).EmailAddress(){{#vendorExtensions.x-message-email}}.WithMessage("{{vendorExtensions.x-message-email}}"){{/vendorExtensions.x-message-email}};
+		{{/vendorExtensions.x-validator-email}}
+{{! creditcard }}
+		{{#vendorExtensions.x-validator-creditcard}}
+		RuleFor(x => x.{{{name}}}).CreditCard(){{#vendorExtensions.x-message-creditcard}}.WithMessage("{{vendorExtensions.x-message-creditcard}}"){{/vendorExtensions.x-message-creditcard}};
+		{{/vendorExtensions.x-validator-creditcard}}
+		{{/isEnum}}
+		{{/vars}}
+	}
+}
+
