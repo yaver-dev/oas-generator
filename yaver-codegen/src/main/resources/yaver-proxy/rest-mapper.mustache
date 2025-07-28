@@ -1,0 +1,24 @@
+using {{packageName}}.{{baseName}}.Service;
+using Riok.Mapperly.Abstractions;
+
+namespace {{packageName}}.{{baseName}}.Api;
+{{#operations}}
+{{#operation}}
+
+	{{! {{#hasParams}}
+/// <summary>
+/// Mapper extensions for {{operationIdCamelCase}}Request api model
+/// </summary>
+[Mapper]
+public static partial class {{operationIdCamelCase}}RequestMapper
+{
+  /// <summary>
+  /// Maps API {{operationIdCamelCase}}Request model to Service {{operationIdCamelCase}}Command model
+  /// </summary>
+  /// <param name="source">API {{operationIdCamelCase}}Request model</param>
+  /// <returns>Service {{operationIdCamelCase}} model</returns>
+  public static partial {{operationIdCamelCase}}Command ToCommand(this {{operationIdCamelCase}}Request source);
+}
+	{{! {{/hasParams}}
+{{/operation}}
+{{/operations}}

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>{{#useGenericHost}}
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo> <!-- setting GenerateAssemblyInfo to false causes this bug https://github.com/dotnet/project-system/issues/3934 -->{{/useGenericHost}}{{^useGenericHost}}
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo><!-- setting GenerateAssemblyInfo to false causes this bug https://github.com/dotnet/project-system/issues/3934 -->{{/useGenericHost}}
+    <TargetFramework{{#multiTarget}}s{{/multiTarget}}>{{targetFramework}}</TargetFramework{{#multiTarget}}s{{/multiTarget}}>
+    <AssemblyName>{{packageName}}</AssemblyName>
+    <PackageId>{{packageName}}</PackageId>
+    <OutputType>Library</OutputType>
+    <Authors>{{packageAuthors}}</Authors>
+    <Company>{{packageCompany}}</Company>
+    <AssemblyTitle>{{packageTitle}}</AssemblyTitle>
+    <Description>{{packageDescription}}</Description>
+    <Copyright>{{packageCopyright}}</Copyright>
+    <RootNamespace>{{packageName}}</RootNamespace>
+    <Version>{{packageVersion}}</Version>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\{{packageName}}.xml</DocumentationFile>{{#licenseId}}
+    <PackageLicenseExpression>{{.}}</PackageLicenseExpression>{{/licenseId}}
+    <RepositoryUrl>https://{{{gitHost}}}/{{{gitUserId}}}/{{{gitRepoId}}}.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>{{#releaseNote}}
+    <PackageReleaseNotes>{{.}}</PackageReleaseNotes>{{/releaseNote}}{{#packageTags}}
+    <PackageTags>{{{.}}}</PackageTags>{{/packageTags}}{{#nrt}}
+    <Nullable>{{#useGenericHost}}enable{{/useGenericHost}}{{^useGenericHost}}annotations{{/useGenericHost}}</Nullable>{{/nrt}}
+    <NoWarn>1591</NoWarn>
+    <FastEndpointsVersion>7.0.1</FastEndpointsVersion>
+    <RiokMapperlyVersion>4.2.1</RiokMapperlyVersion>
+    <YaverResultVersion>1.0.0</YaverResultVersion>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="FastEndpoints" Version="$(FastEndpointsVersion)" />
+    <PackageReference Include="FastEndpoints.Messaging.Core" Version="$(FastEndpointsVersion)"/>
+    <PackageReference Include="FastEndpoints.Generator" Version="$(FastEndpointsVersion)">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Riok.Mapperly" Version="$(RiokMapperlyVersion)" />
+    <PackageReference Include="Yaver.Result" Version="$(YaverResultVersion)" />
+  </ItemGroup>
+
+	<ItemGroup>
+    <!-- <ProjectReference Include="../../../Lib/Yaver.Result/Yaver.Result.csproj" /> -->
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="FastEndpoints"/>
+		<Using Include="System"/>
+    <Using Include="System.Collections.Generic" />
+		<Using Include="Yaver.Result"/>
+	</ItemGroup>
+
+
+{{>netcore_project.additions}}</Project>
