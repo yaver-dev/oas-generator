@@ -6,7 +6,7 @@
 set -e # Hata durumunda script'i durdur
 
 echo "🧹 Cleaning sample/out folder..."
-rm -rf ~/W/Pairs/External/Proxy/* ~/W/Pairs/External/Proxy/.[!.]* ~/W/Pairs/External/Proxy/..?*
+rm -rf sample/out/* sample/out/.[!.]* sample/out/..?*
 
 echo "🔨 Building yaver-generator..."
 ./build.sh
