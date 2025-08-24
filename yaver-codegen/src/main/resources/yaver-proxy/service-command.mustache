@@ -32,7 +32,8 @@ namespace {{packageName}}.{{baseName}}.Service;
 		/// {{description}}
 		/// </summary>
 		{{#isFile}}
-		public Microsoft.AspNetCore.Http.IFormFile {{paramName}} { get; set; }
+		// public Microsoft.AspNetCore.Http.IFormFile {{paramName}} { get; set; }
+		public FileData {{paramName}} { get; set; } = FileData.Empty;
 		{{/isFile}}
 		{{^isFile}}
 		public {{dataType}} {{paramName}} { get; set; }

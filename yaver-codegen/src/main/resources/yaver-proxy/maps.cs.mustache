@@ -1,0 +1,51 @@
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+
+namespace {{packageName}};
+
+
+public static class FileMappingBaseMapper
+{
+    /// <summary>
+    /// Synchronous mapping. Loads the entire file into memory. Returns FileData.Empty when the file is null.
+    /// </summary>
+    public static FileData Map(IFormFile file)
+    {
+        if (file == null) return FileData.Empty;
+        using var ms = new MemoryStream();
+        file.CopyTo(ms); // NOTE: Add a max size / quota check here later if required.
+        return new FileData
+        {
+            Content = ms.ToArray(),
+            FileName = file.FileName ?? string.Empty,
+            ContentType = file.ContentType ?? string.Empty
+        };
+    }
+
+    /// <summary>
+    /// Asynchronous mapping (reduces thread blocking under high load). Returns FileData.Empty when the file is null.
+    /// </summary>
+    public static async Task<FileData> MapAsync(IFormFile file, CancellationToken cancellationToken = default)
+    {
+        if (file == null) return FileData.Empty;
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
+        // TODO: Add max size / streaming alternative later if needed.
+        return new FileData
+        {
+            Content = ms.ToArray(),
+            FileName = file.FileName ?? string.Empty,
+            ContentType = file.ContentType ?? string.Empty
+        };
+    }
+}
+
+public record FileData
+{
+    public static readonly FileData Empty = new();
+    public byte[] Content { get; init; } = [];
+    public string FileName { get; init; } = string.Empty;
+    public string ContentType { get; init; } = string.Empty;
+}

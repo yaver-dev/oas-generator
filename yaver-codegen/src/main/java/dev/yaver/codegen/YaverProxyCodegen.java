@@ -662,6 +662,7 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
 
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
         supportingFiles.add(new SupportingFile("netcore_project.mustache", packageFolder, packageName + ".csproj"));
+        supportingFiles.add(new SupportingFile("maps.cs.mustache",packageFolder, "Maps.cs"));
         // supportingFiles.add(new SupportingFile("Project.nuspec.mustache",
         // packageFolder, packageName + ".nuspec"));
 
