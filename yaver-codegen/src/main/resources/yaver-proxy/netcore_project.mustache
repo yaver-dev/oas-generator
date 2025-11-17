@@ -22,19 +22,18 @@
     <PackageTags>{{{.}}}</PackageTags>{{/packageTags}}{{#nrt}}
     <Nullable>{{#useGenericHost}}enable{{/useGenericHost}}{{^useGenericHost}}annotations{{/useGenericHost}}</Nullable>{{/nrt}}
     <NoWarn>1591</NoWarn>
-    <FastEndpointsVersion>7.0.1</FastEndpointsVersion>
-    <RiokMapperlyVersion>4.2.1</RiokMapperlyVersion>
-    <YaverResultVersion>1.0.0</YaverResultVersion>
+    <FastEndpointsVersion>{{fastEndpointsVersion}}</FastEndpointsVersion>
+    <RiokMapperlyVersion>{{riokMapperlyVersion}}</RiokMapperlyVersion>
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="FastEndpoints" Version="$(FastEndpointsVersion)" />
     <PackageReference Include="FastEndpoints.Messaging.Core" Version="$(FastEndpointsVersion)"/>
+    <PackageReference Include="FastEndpoints.Messaging.Remote" Version="$(FastEndpointsVersion)"/>
     <PackageReference Include="FastEndpoints.Generator" Version="$(FastEndpointsVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Riok.Mapperly" Version="$(RiokMapperlyVersion)" />
-    <PackageReference Include="Yaver.Result" Version="$(YaverResultVersion)" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -46,7 +45,10 @@
 		<Using Include="System"/>
 		<Using Include="System.Linq "/>
     <Using Include="System.Collections.Generic" />
-		<Using Include="Yaver.Result"/>
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Text.Json.Serialization" />
+		<Using Include="{{packageName}}.Result"/>
 	</ItemGroup>
 
 

@@ -88,6 +88,9 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
     protected static final String NET_70_OR_LATER = "net70OrLater";
     protected static final String NET_80_OR_LATER = "net80OrLater";
     protected static final String NET_100_OR_LATER = "net100OrLater";
+    
+    protected static final String FASTENDPOINTS_VERSION = "fastEndpointsVersion";
+    protected static final String RIOK_MAPPERLY_VERSION = "riokMapperlyVersion";
 
     @SuppressWarnings("hiding")
     private final Logger LOGGER = LoggerFactory.getLogger(YaverProxyCodegen.class);
@@ -128,6 +131,9 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
 
     protected boolean needsCustomHttpMethod = false;
     protected boolean needsUriBuilder = false;
+    
+    protected String fastEndpointsVersion = "7.1.1";
+    protected String riokMapperlyVersion = "4.3.0";
 
     public YaverProxyCodegen() {
         super();
@@ -215,6 +221,14 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
         addOption("zeroBasedEnums",
                 "Enumerations with string values will start from 0 when true, 1 when false. If not set, enumerations with string values will start from 0 if the first value is 'unknown', case insensitive.",
                 null);
+
+        addOption(FASTENDPOINTS_VERSION,
+                "FastEndpoints NuGet package version.",
+                this.fastEndpointsVersion);
+
+        addOption(RIOK_MAPPERLY_VERSION,
+                "Riok.Mapperly NuGet package version.",
+                this.riokMapperlyVersion);
 
         CliOption framework = new CliOption(
                 CodegenConstants.DOTNET_FRAMEWORK,
@@ -616,6 +630,16 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
         setNetCoreProjectFileFlag(true);
         setNullableReferenceTypes(true);
 
+        if (additionalProperties.containsKey(FASTENDPOINTS_VERSION)) {
+            this.fastEndpointsVersion = additionalProperties.get(FASTENDPOINTS_VERSION).toString();
+        }
+        additionalProperties.put(FASTENDPOINTS_VERSION, this.fastEndpointsVersion);
+
+        if (additionalProperties.containsKey(RIOK_MAPPERLY_VERSION)) {
+            this.riokMapperlyVersion = additionalProperties.get(RIOK_MAPPERLY_VERSION).toString();
+        }
+        additionalProperties.put(RIOK_MAPPERLY_VERSION, this.riokMapperlyVersion);
+
         final AtomicReference<Boolean> excludeTests = new AtomicReference<>();
         syncBooleanProperty(additionalProperties, CodegenConstants.EXCLUDE_TESTS, excludeTests::set, false);
 
@@ -665,6 +689,19 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("maps.cs.mustache",packageFolder, "Maps.cs"));
         // supportingFiles.add(new SupportingFile("Project.nuspec.mustache",
         // packageFolder, packageName + ".nuspec"));
+
+        // Add Yaver.Result embedded files
+        supportingFiles.add(new SupportingFile("Result/IResult.mustache", packageFolder, "Result" + File.separator + "IResult.cs"));
+        supportingFiles.add(new SupportingFile("Result/ResultStatus.mustache", packageFolder, "Result" + File.separator + "ResultStatus.cs"));
+        supportingFiles.add(new SupportingFile("Result/ValidationSeverity.mustache", packageFolder, "Result" + File.separator + "ValidationSeverity.cs"));
+        supportingFiles.add(new SupportingFile("Result/ValidationError.mustache", packageFolder, "Result" + File.separator + "ValidationError.cs"));
+        supportingFiles.add(new SupportingFile("Result/IRpcCommandHandler.mustache", packageFolder, "Result" + File.separator + "IRpcCommandHandler.cs"));
+        supportingFiles.add(new SupportingFile("Result/PagedResult.mustache", packageFolder, "Result" + File.separator + "PagedResult.cs"));
+        supportingFiles.add(new SupportingFile("Result/Result.mustache", packageFolder, "Result" + File.separator + "Result.Generic.cs"));
+        supportingFiles.add(new SupportingFile("Result/Result.Void.mustache", packageFolder, "Result" + File.separator + "Result.cs"));
+        supportingFiles.add(new SupportingFile("Result/ResultExtensions.mustache", packageFolder, "Result" + File.separator + "ResultExtensions.cs"));
+        supportingFiles.add(new SupportingFile("Result/FluentValidationResultExtensions.mustache", packageFolder, "Result" + File.separator + "FluentValidationResultExtensions.cs"));
+        supportingFiles.add(new SupportingFile("Result/ResultToResponse.mustache", packageFolder, "Result" + File.separator + "ResultToResponse.cs"));
 
         // include the spec in the output
         supportingFiles.add(new SupportingFile("openapi.mustache", "api", "openapi.yaml"));
