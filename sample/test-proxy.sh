@@ -7,10 +7,11 @@ java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \
 	-o out \
 	--additional-properties=packageName=Yaver.Sample \
 	--additional-properties=targetFramework=net10.0 \
-	--additional-properties=fastEndpointsVersion=7.1.0 \
-	--additional-properties=riokMapperlyVersion=4.3.0
+	--additional-properties=fastEndpointsVersion=7.1.1 \
+	--additional-properties=riokMapperlyVersion=4.3.0 \
+	--additional-properties=yaverResultVersion=1.1.0
 
-# dotnet restore
+dotnet restore
 
 dotnet build out/src/Yaver.Sample/Yaver.Sample.csproj
 # dotnet build out/src/Pairs.BO.Contracts/Pairs.BO.Contracts.csproj

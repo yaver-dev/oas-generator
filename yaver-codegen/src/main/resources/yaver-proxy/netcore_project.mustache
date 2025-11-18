@@ -24,6 +24,7 @@
     <NoWarn>1591</NoWarn>
     <FastEndpointsVersion>{{fastEndpointsVersion}}</FastEndpointsVersion>
     <RiokMapperlyVersion>{{riokMapperlyVersion}}</RiokMapperlyVersion>
+    <YaverResultVersion>{{yaverResultVersion}}</YaverResultVersion>
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="FastEndpoints" Version="$(FastEndpointsVersion)" />
@@ -34,6 +35,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Riok.Mapperly" Version="$(RiokMapperlyVersion)" />
+    <PackageReference Include="Yaver.Result" Version="$(YaverResultVersion)" />    
   </ItemGroup>
 
 	<ItemGroup>
@@ -48,7 +50,7 @@
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="System.Text.Json.Serialization" />
-		<Using Include="{{packageName}}.Result"/>
+		<Using Include="Yaver.Result"/>
 	</ItemGroup>
 
 
