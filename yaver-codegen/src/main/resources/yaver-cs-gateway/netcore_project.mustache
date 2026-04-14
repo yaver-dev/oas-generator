@@ -40,7 +40,8 @@
 
 	<ItemGroup>
     <!-- <ProjectReference Include="../../../Lib/Yaver.Result/Yaver.Result.csproj" /> -->
-	</ItemGroup>
+{{#splitSchemas}}    <ProjectReference Include="../{{schemasPackageName}}/{{schemasPackageName}}.csproj" />
+{{/splitSchemas}}	</ItemGroup>
 
 	<ItemGroup>
 		<Using Include="FastEndpoints"/>

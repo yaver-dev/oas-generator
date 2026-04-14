@@ -1,4 +1,4 @@
-public class {{classname}}Validator : Validator<{{classname}}> {
+{{#splitSchemas}}public class {{classname}}Validator : AbstractValidator<{{classname}}>{{/splitSchemas}}{{^splitSchemas}}public class {{classname}}Validator : Validator<{{classname}}>{{/splitSchemas}} {
 	public {{classname}}Validator() {
 		{{#vars}}
 {{! required }}

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-using {{packageName}}.{{modelPackage}};
+{{#splitSchemas}}using {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}using {{packageName}}.{{modelPackage}};{{/splitSchemas}}
 
 namespace {{packageName}}.{{baseName}}.Api;
 public class {{baseName}}Api : Group

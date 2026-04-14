@@ -92,6 +92,9 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     protected static final String FASTENDPOINTS_VERSION = "fastEndpointsVersion";
     protected static final String RIOK_MAPPERLY_VERSION = "riokMapperlyVersion";
     protected static final String YAVER_RESULT_VERSION = "yaverResultVersion";
+    protected static final String SPLIT_SCHEMAS = "splitSchemas";
+    protected static final String FLUENT_VALIDATION_VERSION = "fluentValidationVersion";
+    protected static final String SCHEMAS_PACKAGE_NAME = "schemasPackageName";
 
     @SuppressWarnings("hiding")
     private final Logger LOGGER = LoggerFactory.getLogger(YaverCsGateway.class);
@@ -136,6 +139,9 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     protected String fastEndpointsVersion = "8.1.0";
     protected String riokMapperlyVersion = "4.3.0";
     protected String yaverResultVersion = "2.0.0";
+    protected boolean splitSchemas = false;
+    protected String fluentValidationVersion = "12.1.1";
+    protected String schemasPackageName = null;
 
     public YaverCsGateway() {
         super();
@@ -235,6 +241,14 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         addOption(YAVER_RESULT_VERSION,
                 "Yaver.Result NuGet package version.",
                 this.yaverResultVersion);
+
+        addOption(FLUENT_VALIDATION_VERSION,
+                "FluentValidation NuGet package version (used when splitSchemas=true).",
+                this.fluentValidationVersion);
+
+        addSwitch(SPLIT_SCHEMAS,
+                "When true, generates a separate Schemas csproj for models/enums/validators without FastEndpoints dependency.",
+                this.splitSchemas);
 
         CliOption framework = new CliOption(
                 CodegenConstants.DOTNET_FRAMEWORK,
@@ -500,6 +514,14 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         return CodegenType.OTHER;
     }
 
+    @Override
+    public String modelFileFolder() {
+        if (this.splitSchemas && this.schemasPackageName != null) {
+            return outputFolder + File.separator + sourceFolder + File.separator + this.schemasPackageName;
+        }
+        return super.modelFileFolder();
+    }
+
     public void setNonPublicApi(final boolean nonPublicApi) {
         this.nonPublicApi = nonPublicApi;
     }
@@ -646,6 +668,28 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         }
         additionalProperties.put(RIOK_MAPPERLY_VERSION, this.riokMapperlyVersion);
 
+        if (additionalProperties.containsKey(YAVER_RESULT_VERSION)) {
+            this.yaverResultVersion = additionalProperties.get(YAVER_RESULT_VERSION).toString();
+        }
+        additionalProperties.put(YAVER_RESULT_VERSION, this.yaverResultVersion);
+
+        // Split Schemas support
+        if (additionalProperties.containsKey(SPLIT_SCHEMAS)) {
+            this.splitSchemas = convertPropertyToBooleanAndWriteBack(SPLIT_SCHEMAS);
+        } else {
+            additionalProperties.put(SPLIT_SCHEMAS, this.splitSchemas);
+        }
+
+        if (additionalProperties.containsKey(FLUENT_VALIDATION_VERSION)) {
+            this.fluentValidationVersion = additionalProperties.get(FLUENT_VALIDATION_VERSION).toString();
+        }
+        additionalProperties.put(FLUENT_VALIDATION_VERSION, this.fluentValidationVersion);
+
+        if (this.splitSchemas) {
+            this.schemasPackageName = packageName.replace(".Features", ".Schemas");
+            additionalProperties.put(SCHEMAS_PACKAGE_NAME, this.schemasPackageName);
+        }
+
         final AtomicReference<Boolean> excludeTests = new AtomicReference<>();
         syncBooleanProperty(additionalProperties, CodegenConstants.EXCLUDE_TESTS, excludeTests::set, false);
 
@@ -695,6 +739,11 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         supportingFiles.add(new SupportingFile("maps.cs.mustache",packageFolder, "Maps.cs"));
         // supportingFiles.add(new SupportingFile("Project.nuspec.mustache",
         // packageFolder, packageName + ".nuspec"));
+
+        if (this.splitSchemas) {
+            String schemasFolder = sourceFolder + File.separator + this.schemasPackageName;
+            supportingFiles.add(new SupportingFile("netcore_schemas_project.mustache", schemasFolder, this.schemasPackageName + ".csproj"));
+        }
 
         // include the spec in the output
         supportingFiles.add(new SupportingFile("openapi.mustache", "api", "openapi.yaml"));

@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 {{#model}}
 using FluentValidation;
 
-namespace {{packageName}}.{{modelPackage}};
+{{#splitSchemas}}namespace {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}namespace {{packageName}}.{{modelPackage}};{{/splitSchemas}}
 
 {{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{#oneOf}}{{#-first}}{{>modelOneOf}}{{/-first}}{{/oneOf}}{{#anyOf}}{{#-first}}{{>modelAnyOf}}{{/-first}}{{/anyOf}}{{^oneOf}}{{^anyOf}}{{>modelGeneric}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
 {{/model}}

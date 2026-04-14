@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>{{targetFramework}}</TargetFramework>
+    <AssemblyName>{{schemasPackageName}}</AssemblyName>
+    <RootNamespace>{{schemasPackageName}}</RootNamespace>
+    <OutputType>Library</OutputType>
+    <Nullable>annotations</Nullable>
+    <NoWarn>1591</NoWarn>
+    <FluentValidationVersion>{{fluentValidationVersion}}</FluentValidationVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="$(FluentValidationVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Runtime.Serialization" />
+    <Using Include="System.Text.Json.Serialization" />
+    <Using Include="FluentValidation" />
+  </ItemGroup>
+
+</Project>
