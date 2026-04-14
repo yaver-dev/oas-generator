@@ -1,0 +1,20 @@
+# {{npmName}}@{{npmVersion}}
+
+{{#appDescriptionWithNewLines}}
+{{{.}}}
+{{/appDescriptionWithNewLines}}
+
+Auto-generated TypeScript Fetch client.
+
+## Usage
+
+```typescript
+import { Configuration, {{#apiInfo}}{{#apis}}{{#-first}}{{classname}}{{/-first}}{{/apis}}{{/apiInfo}} } from '{{npmName}}';
+
+const config = new Configuration({
+    basePath: 'https://api.example.com',
+    accessToken: async () => 'your-token',
+});
+
+const api = new {{#apiInfo}}{{#apis}}{{#-first}}{{classname}}{{/-first}}{{/apis}}{{/apiInfo}}(config);
+```

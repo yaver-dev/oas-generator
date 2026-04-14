@@ -1,3 +1,5 @@
 dev.yaver.codegen.YaverCsFastendpoints
-dev.yaver.codegen.YaverTsAngular
+dev.yaver.codegen.YaverCsGateway
+dev.yaver.codegen.YaverFetchClient
 dev.yaver.codegen.YaverProxyCodegen
+dev.yaver.codegen.YaverTsAngular

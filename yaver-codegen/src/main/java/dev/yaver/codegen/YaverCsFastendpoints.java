@@ -64,12 +64,14 @@ public class YaverCsFastendpoints extends AbstractCSharpCodegen {
 
     protected static final String NET_70_OR_LATER = "net70OrLater";
     protected static final String NET_80_OR_LATER = "net80OrLater";
+    protected static final String NET_100_OR_LATER = "net100OrLater";
 
     @SuppressWarnings("hiding")
     private final Logger LOGGER = LoggerFactory.getLogger(YaverCsFastendpoints.class);
     private static final List<FrameworkStrategy> frameworkStrategies = Arrays.asList(
             FrameworkStrategy.NET_7_0,
-            FrameworkStrategy.NET_8_0);
+            FrameworkStrategy.NET_8_0,
+            FrameworkStrategy.NET_10_0);
     private static FrameworkStrategy latestFramework = frameworkStrategies.get(frameworkStrategies.size() - 1);
     protected final Map<String, String> frameworks;
     protected String packageGuid = "{" + java.util.UUID.randomUUID().toString().toUpperCase(Locale.ROOT) + "}";
@@ -973,6 +975,8 @@ public class YaverCsFastendpoints extends AbstractCSharpCodegen {
         };
         static FrameworkStrategy NET_8_0 = new FrameworkStrategy("net8.0", ".NET 8.0", "net8.0", Boolean.FALSE) {
         };
+        static FrameworkStrategy NET_10_0 = new FrameworkStrategy("net10.0", ".NET 10.0", "net10.0", Boolean.FALSE) {
+        };
         protected String name;
         protected String description;
         protected String testTargetFramework;
@@ -1032,11 +1036,14 @@ public class YaverCsFastendpoints extends AbstractCSharpCodegen {
         if (strategies.stream().anyMatch(p -> "net7.0".equals(p.name))) {
             properties.put(NET_70_OR_LATER, true);
         } else if (strategies.stream().anyMatch(p -> "net8.0".equals(p.name))) {
-
             properties.put(NET_70_OR_LATER, true);
             properties.put(NET_80_OR_LATER, true);
+        } else if (strategies.stream().anyMatch(p -> "net10.0".equals(p.name))) {
+            properties.put(NET_70_OR_LATER, true);
+            properties.put(NET_80_OR_LATER, true);
+            properties.put(NET_100_OR_LATER, true);
         } else {
-            throw new RuntimeException("Unhanlded case");
+            throw new RuntimeException("Unhandled case");
         }
 
     }
@@ -1207,7 +1214,7 @@ public class YaverCsFastendpoints extends AbstractCSharpCodegen {
             addAdditionPropertiesToCodeGenModel(m, schema);
         } else {
             m.setIsMap(false);
-            if (ModelUtils.isFreeFormObject(schema)) {
+            if (ModelUtils.isFreeFormObject(schema, this.openAPI)) {
                 // non-composed object type with no properties + additionalProperties
                 // additionalProperties must be null, ObjectSchema, or empty Schema
                 addAdditionPropertiesToCodeGenModel(m, schema);

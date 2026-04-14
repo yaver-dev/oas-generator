@@ -1,0 +1,57 @@
+	{{^isContainer}}
+	{{>visibility}} enum {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}{{#vendorExtensions.x-enum-byte}}: byte{{/vendorExtensions.x-enum-byte}}
+	{
+		{{#allowableValues}}
+		{{#enumVars}}
+
+		{{name}}{{^isString}} = {{{value}}}{{/isString}}{{#isString}}{{^vendorExtensions.x-zero-based-enum}} = {{-index}}{{/vendorExtensions.x-zero-based-enum}}{{/isString}}{{^-last}},{{/-last}}
+		{{^-last}}
+
+		{{/-last}}
+		{{/enumVars}}
+		{{/allowableValues}}
+	}
+	{{#useGenericHost}}
+
+	public static {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}FromString(string value)
+	{
+		{{#allowableValues}}
+		{{#enumVars}}
+		if (value.Equals({{^isString}}({{{value}}}).ToString(){{/isString}}{{#isString}}"{{{value}}}"{{/isString}}))
+				return {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}.{{name}};
+
+		{{/enumVars}}
+		{{/allowableValues}}
+		throw new NotImplementedException($"Could not convert value to type {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}: '{value}'");
+	}
+
+	public static {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}? {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}FromStringOrDefault(string value)
+	{
+		{{#allowableValues}}
+		{{#enumVars}}
+		if (value.Equals({{^isString}}({{{value}}}).ToString(){{/isString}}{{#isString}}"{{{value}}}"{{/isString}}))
+				return {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}.{{name}};
+
+		{{/enumVars}}
+		{{/allowableValues}}
+		return null;
+	}
+
+	public static {{>EnumValueDataType}} {{datatypeWithEnum}}ToJsonValue({{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}} value)
+	{
+		{{^isString}}
+		return ({{>EnumValueDataType}}) value;
+		{{/isString}}
+		{{#isString}}
+		{{#allowableValues}}
+		{{#enumVars}}
+		if (value == {{datatypeWithEnum}}{{^datatypeWithEnum}}{{classname}}{{/datatypeWithEnum}}.{{name}})
+				return {{^isNumeric}}"{{/isNumeric}}{{{value}}}{{^isNumeric}}"{{/isNumeric}};
+
+		{{/enumVars}}
+		{{/allowableValues}}
+		throw new NotImplementedException($"Value could not be handled: '{value}'");
+		{{/isString}}
+	}
+	{{/useGenericHost}}
+	{{/isContainer}}

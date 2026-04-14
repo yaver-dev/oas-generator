@@ -1,0 +1,17 @@
+{
+  "name": "{{npmName}}",
+  "version": "{{npmVersion}}",
+  "description": "{{appDescription}}",
+  "main": "./src/index.ts",
+  "typings": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit false 2>/dev/null || true"
+  },
+  "devDependencies": {
+    "typescript": "{{{typescriptVersion}}}",
+    "@types/node": "^22.0.0"
+  }{{#npmRepository}},
+  "publishConfig": {
+    "registry": "{{npmRepository}}"
+  }{{/npmRepository}}
+}
