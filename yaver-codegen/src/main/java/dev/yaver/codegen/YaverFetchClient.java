@@ -19,9 +19,7 @@ package dev.yaver.codegen;
 import static org.openapitools.codegen.utils.CamelizeOption.LOWERCASE_FIRST_LETTER;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
-import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen;
@@ -31,8 +29,6 @@ import org.openapitools.codegen.model.ModelsMap;
 import org.openapitools.codegen.model.OperationMap;
 import org.openapitools.codegen.model.OperationsMap;
 import org.openapitools.codegen.utils.ModelUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -47,7 +43,9 @@ import io.swagger.v3.oas.models.media.Schema;
  * - useSingleRequestParameter by default
  */
 public class YaverFetchClient extends AbstractTypeScriptClientCodegen {
-    private final Logger LOGGER = LoggerFactory.getLogger(YaverFetchClient.class);
+    private static final String CLASSNAME_KEY = "classname";
+    private static final String FILENAME_KEY = "filename";
+    private static final String INDEX_FILENAME = "index.ts";
 
     public static final String NPM_REPOSITORY = "npmRepository";
     public static final String USE_SINGLE_REQUEST_PARAMETER = "useSingleRequestParameter";
@@ -140,9 +138,9 @@ public class YaverFetchClient extends AbstractTypeScriptClientCodegen {
 
         String srcDirectory = "";
         supportingFiles.add(new SupportingFile("runtime.mustache", "src", "runtime.ts"));
-        supportingFiles.add(new SupportingFile("index.mustache", "src", "index.ts"));
-        supportingFiles.add(new SupportingFile("apis.index.mustache", apiPackage, "index.ts"));
-        supportingFiles.add(new SupportingFile("models.index.mustache", modelPackage, "index.ts"));
+        supportingFiles.add(new SupportingFile("index.mustache", "src", INDEX_FILENAME));
+        supportingFiles.add(new SupportingFile("apis.index.mustache", apiPackage, INDEX_FILENAME));
+        supportingFiles.add(new SupportingFile("models.index.mustache", modelPackage, INDEX_FILENAME));
         supportingFiles.add(new SupportingFile("package.mustache", srcDirectory, "package.json"));
         supportingFiles.add(new SupportingFile("tsconfig.mustache", srcDirectory, "tsconfig.json"));
         supportingFiles.add(new SupportingFile("README.mustache", srcDirectory, "README.md"));
@@ -185,6 +183,14 @@ public class YaverFetchClient extends AbstractTypeScriptClientCodegen {
         // Add the api classname for import
         objs.put("apiFilename", getApiFilenameFromClassname(objs.getClassname()));
 
+        populateOperationMetadata(operations, ops);
+        populateOperationImports(operations, ops);
+
+        return operations;
+    }
+
+    private void populateOperationMetadata(OperationsMap operations, List<CodegenOperation> ops) {
+
         boolean hasEnum = false;
         for (CodegenOperation op : ops) {
             op.httpMethod = op.httpMethod.toUpperCase(Locale.ENGLISH);
@@ -204,15 +210,35 @@ public class YaverFetchClient extends AbstractTypeScriptClientCodegen {
             }
         }
         operations.put("hasEnums", hasEnum);
+    }
+
+    private void populateOperationImports(OperationsMap operations, List<CodegenOperation> ops) {
+        LinkedHashSet<String> typeImports = new LinkedHashSet<>();
+        LinkedHashSet<String> fromJsonImports = new LinkedHashSet<>();
+        LinkedHashSet<String> toJsonImports = new LinkedHashSet<>();
 
         // Add additional filename information for model imports
         List<Map<String, String>> imports = operations.getImports();
         for (Map<String, String> im : imports) {
-            im.put("filename", im.get("import"));
-            im.put("classname", im.get("classname"));
+            im.put(FILENAME_KEY, im.get("import"));
+            im.put(CLASSNAME_KEY, im.get(CLASSNAME_KEY));
+
+            String importName = im.get(CLASSNAME_KEY);
+            if (importName == null || importName.isBlank()) {
+                importName = im.get("import");
+            }
+            if (importName != null && !importName.isBlank()) {
+                typeImports.add(importName);
+            }
         }
 
-        return operations;
+        for (CodegenOperation op : ops) {
+            collectOperationModelImports(op, fromJsonImports, toJsonImports);
+        }
+
+        operations.put("typeImports", toOperationImports(typeImports));
+        operations.put("fromJsonImports", toOperationImports(fromJsonImports));
+        operations.put("toJsonImports", toOperationImports(toJsonImports));
     }
 
     @Override
@@ -237,9 +263,10 @@ public class YaverFetchClient extends AbstractTypeScriptClientCodegen {
 
                 // Add additional filename information for imports
                 Set<String> parsedImports = parseImports(cm);
-                List<Map<String, String>> tsImportsList = toTsImports(cm, parsedImports);
+                List<Map<String, Object>> tsImportsList = toTsImports(cm, parsedImports);
                 mo.put("tsImports", tsImportsList);
                 mo.put("hasImports", !tsImportsList.isEmpty());
+                mo.put("hasMapVars", cm.vars.stream().anyMatch(cp -> Boolean.TRUE.equals(cp.isMap)));
             }
         }
         return result;
@@ -263,22 +290,82 @@ public class YaverFetchClient extends AbstractTypeScriptClientCodegen {
         return newImports;
     }
 
-    private List<Map<String, String>> toTsImports(CodegenModel cm, Set<String> imports) {
-        List<Map<String, String>> tsImports = new ArrayList<>();
+    private List<Map<String, Object>> toTsImports(CodegenModel cm, Set<String> imports) {
+        List<Map<String, Object>> tsImports = new ArrayList<>();
         for (String im : imports) {
             if (!im.equals(cm.classname)) {
-                HashMap<String, String> tsImport = new HashMap<>();
-                tsImport.put("classname", im);
-                tsImport.put("filename", toModelFilename(im));
+                HashMap<String, Object> tsImport = new HashMap<>();
+                tsImport.put(CLASSNAME_KEY, im);
+                tsImport.put(FILENAME_KEY, toModelFilename(im));
+                tsImport.put("isParentModel", im.equals(cm.parent));
                 tsImports.add(tsImport);
             }
         }
         return tsImports;
     }
 
+    private void collectOperationModelImports(CodegenOperation op, Set<String> fromJsonImports, Set<String> toJsonImports) {
+        if (op.bodyParam != null) {
+            collectToJsonImport(op.bodyParam, toJsonImports);
+        }
+
+        for (CodegenParameter param : op.formParams) {
+            if (Boolean.TRUE.equals(param.isPrimitiveType) || Boolean.TRUE.equals(param.isEnumRef)) {
+                continue;
+            }
+            collectToJsonImport(param, toJsonImports);
+        }
+
+        if (op.returnType == null || Boolean.TRUE.equals(op.isResponseFile) || Boolean.TRUE.equals(op.returnTypeIsPrimitive)) {
+            return;
+        }
+
+        if (Boolean.TRUE.equals(op.isArray) || Boolean.TRUE.equals(op.isMap)) {
+            addImportIfPresent(fromJsonImports, op.returnBaseType);
+            return;
+        }
+
+        addImportIfPresent(fromJsonImports, op.returnBaseType);
+    }
+
+    private void collectToJsonImport(CodegenParameter param, Set<String> toJsonImports) {
+        if (Boolean.TRUE.equals(param.isContainer)) {
+            if (Boolean.TRUE.equals(param.isArray) && param.items != null && !Boolean.TRUE.equals(param.items.isPrimitiveType)) {
+                addImportIfPresent(toJsonImports, param.items.dataType);
+            }
+            return;
+        }
+
+        if (!Boolean.TRUE.equals(param.isPrimitiveType)) {
+            addImportIfPresent(toJsonImports, param.dataType);
+        }
+    }
+
+    private void addImportIfPresent(Set<String> imports, String modelName) {
+        if (modelName == null || modelName.isBlank()) {
+            return;
+        }
+
+        if (languageSpecificPrimitives.contains(modelName)) {
+            return;
+        }
+
+        imports.add(modelName);
+    }
+
+    private List<Map<String, String>> toOperationImports(Set<String> imports) {
+        List<Map<String, String>> result = new ArrayList<>();
+        for (String importName : imports) {
+            Map<String, String> item = new HashMap<>();
+            item.put(CLASSNAME_KEY, importName);
+            result.add(item);
+        }
+        return result;
+    }
+
     @Override
     public String toApiName(String name) {
-        if (name.length() == 0) {
+        if (name.isEmpty()) {
             return "DefaultApi";
         }
         return camelize(name) + "Api";

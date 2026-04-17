@@ -2,19 +2,27 @@
 {{>licenseInfo}}
 
 import * as runtime from '../runtime';
-{{#imports.0}}
+{{#typeImports.0}}
 import type {
-  {{#imports}}
+    {{#typeImports}}
   {{classname}},
-  {{/imports}}
+    {{/typeImports}}
 } from '../models/index';
+{{/typeImports.0}}
+{{#fromJsonImports.0}}
 import {
-    {{#imports}}
+        {{#fromJsonImports}}
     {{classname}}FromJSON,
-    {{classname}}ToJSON,
-    {{/imports}}
+        {{/fromJsonImports}}
 } from '../models/index';
-{{/imports.0}}
+{{/fromJsonImports.0}}
+{{#toJsonImports.0}}
+import {
+        {{#toJsonImports}}
+        {{classname}}ToJSON,
+        {{/toJsonImports}}
+} from '../models/index';
+{{/toJsonImports.0}}
 
 {{#operations}}
 {{#operation}}
