@@ -54,7 +54,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 	{{#bodyParam}}
 	public class {{operationIdCamelCase}}CommandValidator : Validator<{{operationIdCamelCase}}Command> {
 		public {{operationIdCamelCase}}CommandValidator () =>
-			RuleFor(b => b.{{paramName}}).SetValidator(new {{dataType}}Validator());
+			RuleFor(b => b.{{paramName}}).NotNull().SetValidator(new {{dataType}}Validator());
 	}
 	{{/bodyParam}}
 {{/operation}}
