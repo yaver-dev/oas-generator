@@ -34,13 +34,13 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 		{{/formParams}}
 		{{#authMethods}}
 		{{#isOAuth2}}
-		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}});{{/-last}}{{/scopes}}
 		{{/isOAuth2}}
 		{{#isOpenId}}
-		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}});{{/-last}}{{/scopes}}
 		{{/isOpenId}}
 		{{#isBasicBearer}}
-		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}}){{/-last}}{{/scopes}};
+		{{#scopes}}{{#-first}}Roles ({{/-first}}"{{scope}}"{{^-last}},{{/-last}}{{#-last}});{{/-last}}{{/scopes}}
 		{{/isBasicBearer}}
 		{{/authMethods}}
 		{{^authMethods}}

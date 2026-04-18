@@ -24,7 +24,7 @@ namespace {{packageName}}.{{baseName}}.Api;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}
 		{{/queryParams}}
 		{{#bodyParam}}
 		[FromBody]
