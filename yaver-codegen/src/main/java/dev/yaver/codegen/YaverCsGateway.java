@@ -26,13 +26,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openapitools.codegen.CliOption;
 import org.openapitools.codegen.CodegenConstants;
@@ -68,6 +74,11 @@ import io.swagger.v3.oas.models.servers.Server;
 
 @SuppressWarnings("Duplicates")
 public class YaverCsGateway extends AbstractCSharpCodegen {
+    private static final String HAS_COLLECTIONS_EXTENSION = "x-yaver-has-collections";
+    private static final String FRIENDLY_TYPE_EXTENSION = "x-yaver-friendly-type";
+    private static final String STRUCT_MODEL_EXTENSION = "x-yaver-struct-model";
+    private static final String VALIDATOR_TYPE_EXTENSION = "x-yaver-validator-type";
+
     protected String apiName = "ZApi";
 
     // Defines the sdk option for targeted frameworks, which differs from
@@ -1208,6 +1219,14 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     public ModelsMap postProcessModels(ModelsMap objs) {
         objs = super.postProcessModels(objs);
 
+        Set<String> structModelTypes = objs.getModels().stream()
+                .map(ModelMap::getModel)
+                .filter(cm -> !cm.isEnum)
+                .filter(cm -> cm.oneOf == null || cm.oneOf.isEmpty())
+                .filter(cm -> cm.anyOf == null || cm.anyOf.isEmpty())
+                .map(cm -> cm.classname)
+                .collect(Collectors.toCollection(HashSet::new));
+
         // add implements for serializable/parcelable to all models
         for (ModelMap mo : objs.getModels()) {
             CodegenModel cm = mo.getModel();
@@ -1247,9 +1266,98 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                     cm.allVars.add(cp);
                 }
             }
+
+            patchModelMetadata(cm, structModelTypes);
         }
 
         return objs;
+    }
+
+    private void patchModelMetadata(CodegenModel model, Set<String> structModelTypes) {
+        Map<String, CodegenProperty> properties = new LinkedHashMap<>();
+
+        collectProperties(properties, model.vars);
+        collectProperties(properties, model.allVars);
+        collectProperties(properties, model.readWriteVars);
+        collectProperties(properties, model.requiredVars);
+        collectProperties(properties, model.optionalVars);
+        collectProperties(properties, model.parentRequiredVars);
+        collectProperties(properties, model.nonNullableVars);
+
+        boolean hasCollections = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
+        for (CodegenProperty property : properties.values()) {
+            patchPropertyMetadata(property, structModelTypes);
+            hasCollections |= property.isContainer;
+        }
+
+        model.vendorExtensions.put(HAS_COLLECTIONS_EXTENSION, hasCollections);
+    }
+
+    private void collectProperties(Map<String, CodegenProperty> target, List<CodegenProperty> properties) {
+        if (properties == null) {
+            return;
+        }
+
+        for (CodegenProperty property : properties) {
+            target.putIfAbsent(property.baseName, property);
+        }
+    }
+
+    private void patchPropertyMetadata(CodegenProperty property, Set<String> structModelTypes) {
+        String friendlyType = normalizeCSharpType(firstNonBlank(property.dataType, property.datatypeWithEnum, property.complexType));
+        String validatorType = normalizeCSharpType(firstNonBlank(property.complexType, property.dataType, property.datatypeWithEnum));
+        Set<String> candidateTypes = Stream.of(
+                property.complexType,
+                property.baseType,
+                property.dataType,
+                property.datatypeWithEnum,
+                validatorType,
+                friendlyType)
+            .filter(Objects::nonNull)
+            .map(this::normalizeCSharpType)
+            .map(this::stripNullable)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        boolean isStructModel = !property.isContainer
+            && !property.isEnum
+            && candidateTypes.stream().anyMatch(structModelTypes::contains);
+
+        property.vendorExtensions.put(FRIENDLY_TYPE_EXTENSION, friendlyType);
+        property.vendorExtensions.put(VALIDATOR_TYPE_EXTENSION, stripNullable(validatorType));
+        property.vendorExtensions.put(STRUCT_MODEL_EXTENSION, isStructModel);
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+
+        return "object";
+    }
+
+    private String stripNullable(String typeName) {
+        if (typeName == null || typeName.isBlank()) {
+            return "object";
+        }
+
+        return typeName.endsWith("?") ? typeName.substring(0, typeName.length() - 1) : typeName;
+    }
+
+    private String normalizeCSharpType(String typeName) {
+        String normalized = stripNullable(typeName)
+                .replace("System.Collections.Generic.", "")
+                .replaceAll("\\bString\\b", "string")
+                .replaceAll("\\bBoolean\\b", "bool")
+                .replaceAll("\\bInt32\\b", "int")
+                .replaceAll("\\bInt64\\b", "long")
+                .replaceAll("\\bDecimal\\b", "decimal")
+                .replaceAll("\\bDouble\\b", "double")
+                .replaceAll("\\bSingle\\b", "float")
+                .replaceAll("\\bObject\\b", "object");
+
+        return normalized.isBlank() ? "object" : normalized;
     }
 
     // https://github.com/OpenAPITools/openapi-generator/issues/15867

@@ -1,86 +1,87 @@
 {{>visibility}} readonly struct {{classname}}
 {
-		{{#vars}}
-		{{#items.isEnum}}
-		{{#items}}
-		{{^complexType}}
+{{#vars}}
+  {{#items.isEnum}}
+  {{#items}}
+  {{^complexType}}
 {{>modelInnerEnum}}
-		{{/complexType}}
-		{{/items}}
-		{{/items.isEnum}}
-		{{#isEnum}}
-		{{^complexType}}
+  {{/complexType}}
+  {{/items}}
+  {{/items.isEnum}}
+  {{#isEnum}}
+  {{^complexType}}
 {{>modelInnerEnum}}
-		{{/complexType}}
-		{{/isEnum}}
-		{{#isEnum}}
+  {{/complexType}}
+  {{/isEnum}}
+{{/vars}}
+{{#vars}}
+  {{#isEnum}}
+  /// <summary>
+  /// {{description}}{{^description}}Gets or Sets {{{name}}}{{/description}}
+  /// </summary>
+  {{#description}}
+  /// <value>{{.}}</value>
+  {{/description}}
+  {{#example}}
+  /// <example>{{.}}</example>
+  {{/example}}
+  {{^conditionalSerialization}}
 
-		/// <summary>
-		/// {{description}}{{^description}}Gets or Sets {{{name}}}{{/description}}
-		/// </summary>
-		{{#description}}
-		/// <value>{{.}}</value>
-		{{/description}}
-		{{#example}}
-		/// <example>{{.}}</example>
-		{{/example}}
-		{{^conditionalSerialization}}
+  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; init; } // {{required}}
+  {{#isReadOnly}}
 
-		public {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; init; } // {{required}}
-		{{#isReadOnly}}
+  /// <summary>
+  /// Returns false as {{name}} should not be serialized given that it's read-only.
+  /// </summary>
+  /// <returns>false (boolean)</returns>
+  public bool ShouldSerialize{{name}}()
+  {
+    return false;
+  }
+  {{/isReadOnly}}
+  {{/conditionalSerialization}}
+  {{#conditionalSerialization}}
+  {{^isReadOnly}}
 
-		/// <summary>
-		/// Returns false as {{name}} should not be serialized given that it's read-only.
-		/// </summary>
-		/// <returns>false (boolean)</returns>
-		public bool ShouldSerialize{{name}}()
-		{
-				return false;
-		}
-		{{/isReadOnly}}
-		{{/conditionalSerialization}}
-		{{#conditionalSerialization}}
+  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}}
+  {
+    get => _{{name}};
+    set
+    {
+      _{{name}} = value;
+      _flag{{name}} = true;
+    }
+  }
 
-		{{^isReadOnly}}
+  private {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} _{{name}};
+  private bool _flag{{name}};
 
-		public {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} {{name}}
-		{
-			get{ return _{{name}};}
-			set
-			{
-				_{{name}} = value;
-				_flag{{name}} = true;
-			}
-		}
-		private {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} _{{name}};
-		private bool _flag{{name}};
-
-		/// <summary>
-		/// Returns false as {{name}} should not be serialized given that it's read-only.
-		/// </summary>
-		/// <returns>false (boolean)</returns>
-		public bool ShouldSerialize{{name}}()
-		{
-				return _flag{{name}};
-		}
-		{{/isReadOnly}}
-		{{/conditionalSerialization}}
-		{{/isEnum}}
-		{{/vars}}
-		{{#vars}}
-		{{^isInherited}}
-		{{^isEnum}}
-		public {{#isContainer}}System.Collections.Generic.{{{dataType}}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{dataType}}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; } // {{required}}
-		{{/isEnum}}
-		{{/isInherited}}
-		{{/vars}}
-		{{#isAdditionalPropertiesTrue}}
-		/// <summary>
-		/// Gets or Sets additional properties
-		/// </summary>
-		[JsonExtensionData]
-		public System.Collections.Generic.IDictionary<string, object>? AdditionalProperties { get; init; }
-		{{/isAdditionalPropertiesTrue}}
+  /// <summary>
+  /// Returns false as {{name}} should not be serialized given that it's read-only.
+  /// </summary>
+  /// <returns>false (boolean)</returns>
+  public bool ShouldSerialize{{name}}()
+  {
+    return _flag{{name}};
+  }
+  {{/isReadOnly}}
+  {{/conditionalSerialization}}
+  {{/isEnum}}
+{{/vars}}
+{{#vars}}
+  {{^isInherited}}
+  {{^isEnum}}
+  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; } // {{required}}
+  {{/isEnum}}
+  {{/isInherited}}
+{{/vars}}
+{{#isAdditionalPropertiesTrue}}
+  /// <summary>
+  /// Gets or Sets additional properties
+  /// </summary>
+  [JsonExtensionData]
+  public IDictionary<string, object>? AdditionalProperties { get; init; }
+{{/isAdditionalPropertiesTrue}}
 }
 
 {{#validatable}}

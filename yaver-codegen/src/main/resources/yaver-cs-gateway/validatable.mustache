@@ -3,13 +3,28 @@
 		{{#vars}}
 {{! required }}
 		{{#required}}
-		RuleFor(x => x.{{{name}}}).NotNull(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
 		{{#isString}}
+		RuleFor(x => x.{{{name}}}).NotNull(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
 		RuleFor(x => x.{{{name}}}).NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
 		{{/isString}}
 		{{#isArray}}
+		RuleFor(x => x.{{{name}}}).NotNull(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
 		RuleFor(x => x.{{{name}}}).NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
 		{{/isArray}}
+		{{^isString}}
+		{{^isArray}}
+		{{^isEnum}}
+		{{#isContainer}}
+		RuleFor(x => x.{{{name}}}).NotNull(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{/isContainer}}
+		{{^isContainer}}
+		{{^isPrimitiveType}}
+		RuleFor(x => x.{{{name}}}).SetValidator(new {{vendorExtensions.x-yaver-validator-type}}Validator());
+		{{/isPrimitiveType}}
+		{{/isContainer}}
+		{{/isEnum}}
+		{{/isArray}}
+		{{/isString}}
 		{{/required}}
 {{! isEnum }}
 		{{#isEnum}}
