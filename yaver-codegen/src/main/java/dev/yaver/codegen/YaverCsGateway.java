@@ -86,6 +86,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String STRUCT_MODEL_EXTENSION = "x-yaver-struct-model";
     private static final String VALIDATOR_TYPE_EXTENSION = "x-yaver-validator-type";
     private static final String VALUE_TYPE_EXTENSION = "x-yaver-value-type";
+    private static final String HAS_PROPERTY_INITIALIZERS_EXTENSION = "x-yaver-has-property-initializers";
 
     protected String apiName = "ZApi";
 
@@ -1295,16 +1296,20 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         boolean hasCollections = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
         boolean hasJsonElements = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
         boolean hasValidationRules = false;
+        boolean hasPropertyInitializers = false;
         for (CodegenProperty property : properties.values()) {
             patchPropertyMetadata(property, structModelTypes);
             hasCollections |= property.isContainer;
             hasJsonElements |= Boolean.TRUE.equals(property.vendorExtensions.get(HAS_JSON_ELEMENTS_EXTENSION));
             hasValidationRules |= hasValidationRules(property);
+            hasPropertyInitializers |= property.required
+                    && !Boolean.TRUE.equals(property.vendorExtensions.get(VALUE_TYPE_EXTENSION));
         }
 
         model.vendorExtensions.put(HAS_COLLECTIONS_EXTENSION, hasCollections);
         model.vendorExtensions.put(HAS_JSON_ELEMENTS_EXTENSION, hasJsonElements);
         model.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasValidationRules);
+        model.vendorExtensions.put(HAS_PROPERTY_INITIALIZERS_EXTENSION, hasPropertyInitializers);
     }
 
     private void collectProperties(Map<String, CodegenProperty> target, List<CodegenProperty> properties) {
