@@ -51,11 +51,29 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 		{{/bodyParam}}
 	}
 	//{{#hasParams}}{{operationIdCamelCase}}Request{{/hasParams}}{{^hasParams}}EmptyRequest{{/hasParams}}
+	{{#vendorExtensions.successResponseNoContent}}
+	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) {
+		var result = await req.ToCommand()
+			.RemoteExecuteAsync(ct)
+			.ConfigureAwait(false);
+
+		if (result.Status == Yaver.Result.ResultStatus.Ok) {
+			await Send.NoContentAsync(ct).ConfigureAwait(false);
+			return;
+		}
+
+		await result
+			.SendAsync(HttpContext, {{#vendorExtensions.successResponseCode}}{{vendorExtensions.successResponseCode}}{{/vendorExtensions.successResponseCode}}{{^vendorExtensions.successResponseCode}}200{{/vendorExtensions.successResponseCode}}, ct)
+			.ConfigureAwait(false);
+	}
+	{{/vendorExtensions.successResponseNoContent}}
+	{{^vendorExtensions.successResponseNoContent}}
 	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
 	await req.ToCommand()
 		.RemoteExecuteAsync(ct)
 		.SendAsync(HttpContext, {{#vendorExtensions.successResponseCode}}{{vendorExtensions.successResponseCode}}{{/vendorExtensions.successResponseCode}}{{^vendorExtensions.successResponseCode}}200{{/vendorExtensions.successResponseCode}}, ct)
 		.ConfigureAwait(false);
+	{{/vendorExtensions.successResponseNoContent}}
 }
 
 {{^hasParams}}
