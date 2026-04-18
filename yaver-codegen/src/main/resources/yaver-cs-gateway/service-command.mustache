@@ -11,19 +11,19 @@ namespace {{packageName}}.{{baseName}}.Service;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}{{^defaultValue}}{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}{{/defaultValue}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}{{^defaultValue}}{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}{{/defaultValue}}
 		{{/queryParams}}
 		{{#bodyParam}}
 		public {{dataType}} {{paramName}} { get; set; } = default!;
@@ -37,7 +37,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 		public FileData{{^required}}?{{/required}} {{paramName}} { get; set; }{{#required}} = FileData.Empty{{/required}};
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}
 		{{/isFile}}
 		{{/formParams}}
 	}
