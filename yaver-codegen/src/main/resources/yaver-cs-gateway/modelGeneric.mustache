@@ -33,7 +33,7 @@
   {{/example}}
   {{^conditionalSerialization}}
 
-  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; init; }{{#required}}{{^vendorExtensions.x-yaver-value-type}} = default!;{{/vendorExtensions.x-yaver-value-type}}{{/required}}
+  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; init; }
   {{#isReadOnly}}
 
   /// <summary>
@@ -59,7 +59,7 @@
     }
   }
 
-  private {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} _{{name}}{{#required}}{{^vendorExtensions.x-yaver-value-type}} = default!{{/vendorExtensions.x-yaver-value-type}}{{/required}};
+  private {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} _{{name}};
   private bool _flag{{name}};
 
   /// <summary>
