@@ -1304,7 +1304,10 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     }
 
     private void patchPropertyMetadata(CodegenProperty property, Set<String> structModelTypes) {
-        String friendlyType = normalizeCSharpType(firstNonBlank(property.dataType, property.datatypeWithEnum, property.complexType));
+        boolean prefersEnumType = property.isEnum || (property.items != null && property.items.isEnum);
+        String friendlyType = normalizeCSharpType(prefersEnumType
+            ? firstNonBlank(property.datatypeWithEnum, property.dataType, property.complexType)
+            : firstNonBlank(property.dataType, property.datatypeWithEnum, property.complexType));
         String validatorType = normalizeCSharpType(firstNonBlank(property.complexType, property.dataType, property.datatypeWithEnum));
         Set<String> candidateTypes = Stream.of(
                 property.complexType,
