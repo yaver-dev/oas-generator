@@ -23,7 +23,7 @@ public class {{baseName}}Api : Group
 {{/notes}}
 public class {{operationIdCamelCase}}Endpoint:Endpoint<
 	{{operationIdCamelCase}}Request,
-	{{{returnType}}}{{^returnType}}Object{{/returnType}}> {
+	{{#vendorExtensions.successResponseModel}}{{{vendorExtensions.successResponseModel}}}{{/vendorExtensions.successResponseModel}}{{^vendorExtensions.successResponseModel}}{{{returnType}}}{{^returnType}}Object{{/returnType}}{{/vendorExtensions.successResponseModel}}> {
 	public override void Configure() {
 		{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}");
 		Group<{{baseName}}Api>();
@@ -54,7 +54,7 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
 	await req.ToCommand()
 		.RemoteExecuteAsync(ct)
-		.SendAsync(HttpContext, 200, ct)
+		.SendAsync(HttpContext, {{#vendorExtensions.successResponseCode}}{{vendorExtensions.successResponseCode}}{{/vendorExtensions.successResponseCode}}{{^vendorExtensions.successResponseCode}}200{{/vendorExtensions.successResponseCode}}, ct)
 		.ConfigureAwait(false);
 }
 

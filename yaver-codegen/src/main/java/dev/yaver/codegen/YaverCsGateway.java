@@ -1372,6 +1372,8 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
 
             if (successResponse != null) {
                 op.vendorExtensions.put("hasSuccessResponse", true);
+                op.vendorExtensions.put("successResponseCode",
+                        successResponse.code != null && !successResponse.code.isEmpty() ? successResponse.code : "200");
 
                 // Get response data type from different sources
                 String responseModel = getResponseDataType(successResponse);
