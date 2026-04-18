@@ -25,7 +25,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
 		{{/queryParams}}
 		{{#bodyParam}}
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{dataType}} {{paramName}} { get; set; }
 		{{/bodyParam}}
 		{{#formParams}}
 		/// <summary>
