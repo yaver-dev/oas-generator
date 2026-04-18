@@ -76,6 +76,7 @@ import io.swagger.v3.oas.models.servers.Server;
 public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String HAS_COLLECTIONS_EXTENSION = "x-yaver-has-collections";
     private static final String HAS_JSON_ELEMENTS_EXTENSION = "x-yaver-has-json-elements";
+    private static final String HAS_VALIDATION_RULES_EXTENSION = "x-yaver-has-validation-rules";
     private static final String FRIENDLY_TYPE_EXTENSION = "x-yaver-friendly-type";
     private static final String GUID_TYPE_EXTENSION = "x-yaver-guid-type";
     private static final String STRUCT_MODEL_EXTENSION = "x-yaver-struct-model";
@@ -1289,14 +1290,17 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
 
         boolean hasCollections = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
         boolean hasJsonElements = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
+        boolean hasValidationRules = false;
         for (CodegenProperty property : properties.values()) {
             patchPropertyMetadata(property, structModelTypes);
             hasCollections |= property.isContainer;
             hasJsonElements |= Boolean.TRUE.equals(property.vendorExtensions.get(HAS_JSON_ELEMENTS_EXTENSION));
+            hasValidationRules |= hasValidationRules(property);
         }
 
         model.vendorExtensions.put(HAS_COLLECTIONS_EXTENSION, hasCollections);
         model.vendorExtensions.put(HAS_JSON_ELEMENTS_EXTENSION, hasJsonElements);
+        model.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasValidationRules);
     }
 
     private void collectProperties(Map<String, CodegenProperty> target, List<CodegenProperty> properties) {
@@ -1385,6 +1389,18 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         }
 
         return typeName;
+    }
+
+    private boolean hasValidationRules(CodegenProperty property) {
+        return property.required
+                || property.isEnum
+                || property.maxLength != null
+                || property.minLength != null
+                || property.maximum != null
+                || property.minimum != null
+                || (property.pattern != null && !property.pattern.isBlank())
+                || Boolean.TRUE.equals(property.vendorExtensions.get("x-validator-email"))
+                || Boolean.TRUE.equals(property.vendorExtensions.get("x-validator-creditcard"));
     }
 
     // https://github.com/OpenAPITools/openapi-generator/issues/15867

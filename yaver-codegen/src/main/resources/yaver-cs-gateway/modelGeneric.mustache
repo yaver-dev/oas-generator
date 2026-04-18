@@ -27,7 +27,7 @@
   {{/example}}
   {{^conditionalSerialization}}
 
-  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; init; } // {{required}}
+  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; init; }
   {{#isReadOnly}}
 
   /// <summary>
@@ -71,7 +71,7 @@
 {{#vars}}
   {{^isInherited}}
   {{^isEnum}}
-  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; } // {{required}}
+  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; }
   {{/isEnum}}
   {{/isInherited}}
 {{/vars}}
@@ -85,5 +85,7 @@
 }
 
 {{#validatable}}
+{{#vendorExtensions.x-yaver-has-validation-rules}}
 {{>validatable}}
+{{/vendorExtensions.x-yaver-has-validation-rules}}
 {{/validatable}}
