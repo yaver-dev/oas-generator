@@ -53,8 +53,11 @@ namespace {{packageName}}.{{baseName}}.Service;
 {{#operation}}
 	{{#bodyParam}}
 	public class {{operationIdCamelCase}}CommandValidator : Validator<{{operationIdCamelCase}}Command> {
-		public {{operationIdCamelCase}}CommandValidator () =>
-			RuleFor(b => b.{{paramName}}).NotNull().SetValidator(new {{dataType}}Validator());
+		public {{operationIdCamelCase}}CommandValidator () {
+			RuleFor(b => b.{{paramName}}).Must(value => value is not null);
+			When(b => b.{{paramName}} is not null, () =>
+				RuleFor(b => b.{{paramName}}).SetValidator(new {{dataType}}Validator()));
+		}
 	}
 	{{/bodyParam}}
 {{/operation}}

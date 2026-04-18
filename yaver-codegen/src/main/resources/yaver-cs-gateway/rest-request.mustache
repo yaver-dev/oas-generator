@@ -49,8 +49,11 @@ namespace {{packageName}}.{{baseName}}.Api;
 {{#operation}}
 	{{#bodyParam}}
 	public class {{operationIdCamelCase}}RequestValidator : Validator<{{operationIdCamelCase}}Request> {
-		public {{operationIdCamelCase}}RequestValidator () =>
-			RuleFor(b => b.{{paramName}}).NotNull().SetValidator(new {{dataType}}Validator());
+		public {{operationIdCamelCase}}RequestValidator () {
+			RuleFor(b => b.{{paramName}}).Must(value => value is not null);
+			When(b => b.{{paramName}} is not null, () =>
+				RuleFor(b => b.{{paramName}}).SetValidator(new {{dataType}}Validator()));
+		}
 	}
 	{{/bodyParam}}
 {{/operation}}
