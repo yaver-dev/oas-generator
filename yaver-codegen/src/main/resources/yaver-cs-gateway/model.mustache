@@ -20,8 +20,8 @@ using System.Text.Json.Serialization;
 {{/vendorExtensions.x-yaver-has-collections}}{{#vendorExtensions.x-yaver-has-json-elements}}using System.Text.Json;
 {{/vendorExtensions.x-yaver-has-json-elements}}{{#isAdditionalPropertiesTrue}}using System.Text.Json.Serialization;
 {{/isAdditionalPropertiesTrue}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
-{{^isEnum}}using FluentValidation;
-{{/isEnum}}
+{{^isEnum}}{{#validatable}}{{#vendorExtensions.x-yaver-has-validation-rules}}using FluentValidation;
+{{/vendorExtensions.x-yaver-has-validation-rules}}{{/validatable}}{{/isEnum}}
 
 {{#splitSchemas}}namespace {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}namespace {{packageName}}.{{modelPackage}};{{/splitSchemas}}
 
