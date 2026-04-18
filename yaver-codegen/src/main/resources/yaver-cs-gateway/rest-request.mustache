@@ -11,34 +11,34 @@ namespace {{packageName}}.{{baseName}}.Api;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{#required}}required {{/required}}{{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; init; }
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
 		[FromHeader("{{baseName}}")]
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{#required}}required {{/required}}{{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; init; }
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}
+		public {{#required}}required {{/required}}{{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; init; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}
 		{{/queryParams}}
 		{{#bodyParam}}
 		[FromBody]
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{#required}}required {{/required}}{{dataType}} {{paramName}} { get; init; }
 		{{/bodyParam}}
 		{{#formParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
 		{{#isFile}}
-		public Microsoft.AspNetCore.Http.IFormFile{{^required}}?{{/required}} {{paramName}} { get; set; }
+		public {{#required}}required {{/required}}Microsoft.AspNetCore.Http.IFormFile{{^required}}?{{/required}} {{paramName}} { get; init; }
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{#required}}required {{/required}}{{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; init; }
 		{{/isFile}}
 		{{/formParams}}
 	}

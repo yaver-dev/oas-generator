@@ -26,7 +26,7 @@
 		{{/example}}
 		{{^conditionalSerialization}}
 
-				public {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; init; } // {{required}}
+		public {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; init; } // {{required}}
 		{{#isReadOnly}}
 
 		/// <summary>
@@ -43,16 +43,16 @@
 
 		{{^isReadOnly}}
 
-				public {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} {{name}}
+		public {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} {{name}}
 		{
-				get{ return _{{name}};}
-				set
-				{
-						_{{name}} = value;
-						_flag{{name}} = true;
-				}
+			get{ return _{{name}};}
+			set
+			{
+				_{{name}} = value;
+				_flag{{name}} = true;
+			}
 		}
-				private {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} _{{name}};
+		private {{#isContainer}}System.Collections.Generic.{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{complexType}}}{{^complexType}}{{{datatypeWithEnum}}}{{/complexType}}{{^required}}?{{/required}}{{/isContainer}} _{{name}};
 		private bool _flag{{name}};
 
 		/// <summary>
@@ -70,7 +70,7 @@
 		{{#vars}}
 		{{^isInherited}}
 		{{^isEnum}}
-				public {{#isContainer}}System.Collections.Generic.{{{dataType}}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{dataType}}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; } // {{required}}
+		public {{#isContainer}}System.Collections.Generic.{{{dataType}}}{{^required}}?{{/required}}{{/isContainer}}{{^isContainer}}{{{dataType}}}{{^required}}?{{/required}}{{/isContainer}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; } // {{required}}
 		{{/isEnum}}
 		{{/isInherited}}
 		{{/vars}}
@@ -79,7 +79,7 @@
 		/// Gets or Sets additional properties
 		/// </summary>
 		[JsonExtensionData]
-				public System.Collections.Generic.IDictionary<string, object>? AdditionalProperties { get; init; }
+		public System.Collections.Generic.IDictionary<string, object>? AdditionalProperties { get; init; }
 		{{/isAdditionalPropertiesTrue}}
 }
 

@@ -22,7 +22,8 @@ using System.Text.Json.Serialization;
 {{/models}}
 {{#models}}
 {{#model}}
-using FluentValidation;
+{{^isEnum}}using FluentValidation;
+{{/isEnum}}
 
 {{#splitSchemas}}namespace {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}namespace {{packageName}}.{{modelPackage}};{{/splitSchemas}}
 
