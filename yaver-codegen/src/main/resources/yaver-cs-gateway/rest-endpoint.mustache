@@ -12,7 +12,6 @@ public class {{baseName}}Api : Group
 }
 {{#operations}}
 {{#operation}}
-//	{{#hasParams}}{{operationIdCamelCase}}Request{{/hasParams}}{{^hasParams}}EmptyRequest{{/hasParams}},
 /// <summary>
 /// {{summary}}
 /// </summary>
@@ -21,10 +20,12 @@ public class {{baseName}}Api : Group
 /// {{.}}
 /// </remarks>
 {{/notes}}
-public class {{operationIdCamelCase}}Endpoint:Endpoint<
-	{{operationIdCamelCase}}Request,
-	{{#vendorExtensions.successResponseModel}}{{{vendorExtensions.successResponseModel}}}{{/vendorExtensions.successResponseModel}}{{^vendorExtensions.successResponseModel}}{{{returnType}}}{{^returnType}}Object{{/returnType}}{{/vendorExtensions.successResponseModel}}> {
-	public override void Configure() {
+public class {{operationIdCamelCase}}Endpoint : Endpoint<
+    {{operationIdCamelCase}}Request,
+    {{#vendorExtensions.successResponseModel}}{{{vendorExtensions.successResponseModel}}}{{/vendorExtensions.successResponseModel}}{{^vendorExtensions.successResponseModel}}{{{returnType}}}{{^returnType}}Object{{/returnType}}{{/vendorExtensions.successResponseModel}}>
+{
+	public override void Configure()
+	{
 		{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}");
 		Group<{{baseName}}Api>();
 		{{#formParams}}
@@ -46,18 +47,19 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 		{{^authMethods}}
 		AllowAnonymous();
 		{{/authMethods}}
-		{{#bodyParam}}
+		{{#vendorExtensions.x-yaver-has-operation-validation}}
 		Validator<{{operationIdCamelCase}}RequestValidator>();
-		{{/bodyParam}}
+		{{/vendorExtensions.x-yaver-has-operation-validation}}
 	}
-	//{{#hasParams}}{{operationIdCamelCase}}Request{{/hasParams}}{{^hasParams}}EmptyRequest{{/hasParams}}
 	{{#vendorExtensions.successResponseNoContent}}
-	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) {
+	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct)
+	{
 		var result = await req.ToCommand()
 			.RemoteExecuteAsync(ct)
 			.ConfigureAwait(false);
 
-		if (result.Status == Yaver.Result.ResultStatus.Ok) {
+		if (result.Status == Yaver.Result.ResultStatus.Ok)
+		{
 			await Send.NoContentAsync(ct).ConfigureAwait(false);
 			return;
 		}

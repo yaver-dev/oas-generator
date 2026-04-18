@@ -52,9 +52,9 @@ namespace {{packageName}}.{{baseName}}.Service;
 {{#operation}}
 	{{#vendorExtensions.x-yaver-has-operation-validation}}
 	public class {{operationIdCamelCase}}CommandValidator : Validator<{{operationIdCamelCase}}Command> {
-		public {{operationIdCamelCase}}CommandValidator () {
+		public {{operationIdCamelCase}}CommandValidator({{#bodyParam}}{{#vendorExtensions.x-yaver-has-validation-rules}}{{dataType}}Validator childValidator{{/vendorExtensions.x-yaver-has-validation-rules}}{{/bodyParam}}) {
 			{{#bodyParam}}
-			RuleFor(b => b.{{paramName}}).NotNull(){{#vendorExtensions.x-yaver-has-validation-rules}}.SetValidator(new {{dataType}}Validator()){{/vendorExtensions.x-yaver-has-validation-rules}};
+			RuleFor(b => b.{{paramName}}).NotNull(){{#vendorExtensions.x-yaver-has-validation-rules}}.SetValidator(childValidator){{/vendorExtensions.x-yaver-has-validation-rules}};
 			{{/bodyParam}}
 			{{#vendorExtensions.x-yaver-validate-date-range}}
 			RuleFor(x => x.To)
