@@ -1453,9 +1453,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     @Override
     protected boolean isValueType(CodegenProperty var) {
         // this is temporary until x-csharp-value-type is removed
-        return // this.getLibrary().equals("generichost")
-               // ?
-        super.isValueType(var);
+        return var.isEnum || super.isValueType(var);
         // : this.getValueTypes().contains(var.dataType) || var.isEnum;
     }
 
