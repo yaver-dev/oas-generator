@@ -1,5 +1,3 @@
-{{#hasMapVars}}import { mapValues } from '../runtime';
-{{/hasMapVars}}
 {{#hasImports}}
 {{#tsImports}}
 import type { {{{classname}}} } from './{{filename}}';
@@ -97,7 +95,7 @@ export function {{classname}}FromJSONTyped(json: any, ignoreDiscriminator: boole
         {{/uniqueItems}}
         {{/isArray}}
         {{#isMap}}
-        '{{name}}': {{^required}}json['{{baseName}}'] == null ? undefined : {{/required}}({{#required}}{{#isNullable}}json['{{baseName}}'] == null ? null : {{/isNullable}}{{/required}}mapValues(json['{{baseName}}'], {{#items}}{{datatype}}{{/items}}FromJSON)),
+        '{{name}}': {{^required}}json['{{baseName}}'] == null ? undefined : {{/required}}({{#required}}{{#isNullable}}json['{{baseName}}'] == null ? null : {{/isNullable}}{{/required}}Object.fromEntries(Object.entries(json['{{baseName}}']).map(([key, value]) => [key, {{#items}}{{datatype}}{{/items}}FromJSON(value)]))),
         {{/isMap}}
         {{^isArray}}
         {{^isMap}}
@@ -176,7 +174,7 @@ export function {{classname}}ToJSONTyped(value?: {{#hasReadOnly}}Omit<{{classnam
         {{/uniqueItems}}
         {{/isArray}}
         {{#isMap}}
-        '{{baseName}}': {{^required}}value['{{name}}'] == null ? undefined : {{/required}}({{#required}}{{#isNullable}}value['{{name}}'] == null ? null : {{/isNullable}}{{/required}}mapValues(value['{{name}}'], {{#items}}{{datatype}}{{/items}}ToJSON)),
+        '{{baseName}}': {{^required}}value['{{name}}'] == null ? undefined : {{/required}}({{#required}}{{#isNullable}}value['{{name}}'] == null ? null : {{/isNullable}}{{/required}}Object.fromEntries(Object.entries(value['{{name}}']).map(([key, value]) => [key, {{#items}}{{datatype}}{{/items}}ToJSON(value)]))),
         {{/isMap}}
         {{^isArray}}
         {{^isMap}}

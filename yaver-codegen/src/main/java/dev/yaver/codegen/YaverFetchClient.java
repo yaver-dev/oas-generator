@@ -266,7 +266,6 @@ public class YaverFetchClient extends AbstractTypeScriptClientCodegen {
                 List<Map<String, Object>> tsImportsList = toTsImports(cm, parsedImports);
                 mo.put("tsImports", tsImportsList);
                 mo.put("hasImports", !tsImportsList.isEmpty());
-                mo.put("hasMapVars", cm.vars.stream().anyMatch(cp -> Boolean.TRUE.equals(cp.isMap)));
             }
         }
         return result;
