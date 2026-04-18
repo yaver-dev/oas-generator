@@ -1283,6 +1283,14 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     }
 
     private void patchModelMetadata(CodegenModel model, Set<String> structModelTypes) {
+        patchProperties(model.vars, structModelTypes);
+        patchProperties(model.allVars, structModelTypes);
+        patchProperties(model.readWriteVars, structModelTypes);
+        patchProperties(model.requiredVars, structModelTypes);
+        patchProperties(model.optionalVars, structModelTypes);
+        patchProperties(model.parentRequiredVars, structModelTypes);
+        patchProperties(model.nonNullableVars, structModelTypes);
+
         Map<String, CodegenProperty> properties = new LinkedHashMap<>();
 
         collectProperties(properties, model.vars);
@@ -1298,7 +1306,6 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         boolean hasValidationRules = false;
         boolean hasPropertyInitializers = false;
         for (CodegenProperty property : properties.values()) {
-            patchPropertyMetadata(property, structModelTypes);
             hasCollections |= property.isContainer;
             hasJsonElements |= Boolean.TRUE.equals(property.vendorExtensions.get(HAS_JSON_ELEMENTS_EXTENSION));
             hasValidationRules |= hasValidationRules(property);
@@ -1310,6 +1317,16 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         model.vendorExtensions.put(HAS_JSON_ELEMENTS_EXTENSION, hasJsonElements);
         model.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasValidationRules);
         model.vendorExtensions.put(HAS_PROPERTY_INITIALIZERS_EXTENSION, hasPropertyInitializers);
+    }
+
+    private void patchProperties(List<CodegenProperty> properties, Set<String> structModelTypes) {
+        if (properties == null) {
+            return;
+        }
+
+        for (CodegenProperty property : properties) {
+            patchPropertyMetadata(property, structModelTypes);
+        }
     }
 
     private void collectProperties(Map<String, CodegenProperty> target, List<CodegenProperty> properties) {
