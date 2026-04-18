@@ -48,11 +48,28 @@ namespace {{packageName}}.{{baseName}}.Api;
 
 {{#operations}}
 {{#operation}}
-	{{#bodyParam}}
+	{{#vendorExtensions.x-yaver-has-operation-validation}}
 	public class {{operationIdCamelCase}}RequestValidator : Validator<{{operationIdCamelCase}}Request> {
-		public {{operationIdCamelCase}}RequestValidator () =>
+		public {{operationIdCamelCase}}RequestValidator () {
+			{{#bodyParam}}
 			RuleFor(b => b.{{paramName}}).NotNull(){{#vendorExtensions.x-yaver-has-validation-rules}}.SetValidator(new {{dataType}}Validator()){{/vendorExtensions.x-yaver-has-validation-rules}};
+			{{/bodyParam}}
+			{{#vendorExtensions.x-yaver-validate-date-range}}
+			RuleFor(x => x.To)
+				.GreaterThanOrEqualTo(x => x.From)
+				.WithMessage("'To' must be greater than or equal to 'From'.");
+			{{/vendorExtensions.x-yaver-validate-date-range}}
+			{{#vendorExtensions.x-yaver-validate-offset}}
+			RuleFor(x => x.Offset)
+				.GreaterThanOrEqualTo(0);
+			{{/vendorExtensions.x-yaver-validate-offset}}
+			{{#vendorExtensions.x-yaver-validate-limit}}
+			RuleFor(x => x.Limit)
+				.GreaterThan(0)
+				.LessThanOrEqualTo(100);
+			{{/vendorExtensions.x-yaver-validate-limit}}
+		}
 	}
-	{{/bodyParam}}
+	{{/vendorExtensions.x-yaver-has-operation-validation}}
 {{/operation}}
 {{/operations}}

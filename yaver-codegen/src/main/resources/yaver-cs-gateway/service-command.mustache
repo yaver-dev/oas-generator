@@ -11,22 +11,22 @@ namespace {{packageName}}.{{baseName}}.Service;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}{{^defaultValue}}{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}{{/defaultValue}}
 		{{/queryParams}}
 		{{#bodyParam}}
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{dataType}} {{paramName}} { get; set; } = default!;
 		{{/bodyParam}}
 		{{#formParams}}
 		/// <summary>
@@ -37,7 +37,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 		public FileData{{^required}}?{{/required}} {{paramName}} { get; set; }{{#required}} = FileData.Empty{{/required}};
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/required}}
 		{{/isFile}}
 		{{/formParams}}
 	}
@@ -50,11 +50,28 @@ namespace {{packageName}}.{{baseName}}.Service;
 
 {{#operations}}
 {{#operation}}
-	{{#bodyParam}}
+	{{#vendorExtensions.x-yaver-has-operation-validation}}
 	public class {{operationIdCamelCase}}CommandValidator : Validator<{{operationIdCamelCase}}Command> {
-		public {{operationIdCamelCase}}CommandValidator () =>
+		public {{operationIdCamelCase}}CommandValidator () {
+			{{#bodyParam}}
 			RuleFor(b => b.{{paramName}}).NotNull(){{#vendorExtensions.x-yaver-has-validation-rules}}.SetValidator(new {{dataType}}Validator()){{/vendorExtensions.x-yaver-has-validation-rules}};
+			{{/bodyParam}}
+			{{#vendorExtensions.x-yaver-validate-date-range}}
+			RuleFor(x => x.To)
+				.GreaterThanOrEqualTo(x => x.From)
+				.WithMessage("'To' must be greater than or equal to 'From'.");
+			{{/vendorExtensions.x-yaver-validate-date-range}}
+			{{#vendorExtensions.x-yaver-validate-offset}}
+			RuleFor(x => x.Offset)
+				.GreaterThanOrEqualTo(0);
+			{{/vendorExtensions.x-yaver-validate-offset}}
+			{{#vendorExtensions.x-yaver-validate-limit}}
+			RuleFor(x => x.Limit)
+				.GreaterThan(0)
+				.LessThanOrEqualTo(100);
+			{{/vendorExtensions.x-yaver-validate-limit}}
+		}
 	}
-	{{/bodyParam}}
+	{{/vendorExtensions.x-yaver-has-operation-validation}}
 {{/operation}}
 {{/operations}}

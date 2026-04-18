@@ -77,6 +77,10 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String HAS_COLLECTIONS_EXTENSION = "x-yaver-has-collections";
     private static final String HAS_JSON_ELEMENTS_EXTENSION = "x-yaver-has-json-elements";
     private static final String HAS_VALIDATION_RULES_EXTENSION = "x-yaver-has-validation-rules";
+    private static final String HAS_OPERATION_VALIDATION_EXTENSION = "x-yaver-has-operation-validation";
+    private static final String VALIDATE_OFFSET_EXTENSION = "x-yaver-validate-offset";
+    private static final String VALIDATE_LIMIT_EXTENSION = "x-yaver-validate-limit";
+    private static final String VALIDATE_DATE_RANGE_EXTENSION = "x-yaver-validate-date-range";
     private static final String FRIENDLY_TYPE_EXTENSION = "x-yaver-friendly-type";
     private static final String GUID_TYPE_EXTENSION = "x-yaver-guid-type";
     private static final String STRUCT_MODEL_EXTENSION = "x-yaver-struct-model";
@@ -1524,6 +1528,20 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                         HashMap::new));
 
         for (CodegenOperation op : operationList) {
+            boolean hasOffsetValidation = hasParameterNamed(op.queryParams, "Offset");
+            boolean hasLimitValidation = hasParameterNamed(op.queryParams, "Limit");
+            boolean hasDateRangeValidation = hasParameterNamed(op.queryParams, "From")
+                    && hasParameterNamed(op.queryParams, "To");
+            boolean hasOperationValidation = op.bodyParam != null
+                    || hasOffsetValidation
+                    || hasLimitValidation
+                    || hasDateRangeValidation;
+
+            op.vendorExtensions.put(HAS_OPERATION_VALIDATION_EXTENSION, hasOperationValidation);
+            op.vendorExtensions.put(VALIDATE_OFFSET_EXTENSION, hasOffsetValidation);
+            op.vendorExtensions.put(VALIDATE_LIMIT_EXTENSION, hasLimitValidation);
+            op.vendorExtensions.put(VALIDATE_DATE_RANGE_EXTENSION, hasDateRangeValidation);
+
             if (op.bodyParam != null) {
                 boolean hasBodyValidationRules = Boolean.TRUE.equals(validationRulesByModel.get(op.bodyParam.dataType));
                 op.bodyParam.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasBodyValidationRules);
@@ -1581,6 +1599,14 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         }
 
         return super.postProcessOperationsWithModels(objs, allModels);
+    }
+
+    private boolean hasParameterNamed(List<CodegenParameter> parameters, String paramName) {
+        if (parameters == null || parameters.isEmpty()) {
+            return false;
+        }
+
+        return parameters.stream().anyMatch(parameter -> paramName.equals(parameter.paramName));
     }
 
     /**
