@@ -1,9 +1,24 @@
 {{#models}}
 {{#model}}
-using System.Collections.Generic;
+{{#isEnum}}using System.Runtime.Serialization;
+{{#useGenericHost}}using System.Text.Json;
+using System.Text.Json.Serialization;
+{{/useGenericHost}}{{/isEnum}}
+{{#oneOf}}{{#-first}}using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+{{/-first}}{{/oneOf}}
+{{#anyOf}}{{#-first}}using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+{{/-first}}{{/anyOf}}
+{{^isEnum}}{{^oneOf}}{{^anyOf}}{{#isAdditionalPropertiesTrue}}using System.Collections.Generic;
+using System.Text.Json.Serialization;
+{{/isAdditionalPropertiesTrue}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
 {{/model}}
 {{/models}}
 {{#models}}
