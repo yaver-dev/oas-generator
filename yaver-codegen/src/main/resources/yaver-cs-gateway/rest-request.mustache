@@ -10,34 +10,34 @@ namespace {{packageName}}.{{baseName}}.Api;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
 		[FromHeader("{{baseName}}")]
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
 		{{/queryParams}}
 		{{#bodyParam}}
 		[FromBody]
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
 		{{/bodyParam}}
 		{{#formParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
 		{{#isFile}}
-		public Microsoft.AspNetCore.Http.IFormFile {{paramName}} { get; set; }
+		public Microsoft.AspNetCore.Http.IFormFile{{^required}}?{{/required}} {{paramName}} { get; set; }
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }
 		{{/isFile}}
 		{{/formParams}}
 	}
