@@ -17,7 +17,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 {{/-first}}{{/anyOf}}
 {{^isEnum}}{{^oneOf}}{{^anyOf}}{{#vendorExtensions.x-yaver-has-collections}}using System.Collections.Generic;
-{{/vendorExtensions.x-yaver-has-collections}}{{#isAdditionalPropertiesTrue}}using System.Text.Json.Serialization;
+{{/vendorExtensions.x-yaver-has-collections}}{{#vendorExtensions.x-yaver-has-json-elements}}using System.Text.Json;
+{{/vendorExtensions.x-yaver-has-json-elements}}{{#isAdditionalPropertiesTrue}}using System.Text.Json.Serialization;
 {{/isAdditionalPropertiesTrue}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
 {{^isEnum}}using FluentValidation;
 {{/isEnum}}

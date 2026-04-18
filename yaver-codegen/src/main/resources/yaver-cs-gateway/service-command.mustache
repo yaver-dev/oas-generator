@@ -43,9 +43,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 	}
 	{{/hasParams}}
 	{{^hasParams}}
-	public record {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>> {
-		public object? Empty { get; set; }
-	}
+	public record {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>>;
 	{{/hasParams}}
 {{/operation}}
 {{/operations}}

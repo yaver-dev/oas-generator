@@ -77,9 +77,7 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 }
 
 {{^hasParams}}
-	public record {{operationIdCamelCase}}Request {
-		public object? Empty { get; set; }
-	}
+	public record {{operationIdCamelCase}}Request;
 {{/hasParams}}
 {{/operation}}
 {{/operations}}

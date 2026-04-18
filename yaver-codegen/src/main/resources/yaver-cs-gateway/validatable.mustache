@@ -4,7 +4,9 @@
 {{! required }}
 		{{#required}}
 		{{#isString}}
+		{{^vendorExtensions.x-yaver-value-type}}
 		RuleFor(x => x.{{{name}}}).NotNull(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
+		{{/vendorExtensions.x-yaver-value-type}}
 		RuleFor(x => x.{{{name}}}).NotEmpty(){{#vendorExtensions.x-message-required}}.WithMessage("{{vendorExtensions.x-message-required}}"){{/vendorExtensions.x-message-required}};
 		{{/isString}}
 		{{#isArray}}

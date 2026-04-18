@@ -75,9 +75,12 @@ import io.swagger.v3.oas.models.servers.Server;
 @SuppressWarnings("Duplicates")
 public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String HAS_COLLECTIONS_EXTENSION = "x-yaver-has-collections";
+    private static final String HAS_JSON_ELEMENTS_EXTENSION = "x-yaver-has-json-elements";
     private static final String FRIENDLY_TYPE_EXTENSION = "x-yaver-friendly-type";
+    private static final String GUID_TYPE_EXTENSION = "x-yaver-guid-type";
     private static final String STRUCT_MODEL_EXTENSION = "x-yaver-struct-model";
     private static final String VALIDATOR_TYPE_EXTENSION = "x-yaver-validator-type";
+    private static final String VALUE_TYPE_EXTENSION = "x-yaver-value-type";
 
     protected String apiName = "ZApi";
 
@@ -1285,12 +1288,15 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         collectProperties(properties, model.nonNullableVars);
 
         boolean hasCollections = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
+        boolean hasJsonElements = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
         for (CodegenProperty property : properties.values()) {
             patchPropertyMetadata(property, structModelTypes);
             hasCollections |= property.isContainer;
+            hasJsonElements |= Boolean.TRUE.equals(property.vendorExtensions.get(HAS_JSON_ELEMENTS_EXTENSION));
         }
 
         model.vendorExtensions.put(HAS_COLLECTIONS_EXTENSION, hasCollections);
+        model.vendorExtensions.put(HAS_JSON_ELEMENTS_EXTENSION, hasJsonElements);
     }
 
     private void collectProperties(Map<String, CodegenProperty> target, List<CodegenProperty> properties) {
@@ -1305,9 +1311,9 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
 
     private void patchPropertyMetadata(CodegenProperty property, Set<String> structModelTypes) {
         boolean prefersEnumType = property.isEnum || (property.items != null && property.items.isEnum);
-        String friendlyType = normalizeCSharpType(prefersEnumType
+        String friendlyType = normalizeSchemaContractType(normalizeCSharpType(prefersEnumType
             ? firstNonBlank(property.datatypeWithEnum, property.dataType, property.complexType)
-            : firstNonBlank(property.dataType, property.datatypeWithEnum, property.complexType));
+            : firstNonBlank(property.dataType, property.datatypeWithEnum, property.complexType)), property);
         String validatorType = normalizeCSharpType(firstNonBlank(property.complexType, property.dataType, property.datatypeWithEnum));
         Set<String> candidateTypes = Stream.of(
                 property.complexType,
@@ -1324,10 +1330,16 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         boolean isStructModel = !property.isContainer
             && !property.isEnum
             && candidateTypes.stream().anyMatch(structModelTypes::contains);
+        boolean isValueType = isValueType(property);
+        boolean isGuidType = "Guid".equals(stripNullable(friendlyType));
+        boolean usesJsonElements = friendlyType.contains("JsonElement");
 
         property.vendorExtensions.put(FRIENDLY_TYPE_EXTENSION, friendlyType);
+        property.vendorExtensions.put(GUID_TYPE_EXTENSION, isGuidType);
+        property.vendorExtensions.put(HAS_JSON_ELEMENTS_EXTENSION, usesJsonElements);
         property.vendorExtensions.put(VALIDATOR_TYPE_EXTENSION, stripNullable(validatorType));
         property.vendorExtensions.put(STRUCT_MODEL_EXTENSION, isStructModel);
+        property.vendorExtensions.put(VALUE_TYPE_EXTENSION, isValueType);
     }
 
     private String firstNonBlank(String... values) {
@@ -1361,6 +1373,18 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                 .replaceAll("\\bObject\\b", "object");
 
         return normalized.isBlank() ? "object" : normalized;
+    }
+
+    private String normalizeSchemaContractType(String typeName, CodegenProperty property) {
+        if (typeName == null || typeName.isBlank()) {
+            return "object";
+        }
+
+        if (property.isMap && typeName.contains("object")) {
+            return typeName.replaceAll("\\bobject\\b", "JsonElement");
+        }
+
+        return typeName;
     }
 
     // https://github.com/OpenAPITools/openapi-generator/issues/15867
