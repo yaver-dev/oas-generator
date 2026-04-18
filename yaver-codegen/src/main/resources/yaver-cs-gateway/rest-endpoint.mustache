@@ -63,7 +63,7 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 		}
 
 		await result
-			.SendAsync(HttpContext, {{#vendorExtensions.successResponseCode}}{{vendorExtensions.successResponseCode}}{{/vendorExtensions.successResponseCode}}{{^vendorExtensions.successResponseCode}}200{{/vendorExtensions.successResponseCode}}, ct)
+			.SendAsync(HttpContext, cancellationToken: ct)
 			.ConfigureAwait(false);
 	}
 	{{/vendorExtensions.successResponseNoContent}}
