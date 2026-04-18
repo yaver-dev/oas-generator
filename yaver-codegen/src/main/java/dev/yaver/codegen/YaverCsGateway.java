@@ -1516,8 +1516,23 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
         OperationMap operations = objs.getOperations();
         List<CodegenOperation> operationList = operations.getOperation();
+        Map<String, Boolean> validationRulesByModel = allModels.stream()
+                .map(ModelMap::getModel)
+                .collect(Collectors.toMap(model -> model.classname,
+                        model -> Boolean.TRUE.equals(model.vendorExtensions.get(HAS_VALIDATION_RULES_EXTENSION)),
+                        (left, right) -> left,
+                        HashMap::new));
 
         for (CodegenOperation op : operationList) {
+            if (op.bodyParam != null) {
+                boolean hasBodyValidationRules = Boolean.TRUE.equals(validationRulesByModel.get(op.bodyParam.dataType));
+                op.bodyParam.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasBodyValidationRules);
+            }
+
+            for (CodegenParameter bodyParam : op.bodyParams) {
+                boolean hasBodyValidationRules = Boolean.TRUE.equals(validationRulesByModel.get(bodyParam.dataType));
+                bodyParam.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasBodyValidationRules);
+            }
 
             CodegenResponse successResponse = findSuccessResponse(op);
 

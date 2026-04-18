@@ -51,7 +51,7 @@ namespace {{packageName}}.{{baseName}}.Api;
 	{{#bodyParam}}
 	public class {{operationIdCamelCase}}RequestValidator : Validator<{{operationIdCamelCase}}Request> {
 		public {{operationIdCamelCase}}RequestValidator () =>
-			RuleFor(b => b.{{paramName}}).NotNull().SetValidator(new {{dataType}}Validator());
+			RuleFor(b => b.{{paramName}}).NotNull(){{#vendorExtensions.x-yaver-has-validation-rules}}.SetValidator(new {{dataType}}Validator()){{/vendorExtensions.x-yaver-has-validation-rules}};
 	}
 	{{/bodyParam}}
 {{/operation}}
