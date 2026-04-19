@@ -1,4 +1,5 @@
-using FluentValidation;
+{{#x-yaver-has-request-validation}}using FluentValidation;
+{{/x-yaver-has-request-validation}}
 {{#splitSchemas}}using {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}using {{packageName}}.{{modelPackage}};{{/splitSchemas}}
 
 namespace {{packageName}}.{{baseName}}.Service;
@@ -11,19 +12,19 @@ namespace {{packageName}}.{{baseName}}.Service;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}{{^defaultValue}}{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}{{/defaultValue}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}{{^defaultValue}}{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/defaultValue}}
 		{{/queryParams}}
 		{{#bodyParam}}
 		public {{dataType}} {{paramName}} { get; set; } = default!;
@@ -37,7 +38,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 		public FileData{{^required}}?{{/required}} {{paramName}} { get; set; }{{#required}} = FileData.Empty{{/required}};
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#isString}} = default!;{{/isString}}{{^isString}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/isString}}{{/required}}
+		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
 		{{/isFile}}
 		{{/formParams}}
 	}
@@ -53,6 +54,23 @@ namespace {{packageName}}.{{baseName}}.Service;
 	{{#vendorExtensions.x-yaver-has-operation-validation}}
 	public class {{operationIdCamelCase}}CommandValidator : Validator<{{operationIdCamelCase}}Command> {
 		public {{operationIdCamelCase}}CommandValidator({{#bodyParam}}{{#vendorExtensions.x-yaver-has-validation-rules}}{{dataType}}Validator childValidator{{/vendorExtensions.x-yaver-has-validation-rules}}{{/bodyParam}}) {
+			{{#pathParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty()
+				.Must(value => !string.IsNullOrWhiteSpace(value));
+			{{/vendorExtensions.x-yaver-string-type}}{{/required}}{{/pathParams}}{{#headerParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty()
+				.Must(value => !string.IsNullOrWhiteSpace(value));
+			{{/vendorExtensions.x-yaver-string-type}}{{/required}}{{/headerParams}}{{#queryParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty()
+				.Must(value => !string.IsNullOrWhiteSpace(value));
+			{{/vendorExtensions.x-yaver-string-type}}{{/required}}{{/queryParams}}{{#formParams}}{{#required}}{{^isFile}}{{#vendorExtensions.x-yaver-string-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty()
+				.Must(value => !string.IsNullOrWhiteSpace(value));
+			{{/vendorExtensions.x-yaver-string-type}}{{/isFile}}{{/required}}{{/formParams}}
 			{{#bodyParam}}
 			RuleFor(b => b.{{paramName}}).NotNull(){{#vendorExtensions.x-yaver-has-validation-rules}}.SetValidator(childValidator){{/vendorExtensions.x-yaver-has-validation-rules}};
 			{{/bodyParam}}

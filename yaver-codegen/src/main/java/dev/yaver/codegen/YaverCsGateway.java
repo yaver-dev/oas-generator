@@ -95,6 +95,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String CHILD_VALIDATOR_PARAM_EXTENSION = "x-yaver-child-validator-param";
     private static final String HAS_ITEM_VALIDATOR_EXTENSION = "x-yaver-has-item-validator";
     private static final String ITEM_VALIDATOR_PARAM_EXTENSION = "x-yaver-item-validator-param";
+    private static final String STRING_TYPE_EXTENSION = "x-yaver-string-type";
 
     protected String apiName = "ZApi";
 
@@ -573,6 +574,13 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     public void postProcessParameter(CodegenParameter parameter) {
         super.postProcessParameter(parameter);
         postProcessEmitDefaultValue(parameter.vendorExtensions);
+        String normalizedType = normalizeCSharpType(firstNonBlank(
+                parameter.dataType,
+                parameter.dataFormat,
+                parameter.baseType));
+        String parameterType = stripNullable(normalizedType);
+        parameter.vendorExtensions.put(GUID_TYPE_EXTENSION, "Guid".equals(parameterType));
+        parameter.vendorExtensions.put(STRING_TYPE_EXTENSION, "string".equals(parameterType));
         parameter.paramName = camelize(parameter.paramName);
     }
 
@@ -1713,7 +1721,12 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
             boolean hasLimitValidation = hasParameterNamed(op.queryParams, "Limit");
             boolean hasDateRangeValidation = hasParameterNamed(op.queryParams, "From")
                     && hasParameterNamed(op.queryParams, "To");
+            boolean hasRequiredStringValidation = Stream.of(op.pathParams, op.headerParams, op.queryParams, op.formParams)
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .anyMatch(this::requiresNonBlankStringValidation);
             boolean hasOperationValidation = op.bodyParam != null
+                || hasRequiredStringValidation
                     || hasOffsetValidation
                     || hasLimitValidation
                     || hasDateRangeValidation;
@@ -1783,6 +1796,12 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         objs.put(HAS_REQUEST_VALIDATION_EXTENSION, hasRequestValidation);
 
         return super.postProcessOperationsWithModels(objs, allModels);
+    }
+
+    private boolean requiresNonBlankStringValidation(CodegenParameter parameter) {
+        return parameter != null
+                && parameter.required
+                && Boolean.TRUE.equals(parameter.vendorExtensions.get(STRING_TYPE_EXTENSION));
     }
 
     private boolean hasParameterNamed(List<CodegenParameter> parameters, String paramName) {
