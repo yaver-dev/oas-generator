@@ -49,10 +49,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 {{/operation}}
 {{/operations}}
 
-{{#operations}}
-{{#operation}}
-{{#-first}}
-{{#vendorExtensions.x-yaver-has-operation-validation}}
+{{#x-yaver-has-required-string-validation}}
 internal static class {{baseName}}CommandValidationExtensions {
 	public static IRuleBuilderOptions<T, string> ApplyRequiredString<T>(this IRuleBuilderInitial<T, string> ruleBuilder) {
 		return ruleBuilder
@@ -61,10 +58,7 @@ internal static class {{baseName}}CommandValidationExtensions {
 	}
 }
 
-{{/vendorExtensions.x-yaver-has-operation-validation}}
-{{/-first}}
-{{/operation}}
-{{/operations}}
+{{/x-yaver-has-required-string-validation}}
 
 {{#operations}}
 {{#operation}}

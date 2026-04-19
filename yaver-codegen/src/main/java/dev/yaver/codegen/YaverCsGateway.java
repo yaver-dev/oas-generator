@@ -79,6 +79,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String HAS_VALIDATION_RULES_EXTENSION = "x-yaver-has-validation-rules";
     private static final String HAS_OPERATION_VALIDATION_EXTENSION = "x-yaver-has-operation-validation";
     private static final String HAS_REQUEST_VALIDATION_EXTENSION = "x-yaver-has-request-validation";
+    private static final String HAS_REQUIRED_STRING_VALIDATION_EXTENSION = "x-yaver-has-required-string-validation";
     private static final String VALIDATE_OFFSET_EXTENSION = "x-yaver-validate-offset";
     private static final String VALIDATE_LIMIT_EXTENSION = "x-yaver-validate-limit";
     private static final String VALIDATE_DATE_RANGE_EXTENSION = "x-yaver-validate-date-range";
@@ -1745,22 +1746,24 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                         (left, right) -> left,
                         HashMap::new));
         boolean hasRequestValidation = false;
+        boolean hasRequiredStringValidation = false;
 
         for (CodegenOperation op : operationList) {
             boolean hasOffsetValidation = hasParameterNamed(op.queryParams, "Offset");
             boolean hasLimitValidation = hasParameterNamed(op.queryParams, "Limit");
             boolean hasDateRangeValidation = hasParameterNamed(op.queryParams, "From")
                     && hasParameterNamed(op.queryParams, "To");
-            boolean hasRequiredStringValidation = Stream.of(op.pathParams, op.headerParams, op.queryParams, op.formParams)
+            boolean hasOperationRequiredStringValidation = Stream.of(op.pathParams, op.headerParams, op.queryParams, op.formParams)
                 .filter(Objects::nonNull)
                 .flatMap(List::stream)
                 .anyMatch(this::requiresNonBlankStringValidation);
             boolean hasOperationValidation = op.bodyParam != null
-                || hasRequiredStringValidation
+                || hasOperationRequiredStringValidation
                     || hasOffsetValidation
                     || hasLimitValidation
                     || hasDateRangeValidation;
-                hasRequestValidation |= hasOperationValidation;
+            hasRequestValidation |= hasOperationValidation;
+            hasRequiredStringValidation |= hasOperationRequiredStringValidation;
 
             op.vendorExtensions.put(HAS_OPERATION_VALIDATION_EXTENSION, hasOperationValidation);
             op.vendorExtensions.put(VALIDATE_OFFSET_EXTENSION, hasOffsetValidation);
@@ -1824,6 +1827,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         }
 
         objs.put(HAS_REQUEST_VALIDATION_EXTENSION, hasRequestValidation);
+        objs.put(HAS_REQUIRED_STRING_VALIDATION_EXTENSION, hasRequiredStringValidation);
 
         return super.postProcessOperationsWithModels(objs, allModels);
     }
