@@ -1,29 +1,9 @@
 {{#models}}
 {{#model}}
-{{#isEnum}}using System.Runtime.Serialization;
-{{#useGenericHost}}using System.Text.Json;
-using System.Text.Json.Serialization;
-{{/useGenericHost}}{{/isEnum}}
-{{#oneOf}}{{#-first}}using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-{{/-first}}{{/oneOf}}
-{{#anyOf}}{{#-first}}using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-{{/-first}}{{/anyOf}}
-{{^isEnum}}{{^oneOf}}{{^anyOf}}{{#vendorExtensions.x-yaver-has-collections}}using System.Collections.Generic;
-{{/vendorExtensions.x-yaver-has-collections}}{{#vendorExtensions.x-yaver-has-json-elements}}using System.Text.Json;
-{{/vendorExtensions.x-yaver-has-json-elements}}{{#isAdditionalPropertiesTrue}}using System.Text.Json.Serialization;
-{{/isAdditionalPropertiesTrue}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
-{{^isEnum}}{{#validatable}}{{#vendorExtensions.x-yaver-has-validation-rules}}using FluentValidation;
-{{/vendorExtensions.x-yaver-has-validation-rules}}{{/validatable}}{{/isEnum}}
+{{#vendorExtensions.x-yaver-imports}}using {{.}};
+{{/vendorExtensions.x-yaver-imports}}{{#vendorExtensions.x-yaver-has-imports}}
 
-{{#splitSchemas}}namespace {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}namespace {{packageName}}.{{modelPackage}};{{/splitSchemas}}
+{{/vendorExtensions.x-yaver-has-imports}}{{#splitSchemas}}namespace {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}namespace {{packageName}}.{{modelPackage}};{{/splitSchemas}}
 
 {{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{#oneOf}}{{#-first}}{{>modelOneOf}}{{/-first}}{{/oneOf}}{{#anyOf}}{{#-first}}{{>modelAnyOf}}{{/-first}}{{/anyOf}}{{^oneOf}}{{^anyOf}}{{>modelGeneric}}{{/anyOf}}{{/oneOf}}{{/isEnum}}
 {{/model}}

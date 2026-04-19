@@ -1,5 +1,5 @@
 {{#splitSchemas}}public class {{classname}}Validator : AbstractValidator<{{classname}}>{{/splitSchemas}}{{^splitSchemas}}public class {{classname}}Validator : Validator<{{classname}}>{{/splitSchemas}} {
-	public {{classname}}Validator() {
+	public {{classname}}Validator({{#vendorExtensions.x-yaver-validator-dependencies}}{{type}} {{paramName}}{{^-last}}, {{/-last}}{{/vendorExtensions.x-yaver-validator-dependencies}}) {
 		{{#vars}}
 {{! required }}
 		{{#required}}
@@ -18,13 +18,18 @@
 		{{/isContainer}}
 		{{^isContainer}}
 		{{^isPrimitiveType}}
-		RuleFor(x => x.{{{name}}}).SetValidator(new {{vendorExtensions.x-yaver-validator-type}}Validator());
+		RuleFor(x => x.{{{name}}}).SetValidator({{vendorExtensions.x-yaver-child-validator-param}});
 		{{/isPrimitiveType}}
 		{{/isContainer}}
 		{{/isEnum}}
 		{{/isArray}}
 		{{/isString}}
 		{{/required}}
+		{{#isArray}}
+		{{#vendorExtensions.x-yaver-has-item-validator}}
+		RuleForEach(x => x.{{{name}}}).SetValidator({{vendorExtensions.x-yaver-item-validator-param}});
+		{{/vendorExtensions.x-yaver-has-item-validator}}
+		{{/isArray}}
 {{! isEnum }}
 		{{#isEnum}}
 		RuleFor(x => x.{{{name}}}).IsInEnum(){{#vendorExtensions.x-message-enum}}.WithMessage("{{vendorExtensions.x-message-enum}}"){{/vendorExtensions.x-message-enum}};

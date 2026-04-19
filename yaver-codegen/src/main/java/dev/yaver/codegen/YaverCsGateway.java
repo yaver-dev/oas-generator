@@ -87,6 +87,13 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String VALIDATOR_TYPE_EXTENSION = "x-yaver-validator-type";
     private static final String VALUE_TYPE_EXTENSION = "x-yaver-value-type";
     private static final String HAS_PROPERTY_INITIALIZERS_EXTENSION = "x-yaver-has-property-initializers";
+    private static final String HAS_IMPORTS_EXTENSION = "x-yaver-has-imports";
+    private static final String IMPORTS_EXTENSION = "x-yaver-imports";
+    private static final String VALIDATOR_DEPENDENCIES_EXTENSION = "x-yaver-validator-dependencies";
+    private static final String HAS_CHILD_VALIDATOR_EXTENSION = "x-yaver-has-child-validator";
+    private static final String CHILD_VALIDATOR_PARAM_EXTENSION = "x-yaver-child-validator-param";
+    private static final String HAS_ITEM_VALIDATOR_EXTENSION = "x-yaver-has-item-validator";
+    private static final String ITEM_VALIDATOR_PARAM_EXTENSION = "x-yaver-item-validator-param";
 
     protected String apiName = "ZApi";
 
@@ -1279,6 +1286,19 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
             patchModelMetadata(cm, structModelTypes);
         }
 
+        Map<String, Boolean> validationRulesByModel = objs.getModels().stream()
+                .map(ModelMap::getModel)
+                .collect(Collectors.toMap(model -> model.classname,
+                        model -> Boolean.TRUE.equals(model.vendorExtensions.get(HAS_VALIDATION_RULES_EXTENSION)),
+                        (left, right) -> left,
+                        HashMap::new));
+
+        for (ModelMap mo : objs.getModels()) {
+            CodegenModel cm = mo.getModel();
+            patchModelValidatorMetadata(cm, validationRulesByModel);
+            patchModelImports(cm);
+        }
+
         return objs;
     }
 
@@ -1337,6 +1357,131 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         for (CodegenProperty property : properties) {
             target.putIfAbsent(property.baseName, property);
         }
+    }
+
+    private void patchModelValidatorMetadata(CodegenModel model, Map<String, Boolean> validationRulesByModel) {
+        LinkedHashMap<String, Map<String, String>> validatorDependencies = new LinkedHashMap<>();
+
+        patchPropertyValidators(model.vars, validationRulesByModel, validatorDependencies);
+        patchPropertyValidators(model.allVars, validationRulesByModel, validatorDependencies);
+        patchPropertyValidators(model.readWriteVars, validationRulesByModel, validatorDependencies);
+        patchPropertyValidators(model.requiredVars, validationRulesByModel, validatorDependencies);
+        patchPropertyValidators(model.optionalVars, validationRulesByModel, validatorDependencies);
+        patchPropertyValidators(model.parentRequiredVars, validationRulesByModel, validatorDependencies);
+        patchPropertyValidators(model.nonNullableVars, validationRulesByModel, validatorDependencies);
+
+        model.vendorExtensions.put(VALIDATOR_DEPENDENCIES_EXTENSION, new ArrayList<>(validatorDependencies.values()));
+    }
+
+    private void patchPropertyValidators(List<CodegenProperty> properties,
+            Map<String, Boolean> validationRulesByModel,
+            LinkedHashMap<String, Map<String, String>> validatorDependencies) {
+        if (properties == null) {
+            return;
+        }
+
+        for (CodegenProperty property : properties) {
+            String validatorModelType = getValidatorModelType(property);
+            if (validatorModelType != null && Boolean.TRUE.equals(validationRulesByModel.get(validatorModelType))) {
+                String validatorType = validatorModelType + "Validator";
+                String parameterName = toLowerCamelCase(validatorType);
+
+                property.vendorExtensions.put(HAS_CHILD_VALIDATOR_EXTENSION, true);
+                property.vendorExtensions.put(CHILD_VALIDATOR_PARAM_EXTENSION, parameterName);
+                validatorDependencies.putIfAbsent(validatorType, createValidatorDependency(validatorType, parameterName));
+            }
+
+            String itemValidatorModelType = getItemValidatorModelType(property);
+            if (itemValidatorModelType != null && Boolean.TRUE.equals(validationRulesByModel.get(itemValidatorModelType))) {
+                String validatorType = itemValidatorModelType + "Validator";
+                String parameterName = toLowerCamelCase(validatorType);
+
+                property.vendorExtensions.put(HAS_ITEM_VALIDATOR_EXTENSION, true);
+                property.vendorExtensions.put(ITEM_VALIDATOR_PARAM_EXTENSION, parameterName);
+                validatorDependencies.putIfAbsent(validatorType, createValidatorDependency(validatorType, parameterName));
+            }
+        }
+    }
+
+    private Map<String, String> createValidatorDependency(String type, String parameterName) {
+        Map<String, String> dependency = new LinkedHashMap<>();
+        dependency.put("type", type);
+        dependency.put("paramName", parameterName);
+        return dependency;
+    }
+
+    private String getValidatorModelType(CodegenProperty property) {
+        if (property == null || property.isContainer || property.isPrimitiveType || property.isEnum) {
+            return null;
+        }
+
+        Object validatorType = property.vendorExtensions.get(VALIDATOR_TYPE_EXTENSION);
+        if (validatorType instanceof String validatorTypeName && !validatorTypeName.isBlank() && !"object".equals(validatorTypeName)) {
+            return stripNullable(validatorTypeName);
+        }
+
+        return null;
+    }
+
+    private String getItemValidatorModelType(CodegenProperty property) {
+        if (property == null || !property.isContainer || property.items == null || property.items.isPrimitiveType
+                || property.items.isEnum) {
+            return null;
+        }
+
+        return stripNullable(normalizeCSharpType(firstNonBlank(
+                property.items.complexType,
+                property.items.dataType,
+                property.items.datatypeWithEnum)));
+    }
+
+    private String toLowerCamelCase(String value) {
+        if (value == null || value.isBlank()) {
+            return "validator";
+        }
+
+        return Character.toLowerCase(value.charAt(0)) + value.substring(1);
+    }
+
+    private void patchModelImports(CodegenModel model) {
+        LinkedHashSet<String> imports = new LinkedHashSet<>();
+        boolean usesGenericHost = Boolean.TRUE.equals(additionalProperties.get("useGenericHost"));
+
+        if (model.isEnum) {
+            imports.add("System.Runtime.Serialization");
+            if (usesGenericHost) {
+                imports.add("System.Text.Json");
+                imports.add("System.Text.Json.Serialization");
+            }
+        } else if (model.oneOf != null && !model.oneOf.isEmpty()) {
+            imports.add("System.Collections.Generic");
+            imports.add("System.Runtime.Serialization");
+            imports.add("System.Text");
+            imports.add("System.Text.Json");
+            imports.add("System.Text.Json.Serialization");
+        } else if (model.anyOf != null && !model.anyOf.isEmpty()) {
+            imports.add("System.Collections.Generic");
+            imports.add("System.Runtime.Serialization");
+            imports.add("System.Text");
+            imports.add("System.Text.Json");
+            imports.add("System.Text.Json.Serialization");
+        } else {
+            if (Boolean.TRUE.equals(model.vendorExtensions.get(HAS_COLLECTIONS_EXTENSION))) {
+                imports.add("System.Collections.Generic");
+            }
+            if (Boolean.TRUE.equals(model.vendorExtensions.get(HAS_JSON_ELEMENTS_EXTENSION))) {
+                imports.add("System.Text.Json");
+            }
+            if (Boolean.TRUE.equals(model.isAdditionalPropertiesTrue)) {
+                imports.add("System.Text.Json.Serialization");
+            }
+            if (validatable && Boolean.TRUE.equals(model.vendorExtensions.get(HAS_VALIDATION_RULES_EXTENSION))) {
+                imports.add("FluentValidation");
+            }
+        }
+
+        model.vendorExtensions.put(HAS_IMPORTS_EXTENSION, !imports.isEmpty());
+        model.vendorExtensions.put(IMPORTS_EXTENSION, new ArrayList<>(imports));
     }
 
     private void patchPropertyMetadata(CodegenProperty property, Set<String> structModelTypes) {
