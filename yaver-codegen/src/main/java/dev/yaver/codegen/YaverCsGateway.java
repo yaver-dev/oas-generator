@@ -1711,7 +1711,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         Map<String, Boolean> validationRulesByModel = allModels.stream()
                 .map(ModelMap::getModel)
                 .collect(Collectors.toMap(model -> model.classname,
-                        this::hasModelValidationRules,
+                model -> Boolean.TRUE.equals(model.vendorExtensions.get(HAS_VALIDATION_RULES_EXTENSION)),
                         (left, right) -> left,
                         HashMap::new));
         boolean hasRequestValidation = false;
