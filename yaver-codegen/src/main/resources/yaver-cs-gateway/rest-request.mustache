@@ -56,22 +56,34 @@ namespace {{packageName}}.{{baseName}}.Api;
 				.Cascade(CascadeMode.Stop)
 				.NotEmpty()
 				.Must(value => !string.IsNullOrWhiteSpace(value));
-			{{/vendorExtensions.x-yaver-string-type}}{{/required}}{{/pathParams}}{{#headerParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
+			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty();
+			{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/pathParams}}{{#headerParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
 			RuleFor(x => x.{{paramName}})
 				.Cascade(CascadeMode.Stop)
 				.NotEmpty()
 				.Must(value => !string.IsNullOrWhiteSpace(value));
-			{{/vendorExtensions.x-yaver-string-type}}{{/required}}{{/headerParams}}{{#queryParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
+			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty();
+			{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/headerParams}}{{#queryParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
 			RuleFor(x => x.{{paramName}})
 				.Cascade(CascadeMode.Stop)
 				.NotEmpty()
 				.Must(value => !string.IsNullOrWhiteSpace(value));
-			{{/vendorExtensions.x-yaver-string-type}}{{/required}}{{/queryParams}}{{#formParams}}{{#required}}{{^isFile}}{{#vendorExtensions.x-yaver-string-type}}
+			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty();
+			{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/queryParams}}{{#formParams}}{{#required}}{{^isFile}}{{#vendorExtensions.x-yaver-string-type}}
 			RuleFor(x => x.{{paramName}})
 				.Cascade(CascadeMode.Stop)
 				.NotEmpty()
 				.Must(value => !string.IsNullOrWhiteSpace(value));
-			{{/vendorExtensions.x-yaver-string-type}}{{/isFile}}{{/required}}{{/formParams}}
+			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
+			RuleFor(x => x.{{paramName}})
+				.NotEmpty();
+			{{/vendorExtensions.x-yaver-guid-type}}{{/isFile}}{{/required}}{{/formParams}}
 			{{#bodyParam}}
 			RuleFor(b => b.{{paramName}}).NotNull(){{#vendorExtensions.x-yaver-has-validation-rules}}.SetValidator(childValidator){{/vendorExtensions.x-yaver-has-validation-rules}};
 			{{/bodyParam}}
