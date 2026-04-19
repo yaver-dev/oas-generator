@@ -1295,20 +1295,36 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
             patchModelMetadata(cm, structModelTypes);
         }
 
-        Map<String, Boolean> validationRulesByModel = objs.getModels().stream()
-            .map(ModelMap::getModel)
-            .collect(Collectors.toMap(model -> model.classname,
-                this::hasModelValidationRules,
-                (left, right) -> left,
-                HashMap::new));
-
         for (ModelMap mo : objs.getModels()) {
             CodegenModel cm = mo.getModel();
-            patchModelValidatorMetadata(cm, validationRulesByModel);
             patchModelImports(cm);
         }
 
         return objs;
+    }
+
+    @Override
+    public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
+        Map<String, ModelsMap> result = super.postProcessAllModels(objs);
+
+        Map<String, Boolean> validationRulesByModel = result.values().stream()
+                .flatMap(entry -> entry.getModels().stream())
+                .map(ModelMap::getModel)
+                .collect(Collectors.toMap(model -> model.classname,
+                        this::hasModelValidationRules,
+                        (left, right) -> left,
+                        HashMap::new));
+
+        for (ModelsMap entry : result.values()) {
+            for (ModelMap mo : entry.getModels()) {
+                CodegenModel model = mo.getModel();
+                patchModelValidatorMetadata(model, validationRulesByModel);
+                model.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasModelValidationRules(model));
+                patchModelImports(model);
+            }
+        }
+
+        return result;
     }
 
     private void patchModelMetadata(CodegenModel model, Set<String> structModelTypes) {
