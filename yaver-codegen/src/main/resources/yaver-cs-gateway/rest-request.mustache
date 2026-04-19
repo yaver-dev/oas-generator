@@ -1,4 +1,5 @@
-{{#splitSchemas}}using {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}using {{packageName}}.{{modelPackage}};{{/splitSchemas}}
+{{#x-yaver-has-request-validation}}using FluentValidation;
+{{/x-yaver-has-request-validation}}{{#splitSchemas}}using {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}using {{packageName}}.{{modelPackage}};{{/splitSchemas}}
 
 namespace {{packageName}}.{{baseName}}.Api;
 {{#operations}}

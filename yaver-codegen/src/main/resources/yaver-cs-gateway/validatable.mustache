@@ -18,7 +18,9 @@
 		{{/isContainer}}
 		{{^isContainer}}
 		{{^isPrimitiveType}}
+		{{#vendorExtensions.x-yaver-child-validator-param}}
 		RuleFor(x => x.{{{name}}}).SetValidator({{vendorExtensions.x-yaver-child-validator-param}});
+		{{/vendorExtensions.x-yaver-child-validator-param}}
 		{{/isPrimitiveType}}
 		{{/isContainer}}
 		{{/isEnum}}

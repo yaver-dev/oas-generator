@@ -78,6 +78,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String HAS_JSON_ELEMENTS_EXTENSION = "x-yaver-has-json-elements";
     private static final String HAS_VALIDATION_RULES_EXTENSION = "x-yaver-has-validation-rules";
     private static final String HAS_OPERATION_VALIDATION_EXTENSION = "x-yaver-has-operation-validation";
+    private static final String HAS_REQUEST_VALIDATION_EXTENSION = "x-yaver-has-request-validation";
     private static final String VALIDATE_OFFSET_EXTENSION = "x-yaver-validate-offset";
     private static final String VALIDATE_LIMIT_EXTENSION = "x-yaver-validate-limit";
     private static final String VALIDATE_DATE_RANGE_EXTENSION = "x-yaver-validate-date-range";
@@ -1287,11 +1288,11 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         }
 
         Map<String, Boolean> validationRulesByModel = objs.getModels().stream()
-                .map(ModelMap::getModel)
-                .collect(Collectors.toMap(model -> model.classname,
-                        model -> Boolean.TRUE.equals(model.vendorExtensions.get(HAS_VALIDATION_RULES_EXTENSION)),
-                        (left, right) -> left,
-                        HashMap::new));
+            .map(ModelMap::getModel)
+            .collect(Collectors.toMap(model -> model.classname,
+                this::hasModelValidationRules,
+                (left, right) -> left,
+                HashMap::new));
 
         for (ModelMap mo : objs.getModels()) {
             CodegenModel cm = mo.getModel();
@@ -1482,6 +1483,20 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
 
         model.vendorExtensions.put(HAS_IMPORTS_EXTENSION, !imports.isEmpty());
         model.vendorExtensions.put(IMPORTS_EXTENSION, new ArrayList<>(imports));
+    }
+
+    private boolean hasModelValidationRules(CodegenModel model) {
+        Map<String, CodegenProperty> properties = new LinkedHashMap<>();
+
+        collectProperties(properties, model.vars);
+        collectProperties(properties, model.allVars);
+        collectProperties(properties, model.readWriteVars);
+        collectProperties(properties, model.requiredVars);
+        collectProperties(properties, model.optionalVars);
+        collectProperties(properties, model.parentRequiredVars);
+        collectProperties(properties, model.nonNullableVars);
+
+        return properties.values().stream().anyMatch(this::hasValidationRules);
     }
 
     private void patchPropertyMetadata(CodegenProperty property, Set<String> structModelTypes) {
@@ -1688,9 +1703,10 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         Map<String, Boolean> validationRulesByModel = allModels.stream()
                 .map(ModelMap::getModel)
                 .collect(Collectors.toMap(model -> model.classname,
-                        model -> Boolean.TRUE.equals(model.vendorExtensions.get(HAS_VALIDATION_RULES_EXTENSION)),
+                        this::hasModelValidationRules,
                         (left, right) -> left,
                         HashMap::new));
+        boolean hasRequestValidation = false;
 
         for (CodegenOperation op : operationList) {
             boolean hasOffsetValidation = hasParameterNamed(op.queryParams, "Offset");
@@ -1701,6 +1717,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                     || hasOffsetValidation
                     || hasLimitValidation
                     || hasDateRangeValidation;
+                hasRequestValidation |= hasOperationValidation;
 
             op.vendorExtensions.put(HAS_OPERATION_VALIDATION_EXTENSION, hasOperationValidation);
             op.vendorExtensions.put(VALIDATE_OFFSET_EXTENSION, hasOffsetValidation);
@@ -1762,6 +1779,8 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                 op.vendorExtensions.put("hasSuccessResponse", false);
             }
         }
+
+        objs.put(HAS_REQUEST_VALIDATION_EXTENSION, hasRequestValidation);
 
         return super.postProcessOperationsWithModels(objs, allModels);
     }
