@@ -93,6 +93,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String VALIDATOR_DEPENDENCIES_EXTENSION = "x-yaver-validator-dependencies";
     private static final String HAS_CHILD_VALIDATOR_EXTENSION = "x-yaver-has-child-validator";
     private static final String CHILD_VALIDATOR_PARAM_EXTENSION = "x-yaver-child-validator-param";
+    private static final String CHILD_VALIDATOR_STRUCT_MODEL_EXTENSION = "x-yaver-child-validator-struct-model";
     private static final String HAS_ITEM_VALIDATOR_EXTENSION = "x-yaver-has-item-validator";
     private static final String ITEM_VALIDATOR_PARAM_EXTENSION = "x-yaver-item-validator-param";
     private static final String STRING_TYPE_EXTENSION = "x-yaver-string-type";
@@ -1307,6 +1308,15 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
         Map<String, ModelsMap> result = super.postProcessAllModels(objs);
 
+        Set<String> structModelTypes = result.values().stream()
+            .flatMap(entry -> entry.getModels().stream())
+            .map(ModelMap::getModel)
+            .filter(cm -> !cm.isEnum)
+            .filter(cm -> cm.oneOf == null || cm.oneOf.isEmpty())
+            .filter(cm -> cm.anyOf == null || cm.anyOf.isEmpty())
+            .map(cm -> cm.classname)
+            .collect(Collectors.toCollection(HashSet::new));
+
         Map<String, Boolean> validationRulesByModel = result.values().stream()
                 .flatMap(entry -> entry.getModels().stream())
                 .map(ModelMap::getModel)
@@ -1318,7 +1328,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         for (ModelsMap entry : result.values()) {
             for (ModelMap mo : entry.getModels()) {
                 CodegenModel model = mo.getModel();
-                patchModelValidatorMetadata(model, validationRulesByModel);
+                patchModelValidatorMetadata(model, validationRulesByModel, structModelTypes);
                 model.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasModelValidationRules(model));
                 patchModelImports(model);
             }
@@ -1328,14 +1338,6 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     }
 
     private void patchModelMetadata(CodegenModel model, Set<String> structModelTypes) {
-        patchProperties(model.vars, structModelTypes);
-        patchProperties(model.allVars, structModelTypes);
-        patchProperties(model.readWriteVars, structModelTypes);
-        patchProperties(model.requiredVars, structModelTypes);
-        patchProperties(model.optionalVars, structModelTypes);
-        patchProperties(model.parentRequiredVars, structModelTypes);
-        patchProperties(model.nonNullableVars, structModelTypes);
-
         Map<String, CodegenProperty> properties = new LinkedHashMap<>();
 
         collectProperties(properties, model.vars);
@@ -1345,6 +1347,8 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         collectProperties(properties, model.optionalVars);
         collectProperties(properties, model.parentRequiredVars);
         collectProperties(properties, model.nonNullableVars);
+
+        patchProperties(new ArrayList<>(properties.values()), structModelTypes);
 
         boolean hasCollections = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
         boolean hasJsonElements = Boolean.TRUE.equals(model.isAdditionalPropertiesTrue);
@@ -1384,22 +1388,29 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         }
     }
 
-    private void patchModelValidatorMetadata(CodegenModel model, Map<String, Boolean> validationRulesByModel) {
+        private void patchModelValidatorMetadata(CodegenModel model, Map<String, Boolean> validationRulesByModel,
+            Set<String> structModelTypes) {
         LinkedHashMap<String, Map<String, String>> validatorDependencies = new LinkedHashMap<>();
 
-        patchPropertyValidators(model.vars, validationRulesByModel, validatorDependencies);
-        patchPropertyValidators(model.allVars, validationRulesByModel, validatorDependencies);
-        patchPropertyValidators(model.readWriteVars, validationRulesByModel, validatorDependencies);
-        patchPropertyValidators(model.requiredVars, validationRulesByModel, validatorDependencies);
-        patchPropertyValidators(model.optionalVars, validationRulesByModel, validatorDependencies);
-        patchPropertyValidators(model.parentRequiredVars, validationRulesByModel, validatorDependencies);
-        patchPropertyValidators(model.nonNullableVars, validationRulesByModel, validatorDependencies);
+        Map<String, CodegenProperty> properties = new LinkedHashMap<>();
+
+        collectProperties(properties, model.vars);
+        collectProperties(properties, model.allVars);
+        collectProperties(properties, model.readWriteVars);
+        collectProperties(properties, model.requiredVars);
+        collectProperties(properties, model.optionalVars);
+        collectProperties(properties, model.parentRequiredVars);
+        collectProperties(properties, model.nonNullableVars);
+
+        patchPropertyValidators(new ArrayList<>(properties.values()), validationRulesByModel, structModelTypes,
+            validatorDependencies);
 
         model.vendorExtensions.put(VALIDATOR_DEPENDENCIES_EXTENSION, new ArrayList<>(validatorDependencies.values()));
     }
 
     private void patchPropertyValidators(List<CodegenProperty> properties,
             Map<String, Boolean> validationRulesByModel,
+            Set<String> structModelTypes,
             LinkedHashMap<String, Map<String, String>> validatorDependencies) {
         if (properties == null) {
             return;
@@ -1413,6 +1424,8 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
 
                 property.vendorExtensions.put(HAS_CHILD_VALIDATOR_EXTENSION, true);
                 property.vendorExtensions.put(CHILD_VALIDATOR_PARAM_EXTENSION, parameterName);
+                property.vendorExtensions.put(CHILD_VALIDATOR_STRUCT_MODEL_EXTENSION,
+                        structModelTypes.contains(validatorModelType));
                 validatorDependencies.putIfAbsent(validatorType, createValidatorDependency(validatorType, parameterName));
             }
 

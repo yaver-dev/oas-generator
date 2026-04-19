@@ -32,6 +32,24 @@
 		RuleForEach(x => x.{{{name}}}).SetValidator({{vendorExtensions.x-yaver-item-validator-param}});
 		{{/vendorExtensions.x-yaver-has-item-validator}}
 		{{/isArray}}
+		{{^required}}
+		{{^isArray}}
+		{{^isEnum}}
+		{{^isPrimitiveType}}
+		{{^isContainer}}
+		{{#vendorExtensions.x-yaver-child-validator-param}}
+		{{#vendorExtensions.x-yaver-child-validator-struct-model}}
+		RuleFor(x => x.{{{name}}}.Value).SetValidator({{vendorExtensions.x-yaver-child-validator-param}}).When(x => x.{{{name}}} is not null);
+		{{/vendorExtensions.x-yaver-child-validator-struct-model}}
+		{{^vendorExtensions.x-yaver-child-validator-struct-model}}
+		RuleFor(x => x.{{{name}}}).SetValidator({{vendorExtensions.x-yaver-child-validator-param}}).When(x => x.{{{name}}} is not null);
+		{{/vendorExtensions.x-yaver-child-validator-struct-model}}
+		{{/vendorExtensions.x-yaver-child-validator-param}}
+		{{/isContainer}}
+		{{/isPrimitiveType}}
+		{{/isEnum}}
+		{{/isArray}}
+		{{/required}}
 {{! isEnum }}
 		{{#isEnum}}
 		RuleFor(x => x.{{{name}}}).IsInEnum(){{#vendorExtensions.x-message-enum}}.WithMessage("{{vendorExtensions.x-message-enum}}"){{/vendorExtensions.x-message-enum}};
