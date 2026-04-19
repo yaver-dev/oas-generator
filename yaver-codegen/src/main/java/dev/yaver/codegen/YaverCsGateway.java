@@ -1534,6 +1534,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
 
         property.vendorExtensions.put(FRIENDLY_TYPE_EXTENSION, friendlyType);
         property.vendorExtensions.put(GUID_TYPE_EXTENSION, isGuidType);
+        property.vendorExtensions.put(STRING_TYPE_EXTENSION, "string".equals(stripNullable(friendlyType)));
         property.vendorExtensions.put(HAS_JSON_ELEMENTS_EXTENSION, usesJsonElements);
         property.vendorExtensions.put(VALIDATOR_TYPE_EXTENSION, stripNullable(validatorType));
         property.vendorExtensions.put(STRUCT_MODEL_EXTENSION, isStructModel);

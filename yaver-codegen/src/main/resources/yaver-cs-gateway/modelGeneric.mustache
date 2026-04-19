@@ -77,7 +77,16 @@
 {{#vars}}
   {{^isInherited}}
   {{^isEnum}}
+  {{#required}}{{#vendorExtensions.x-yaver-string-type}}
+  private readonly string? _{{name}};
+  public string {{name}}
+  {
+    get => _{{name}} ?? string.Empty;
+    {{#isReadOnly}}private {{/isReadOnly}}init => _{{name}} = value;
+  }
+  {{/vendorExtensions.x-yaver-string-type}}{{/required}}{{^required}}{{! keep default generation below for optional values }}{{/required}}{{^vendorExtensions.x-yaver-string-type}}
   public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; }{{#required}}{{^vendorExtensions.x-yaver-value-type}} = default!;{{/vendorExtensions.x-yaver-value-type}}{{/required}}
+  {{/vendorExtensions.x-yaver-string-type}}
   {{/isEnum}}
   {{/isInherited}}
 {{/vars}}

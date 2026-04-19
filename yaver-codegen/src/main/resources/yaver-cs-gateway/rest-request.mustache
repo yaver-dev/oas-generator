@@ -53,33 +53,29 @@ namespace {{packageName}}.{{baseName}}.Api;
 		public {{operationIdCamelCase}}RequestValidator({{#bodyParam}}{{#vendorExtensions.x-yaver-has-validation-rules}}{{dataType}}Validator childValidator{{/vendorExtensions.x-yaver-has-validation-rules}}{{/bodyParam}}) {
 			{{#pathParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
 			RuleFor(x => x.{{paramName}})
-				.Cascade(CascadeMode.Stop)
-				.NotEmpty()
-				.Must(value => !string.IsNullOrWhiteSpace(value));
+				.Must(value => !string.IsNullOrWhiteSpace(value))
+				.WithMessage("'{PropertyName}' must not be empty.");
 			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
 			RuleFor(x => x.{{paramName}})
 				.NotEmpty();
 			{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/pathParams}}{{#headerParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
 			RuleFor(x => x.{{paramName}})
-				.Cascade(CascadeMode.Stop)
-				.NotEmpty()
-				.Must(value => !string.IsNullOrWhiteSpace(value));
+				.Must(value => !string.IsNullOrWhiteSpace(value))
+				.WithMessage("'{PropertyName}' must not be empty.");
 			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
 			RuleFor(x => x.{{paramName}})
 				.NotEmpty();
 			{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/headerParams}}{{#queryParams}}{{#required}}{{#vendorExtensions.x-yaver-string-type}}
 			RuleFor(x => x.{{paramName}})
-				.Cascade(CascadeMode.Stop)
-				.NotEmpty()
-				.Must(value => !string.IsNullOrWhiteSpace(value));
+				.Must(value => !string.IsNullOrWhiteSpace(value))
+				.WithMessage("'{PropertyName}' must not be empty.");
 			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
 			RuleFor(x => x.{{paramName}})
 				.NotEmpty();
 			{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/queryParams}}{{#formParams}}{{#required}}{{^isFile}}{{#vendorExtensions.x-yaver-string-type}}
 			RuleFor(x => x.{{paramName}})
-				.Cascade(CascadeMode.Stop)
-				.NotEmpty()
-				.Must(value => !string.IsNullOrWhiteSpace(value));
+				.Must(value => !string.IsNullOrWhiteSpace(value))
+				.WithMessage("'{PropertyName}' must not be empty.");
 			{{/vendorExtensions.x-yaver-string-type}}{{#vendorExtensions.x-yaver-guid-type}}
 			RuleFor(x => x.{{paramName}})
 				.NotEmpty();
