@@ -5,13 +5,13 @@ Built on top of **openapi-generator 7.21.0**, targeting **Java 21** and **Maven*
 
 ## Generators
 
-| Generator name             | Language   | Description                                                    |
-| -------------------------- | ---------- | -------------------------------------------------------------- |
-| `yaver-cs-fastendpoints`   | C#         | FastEndpoints server-side endpoints, request/response models   |
-| `yaver-cs-gateway`         | C#         | YARP gateway/proxy route configurations                        |
-| `yaver-proxy`              | C#         | gRPC service contracts + Mapperly mappers                      |
-| `yaver-fetch-client`       | TypeScript | Modern Fetch API client (ESM, middleware support, TS ≥ 5.9)   |
-| `yaver-ts-angular`         | TypeScript | Angular client library (Angular 9.x–18.x, ng-packagr build)   |
+| Generator name           | Language   | Description                                                  |
+| ------------------------ | ---------- | ------------------------------------------------------------ |
+| `yaver-cs-fastendpoints` | C#         | FastEndpoints server-side endpoints, request/response models |
+| `yaver-cs-gateway`       | C#         | YARP gateway/proxy route configurations                      |
+| `yaver-proxy`            | C#         | gRPC service contracts + Mapperly mappers                    |
+| `yaver-fetch-client`     | TypeScript | Modern Fetch API client (ESM, middleware support, TS ≥ 5.9)  |
+| `yaver-ts-angular`       | TypeScript | Angular client library (Angular 9.x–18.x, ng-packagr build)  |
 
 ## Build
 
@@ -21,9 +21,22 @@ Built on top of **openapi-generator 7.21.0**, targeting **Java 21** and **Maven*
 
 # Build + run sample tests
 ./run-all.sh
+
+# Focused Native AOT smoke test for yaver-cs-gateway
+cd sample && ./test-gateway-aot.sh
+
+# Run the same smoke for splitSchemas=false
+cd sample && ./test-gateway-aot.sh --split-schemas false
+
+# Run against explicit fixture
+cd sample && ./test-gateway-aot.sh --fixture fixtures/pairs-auth-admin.yaml --split-schemas true
 ```
 
 `build.sh` runs `mvn clean install` and copies the output JAR to `cli/yaver-generator-cli.jar`.
+
+`sample/test-gateway-aot.sh` generates `yaver-cs-gateway` output to `sample/out/gateway/...`, creates a separate smoke host under `sample/out/gateway-aot-smoke/...`, then publishes with `PublishAot=true`.
+
+The script keeps full raw logs under `sample/out/logs/gateway-aot/...` and reports complete warning inventory (`warnings-all.txt`) plus IL AOT/trimming subset (`warnings-il.txt`).
 
 ## Usage
 
@@ -38,13 +51,13 @@ java -cp cli/openapi-generator-cli.jar:cli/yaver-generator-cli.jar \
 
 ### Key Additional Properties (C# generators)
 
-| Property                  | Default   | Description                                        |
-| ------------------------- | --------- | -------------------------------------------------- |
-| `packageName`             | —         | Root namespace / project name                      |
-| `targetFramework`         | `net10.0` | .NET TFM                                           |
-| `fastEndpointsVersion`    | —         | FastEndpoints NuGet version                        |
-| `riokMapperlyVersion`     | —         | Riok.Mapperly NuGet version                        |
-| `yaverResultVersion`      | —         | Yaver.Result NuGet version                         |
+| Property                  | Default   | Description                                              |
+| ------------------------- | --------- | -------------------------------------------------------- |
+| `packageName`             | —         | Root namespace / project name                            |
+| `targetFramework`         | `net10.0` | .NET TFM                                                 |
+| `fastEndpointsVersion`    | —         | FastEndpoints NuGet version                              |
+| `riokMapperlyVersion`     | —         | Riok.Mapperly NuGet version                              |
+| `yaverResultVersion`      | —         | Yaver.Result NuGet version                               |
 | `splitSchemas`            | `false`   | Split DTOs/validators into a separate `.Schemas` project |
 | `fluentValidationVersion` | `12.1.1`  | FluentValidation version (used when `splitSchemas=true`) |
 
