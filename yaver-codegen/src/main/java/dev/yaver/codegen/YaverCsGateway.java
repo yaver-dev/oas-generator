@@ -98,6 +98,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     private static final String HAS_ITEM_VALIDATOR_EXTENSION = "x-yaver-has-item-validator";
     private static final String ITEM_VALIDATOR_PARAM_EXTENSION = "x-yaver-item-validator-param";
     private static final String STRING_TYPE_EXTENSION = "x-yaver-string-type";
+    private static final String MESSAGEPACK_COLLECTION_TYPES = "x-yaver-messagepack-collection-types";
 
     protected String apiName = "ZApi";
 
@@ -169,7 +170,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     
     protected String fastEndpointsVersion = "8.1.0";
     protected String riokMapperlyVersion = "4.3.0";
-    protected String yaverResultVersion = "2.0.0";
+    protected String yaverResultVersion = "2.1.0";
     protected boolean splitSchemas = false;
     protected String fluentValidationVersion = "12.1.1";
     protected String schemasPackageName = null;
@@ -781,6 +782,9 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         if (this.splitSchemas) {
             String schemasFolder = sourceFolder + File.separator + this.schemasPackageName;
             supportingFiles.add(new SupportingFile("netcore_schemas_project.mustache", schemasFolder, this.schemasPackageName + ".csproj"));
+            supportingFiles.add(new SupportingFile("messagepack_resolver_registry.mustache", schemasFolder, "GeneratedDtoMessagePackResolver.cs"));
+        } else {
+            supportingFiles.add(new SupportingFile("messagepack_resolver_registry.mustache", packageFolder, "GeneratedDtoMessagePackResolver.cs"));
         }
 
         // include the spec in the output
@@ -1309,6 +1313,16 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
         Map<String, ModelsMap> result = super.postProcessAllModels(objs);
 
+        LinkedHashSet<String> messagePackCollectionTypes = result.values().stream()
+            .flatMap(entry -> entry.getModels().stream())
+            .map(ModelMap::getModel)
+            .flatMap(model -> getUniqueModelProperties(model).stream())
+            .map(this::getMessagePackCollectionItemType)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        additionalProperties.put(MESSAGEPACK_COLLECTION_TYPES, new ArrayList<>(messagePackCollectionTypes));
+
         Set<String> structModelTypes = result.values().stream()
             .flatMap(entry -> entry.getModels().stream())
             .map(ModelMap::getModel)
@@ -1336,6 +1350,42 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         }
 
         return result;
+    }
+
+    private List<CodegenProperty> getUniqueModelProperties(CodegenModel model) {
+        Map<String, CodegenProperty> properties = new LinkedHashMap<>();
+        collectProperties(properties, model.vars);
+        collectProperties(properties, model.allVars);
+        collectProperties(properties, model.readWriteVars);
+        collectProperties(properties, model.requiredVars);
+        collectProperties(properties, model.optionalVars);
+        collectProperties(properties, model.parentRequiredVars);
+        collectProperties(properties, model.nonNullableVars);
+
+        return new ArrayList<>(properties.values());
+    }
+
+    private String getMessagePackCollectionItemType(CodegenProperty property) {
+        if (property == null || !property.isContainer || property.items == null) {
+            return null;
+        }
+
+        String itemType = firstNonBlank(
+            property.items.datatypeWithEnum,
+            property.items.dataType,
+            property.items.complexType,
+            property.items.baseType);
+
+        if (itemType == null || itemType.isBlank()) {
+            return null;
+        }
+
+        String normalized = normalizeCSharpType(itemType);
+        if ("object".equals(normalized)) {
+            return null;
+        }
+
+        return normalized;
     }
 
     private void patchModelMetadata(CodegenModel model, Set<String> structModelTypes) {
@@ -1505,6 +1555,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
             imports.add("System.Text.Json");
             imports.add("System.Text.Json.Serialization");
         } else {
+            imports.add("MessagePack");
             if (Boolean.TRUE.equals(model.vendorExtensions.get(HAS_COLLECTIONS_EXTENSION))) {
                 imports.add("System.Collections.Generic");
             }

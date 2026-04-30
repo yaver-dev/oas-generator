@@ -1,3 +1,4 @@
+[MessagePackObject]
 {{>visibility}} readonly struct {{classname}}
 {
 {{#vars}}
@@ -33,6 +34,8 @@
   {{/example}}
   {{^conditionalSerialization}}
 
+  [Key({{-index}})]
+
   public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; init; }
   {{#isReadOnly}}
 
@@ -48,6 +51,8 @@
   {{/conditionalSerialization}}
   {{#conditionalSerialization}}
   {{^isReadOnly}}
+
+  [Key({{-index}})]
 
   public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}}
   {
@@ -79,6 +84,7 @@
   {{^isEnum}}
   {{#required}}{{#vendorExtensions.x-yaver-string-type}}
   private readonly string? _{{name}};
+  [Key({{-index}})]
   public string {{name}}
   {
     get => _{{name}} ?? string.Empty;
@@ -86,10 +92,12 @@
   }
   {{/vendorExtensions.x-yaver-string-type}}{{/required}}
   {{^required}}
+  [Key({{-index}})]
   public {{{vendorExtensions.x-yaver-friendly-type}}}? {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; }
   {{/required}}
   {{#required}}{{^vendorExtensions.x-yaver-string-type}}
-  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; }{{#required}}{{^vendorExtensions.x-yaver-value-type}} = default!;{{/vendorExtensions.x-yaver-value-type}}{{/required}}
+  [Key({{-index}})]
+  public {{{vendorExtensions.x-yaver-friendly-type}}}{{^required}}?{{/required}} {{name}} { get; {{#isReadOnly}}private {{/isReadOnly}}init; }
   {{/vendorExtensions.x-yaver-string-type}}{{/required}}
   {{/isEnum}}
   {{/isInherited}}
@@ -98,6 +106,7 @@
   /// <summary>
   /// Gets or Sets additional properties
   /// </summary>
+  [IgnoreMember]
   [JsonExtensionData]
   public IDictionary<string, JsonElement>? AdditionalProperties { get; init; }
 {{/isAdditionalPropertiesTrue}}

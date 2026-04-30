@@ -55,8 +55,12 @@
             }
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentException("Invalid instance found. Must not be null.");
+                }
                 {{#anyOf}}
-                {{^-first}}else {{/-first}}if (value.GetType() == typeof({{{.}}}))
+                {{^-first}}else {{/-first}}if (value is {{{.}}})
                 {
                     this._actualInstance = value;
                 }
@@ -214,7 +218,13 @@
         /// <param name="serializer">JSON Serializer</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            writer.WriteRawValue((string)(typeof({{classname}}).GetMethod("ToJson").Invoke(value, null)));
+            if (value is {{classname}} typedValue)
+            {
+                writer.WriteRawValue(typedValue.ToJson());
+                return;
+            }
+
+            throw new JsonSerializationException("Unexpected value type when serializing {{classname}}.");
         }
 
         /// <summary>

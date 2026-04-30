@@ -1,0 +1,22 @@
+using MessagePack;
+using MessagePack.Formatters;
+using MessagePack.Resolvers;
+using System.Collections.Generic;
+
+{{#splitSchemas}}namespace {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}namespace {{packageName}}.{{modelPackage}};{{/splitSchemas}}
+
+public static class GeneratedDtoMessagePackResolver
+{
+    public static IFormatterResolver Instance { get; } = CompositeResolver.Create(
+        new IMessagePackFormatter[]
+        {
+{{#x-yaver-messagepack-collection-types}}            new ListFormatter<{{{.}}}>(),
+{{/x-yaver-messagepack-collection-types}}        },
+        new IFormatterResolver[]
+        {
+            GeneratedMessagePackResolver.Instance,
+            BuiltinResolver.Instance,
+            AttributeFormatterResolver.Instance,
+            StandardResolver.Instance
+        });
+}
