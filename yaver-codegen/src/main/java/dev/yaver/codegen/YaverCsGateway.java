@@ -126,6 +126,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     protected static final String YAVER_RESULT_VERSION = "yaverResultVersion";
     protected static final String SPLIT_SCHEMAS = "splitSchemas";
     protected static final String FLUENT_VALIDATION_VERSION = "fluentValidationVersion";
+    protected static final String MESSAGEPACK_VERSION = "messagePackVersion";
     protected static final String SCHEMAS_PACKAGE_NAME = "schemasPackageName";
 
     @SuppressWarnings("hiding")
@@ -173,6 +174,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     protected String yaverResultVersion = "2.1.0";
     protected boolean splitSchemas = false;
     protected String fluentValidationVersion = "12.1.1";
+    protected String messagePackVersion = "3.1.7";
     protected String schemasPackageName = null;
 
     public YaverCsGateway() {
@@ -277,6 +279,10 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         addOption(FLUENT_VALIDATION_VERSION,
                 "FluentValidation NuGet package version (used when splitSchemas=true).",
                 this.fluentValidationVersion);
+
+        addOption(MESSAGEPACK_VERSION,
+                "MessagePack NuGet package version.",
+                this.messagePackVersion);
 
         addSwitch(SPLIT_SCHEMAS,
                 "When true, generates a separate Schemas csproj for models/enums/validators without FastEndpoints dependency.",
@@ -723,6 +729,11 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
             this.fluentValidationVersion = additionalProperties.get(FLUENT_VALIDATION_VERSION).toString();
         }
         additionalProperties.put(FLUENT_VALIDATION_VERSION, this.fluentValidationVersion);
+
+        if (additionalProperties.containsKey(MESSAGEPACK_VERSION)) {
+            this.messagePackVersion = additionalProperties.get(MESSAGEPACK_VERSION).toString();
+        }
+        additionalProperties.put(MESSAGEPACK_VERSION, this.messagePackVersion);
 
         if (this.splitSchemas) {
             this.schemasPackageName = packageName.replace(".Features", ".Schemas");

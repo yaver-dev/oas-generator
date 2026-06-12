@@ -103,7 +103,7 @@ cat > "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" <<EOF
   </PropertyGroup>
 
   <ItemGroup>
-  <PackageReference Include="MessagePack" Version="3.1.4" />
+  <PackageReference Include="MessagePack" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>
