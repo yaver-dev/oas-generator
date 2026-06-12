@@ -16,7 +16,9 @@ public static partial class {{operationIdCamelCase}}RequestMapper
   /// </summary>
   /// <param name="source">API {{operationIdCamelCase}}Request model</param>
   /// <returns>Service {{operationIdCamelCase}} model</returns>
+#pragma warning disable RMG066
   public static partial {{operationIdCamelCase}}Command ToCommand(this {{operationIdCamelCase}}Request source);
+#pragma warning restore RMG066
 
   private static FileData Map(IFormFile file) => FileMappingBaseMapper.Map(file);
 }
