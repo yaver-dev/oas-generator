@@ -8,6 +8,7 @@
     <Nullable>annotations</Nullable>
     <NoWarn>1591</NoWarn>
     <FluentValidationVersion>{{fluentValidationVersion}}</FluentValidationVersion>
+    <MessagePackVersion>{{messagePackVersion}}</MessagePackVersion>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
@@ -16,8 +17,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="$(FluentValidationVersion)" />
-    <PackageReference Include="MessagePack" Version="3.1.4" />
-    <PackageReference Include="MessagePack.Annotations" Version="3.1.4" />
+    <PackageReference Include="MessagePack" Version="$(MessagePackVersion)" />
+    <PackageReference Include="MessagePack.Annotations" Version="$(MessagePackVersion)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -25,6 +25,7 @@
     <FastEndpointsVersion>{{fastEndpointsVersion}}</FastEndpointsVersion>
     <RiokMapperlyVersion>{{riokMapperlyVersion}}</RiokMapperlyVersion>
     <YaverResultVersion>{{yaverResultVersion}}</YaverResultVersion>
+    <MessagePackVersion>{{messagePackVersion}}</MessagePackVersion>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
@@ -34,8 +35,8 @@
 		<PackageReference Include="FastEndpoints" Version="$(FastEndpointsVersion)" />
     <PackageReference Include="FastEndpoints.Messaging.Core" Version="$(FastEndpointsVersion)"/>
     <PackageReference Include="FastEndpoints.Messaging.Remote" Version="$(FastEndpointsVersion)"/>
-    <PackageReference Include="MessagePack" Version="3.1.4" />
-    <PackageReference Include="MessagePack.Annotations" Version="3.1.4" />
+    <PackageReference Include="MessagePack" Version="$(MessagePackVersion)" />
+    <PackageReference Include="MessagePack.Annotations" Version="$(MessagePackVersion)" />
     <PackageReference Include="FastEndpoints.Generator" Version="$(FastEndpointsVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
