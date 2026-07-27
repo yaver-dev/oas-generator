@@ -1,0 +1,72 @@
+openapi: 3.0.3
+info:
+  title: Proxy success status regression
+  version: 1.0.0
+tags:
+  - name: Status
+paths:
+  /status/ok:
+    get:
+      tags:
+        - Status
+      operationId: getStatus
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+  /status/created:
+    post:
+      tags:
+        - Status
+      operationId: createStatus
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+  /status/accepted:
+    post:
+      tags:
+        - Status
+      operationId: acceptStatus
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+  /status/partial:
+    get:
+      tags:
+        - Status
+      operationId: getPartialStatus
+      responses:
+        "206":
+          description: Partial content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+  /status/no-content:
+    delete:
+      tags:
+        - Status
+      operationId: deleteStatus
+      responses:
+        "204":
+          description: No content
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string

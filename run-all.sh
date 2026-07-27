@@ -14,5 +14,6 @@ echo "🔨 Building yaver-generator..."
 echo "🚀 Running proxy test..."
 cd sample
 ./test-proxy.sh
+./test-proxy-success-statuses.sh
 # ./test-fastendpoints.sh
 echo "✅ All tasks completed successfully!"
