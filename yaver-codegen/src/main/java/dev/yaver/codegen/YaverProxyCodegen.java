@@ -135,7 +135,7 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
     
     protected String fastEndpointsVersion = "7.1.1";
     protected String riokMapperlyVersion = "4.3.0";
-    protected String yaverResultVersion = "3.0.0";
+    protected String yaverResultVersion = "2.3.0";
 
     public YaverProxyCodegen() {
         super();

@@ -57,7 +57,7 @@ java -cp cli/openapi-generator-cli.jar:cli/yaver-generator-cli.jar \
 | `targetFramework`         | `net10.0` | .NET TFM                                                 |
 | `fastEndpointsVersion`    | —         | FastEndpoints NuGet version                              |
 | `riokMapperlyVersion`     | —         | Riok.Mapperly NuGet version                              |
-| `yaverResultVersion`      | `3.0.0`   | Yaver.Result NuGet version                               |
+| `yaverResultVersion`      | `2.3.0`   | Yaver.Result NuGet version                               |
 | `splitSchemas`            | `false`   | Split DTOs/validators into a separate `.Schemas` project |
 | `fluentValidationVersion` | `12.1.1`  | FluentValidation version (used when `splitSchemas=true`) |
 
@@ -68,7 +68,8 @@ transport-generic:
 
 - every operation must declare exactly one concrete numeric `2xx` response;
 - the declared success status is emitted unchanged, including `201`;
-- a successful `204` sends no response body;
+- a `204` preserves the FastEndpoints `Result<EmptyResponse>` RPC envelope,
+  while the HTTP endpoint sends no response body;
 - body-bearing `4xx` and `5xx` responses must use
   `application/problem+json` with the canonical `ProblemDetails` schema;
 - domain-specific error DTOs and multiple success alternatives fail generation.

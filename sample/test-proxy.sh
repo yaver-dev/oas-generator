@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-YAVER_RESULT_VERSION="${YAVER_RESULT_VERSION:-3.0.0}"
+YAVER_RESULT_VERSION="${YAVER_RESULT_VERSION:-2.3.0}"
 YAVER_RESULT_NUGET_SOURCE="${YAVER_RESULT_NUGET_SOURCE:-}"
 
 java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \

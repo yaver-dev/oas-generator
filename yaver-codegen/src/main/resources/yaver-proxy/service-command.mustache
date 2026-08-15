@@ -5,7 +5,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 {{#operation}}
 
 	{{#hasParams}}
-	public class {{operationIdCamelCase}}Command : IRpcCommand<{{#vendorExtensions.successResponseNoContent}}Yaver.Result.Result{{/vendorExtensions.successResponseNoContent}}{{^vendorExtensions.successResponseNoContent}}Result<{{{vendorExtensions.successResponseModel}}}>{{/vendorExtensions.successResponseNoContent}}> {
+	public class {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>> {
 		{{#pathParams}}
 		/// <summary>
 		/// {{description}}
@@ -42,7 +42,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 	}
 	{{/hasParams}}
 	{{^hasParams}}
-	public record {{operationIdCamelCase}}Command : IRpcCommand<{{#vendorExtensions.successResponseNoContent}}Yaver.Result.Result{{/vendorExtensions.successResponseNoContent}}{{^vendorExtensions.successResponseNoContent}}Result<{{{vendorExtensions.successResponseModel}}}>{{/vendorExtensions.successResponseNoContent}}> {
+	public record {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>> {
 		public object? Empty { get; set; }
 	}
 	{{/hasParams}}

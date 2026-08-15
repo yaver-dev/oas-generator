@@ -9,7 +9,7 @@ VALID_FIXTURE="$SCRIPT_DIR/fixtures/response-contracts.yaml"
 MULTIPLE_SUCCESS_FIXTURE="$SCRIPT_DIR/fixtures/invalid-multiple-success-responses.yaml"
 DOMAIN_ERROR_FIXTURE="$SCRIPT_DIR/fixtures/invalid-domain-error-response.yaml"
 OUTPUT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/yaver-response-contracts.XXXXXX")"
-YAVER_RESULT_VERSION="${YAVER_RESULT_VERSION:-3.0.0}"
+YAVER_RESULT_VERSION="${YAVER_RESULT_VERSION:-2.3.0}"
 YAVER_RESULT_NUGET_SOURCE="${YAVER_RESULT_NUGET_SOURCE:-}"
 
 cleanup() {
@@ -84,12 +84,17 @@ for generator in yaver-proxy yaver-cs-gateway; do
 
   assert_contains "$api_file" ".SendAsync(HttpContext, 200, ct)"
   assert_contains "$api_file" ".SendAsync(HttpContext, 201, ct)"
-  assert_contains "$api_file" ".SendAsync(HttpContext, 204, ct)"
+  assert_contains "$api_file" "await Send.NoContentAsync(ct).ConfigureAwait(false);"
+  assert_contains "$api_file" ".SendAsync(HttpContext, cancellationToken: ct)"
   assert_contains "$command_file" "IRpcCommand<Result<StatusResponse>>"
-  assert_contains "$command_file" "IRpcCommand<Yaver.Result.Result>"
+  assert_contains "$command_file" "IRpcCommand<Result<EmptyResponse>>"
 
-  if grep -Fq "Result<EmptyResponse>" "$command_file"; then
-    echo "$generator must use the bodyless Result envelope for 204" >&2
+  if grep -Fq "IRpcCommand<Yaver.Result.Result>" "$command_file"; then
+    echo "$generator must preserve the FastEndpoints EmptyResponse RPC envelope for 204" >&2
+    exit 1
+  fi
+  if grep -Fq ".SendAsync(HttpContext, 204, ct)" "$api_file"; then
+    echo "$generator must not serialize the EmptyResponse envelope for HTTP 204" >&2
     exit 1
   fi
   if grep -Fq "Result<ProblemDetails>" "$command_file"; then

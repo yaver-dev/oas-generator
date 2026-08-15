@@ -52,11 +52,22 @@ public class {{operationIdCamelCase}}Endpoint : Endpoint<
 		{{/vendorExtensions.x-yaver-has-operation-validation}}
 	}
 	{{#vendorExtensions.successResponseNoContent}}
-	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
-	await req.ToCommand()
-		.RemoteExecuteAsync(ct)
-		.SendAsync(HttpContext, 204, ct)
-		.ConfigureAwait(false);
+	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct)
+	{
+		var result = await req.ToCommand()
+			.RemoteExecuteAsync(ct)
+			.ConfigureAwait(false);
+
+		if (result.Status == Yaver.Result.ResultStatus.Ok)
+		{
+			await Send.NoContentAsync(ct).ConfigureAwait(false);
+			return;
+		}
+
+		await result
+			.SendAsync(HttpContext, cancellationToken: ct)
+			.ConfigureAwait(false);
+	}
 	{{/vendorExtensions.successResponseNoContent}}
 	{{^vendorExtensions.successResponseNoContent}}
 	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>

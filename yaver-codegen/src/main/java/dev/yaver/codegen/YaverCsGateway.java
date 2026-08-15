@@ -171,7 +171,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     
     protected String fastEndpointsVersion = "8.1.0";
     protected String riokMapperlyVersion = "4.3.0";
-    protected String yaverResultVersion = "3.0.0";
+    protected String yaverResultVersion = "2.3.0";
     protected boolean splitSchemas = false;
     protected String fluentValidationVersion = "12.1.1";
     protected String messagePackVersion = "3.1.7";
