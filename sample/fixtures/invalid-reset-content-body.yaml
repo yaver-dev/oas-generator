@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Invalid reset-content body
+  version: 1.0.0
+paths:
+  /responses:
+    post:
+      operationId: resetWithBody
+      responses:
+        "205":
+          description: Reset content must not carry a body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string

@@ -1,0 +1,13 @@
+openapi: 3.0.3
+info:
+  title: Invalid success response without schema
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getSuccessWithoutSchema
+      responses:
+        "200":
+          description: Missing representation schema
+          content:
+            application/json: {}

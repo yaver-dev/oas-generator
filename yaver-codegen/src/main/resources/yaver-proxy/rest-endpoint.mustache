@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using {{packageName}}.{{modelPackage}};
+{{#hasRpcEmptyResponse}}using EmptyResponse = global::{{rpcEmptyResponseNamespace}}.EmptyResponse;
+{{/hasRpcEmptyResponse}}
 
 namespace {{packageName}}.{{baseName}}.Api;
 public class {{baseName}}Api : Group
@@ -69,13 +71,32 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 			.ConfigureAwait(false);
 	}
 	{{/vendorExtensions.successResponseNoContent}}
-	{{^vendorExtensions.successResponseNoContent}}
+	{{#vendorExtensions.successResponseResetContent}}
+	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct)
+	{
+		var result = await req.ToCommand()
+			.RemoteExecuteAsync(ct)
+			.ConfigureAwait(false);
+
+		if (result.Status == Yaver.Result.ResultStatus.Ok)
+		{
+			HttpContext.Response.StatusCode = 205;
+			await HttpContext.Response.CompleteAsync().ConfigureAwait(false);
+			return;
+		}
+
+		await result
+			.SendAsync(HttpContext, cancellationToken: ct)
+			.ConfigureAwait(false);
+	}
+	{{/vendorExtensions.successResponseResetContent}}
+	{{^vendorExtensions.successResponseNoContent}}{{^vendorExtensions.successResponseResetContent}}
 	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
 	await req.ToCommand()
 		.RemoteExecuteAsync(ct)
 		.SendAsync(HttpContext, {{vendorExtensions.successResponseCode}}, ct)
 		.ConfigureAwait(false);
-	{{/vendorExtensions.successResponseNoContent}}
+	{{/vendorExtensions.successResponseResetContent}}{{/vendorExtensions.successResponseNoContent}}
 }
 
 {{^hasParams}}

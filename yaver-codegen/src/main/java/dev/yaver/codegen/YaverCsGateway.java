@@ -169,13 +169,14 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     protected boolean needsCustomHttpMethod = false;
     protected boolean needsUriBuilder = false;
     
-    protected String fastEndpointsVersion = "8.1.0";
+    protected String fastEndpointsVersion = "8.2.0";
     protected String riokMapperlyVersion = "4.3.0";
-    protected String yaverResultVersion = "2.3.0";
+    protected String yaverResultVersion = "2.3.1";
     protected boolean splitSchemas = false;
     protected String fluentValidationVersion = "12.1.1";
-    protected String messagePackVersion = "3.1.7";
+    protected String messagePackVersion = "3.1.8";
     protected String schemasPackageName = null;
+    private boolean rpcEmptyResponseSupportingFileAdded = false;
 
     public YaverCsGateway() {
         super();
@@ -660,6 +661,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
 
         String inputFramework = (String) additionalProperties.getOrDefault(CodegenConstants.DOTNET_FRAMEWORK,
                 latestFramework.name);
+        additionalProperties.put(CodegenConstants.DOTNET_FRAMEWORK, inputFramework);
         String[] frameworks;
         List<FrameworkStrategy> strategies = new ArrayList<>();
 
@@ -1842,14 +1844,15 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                 bodyParam.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasBodyValidationRules);
             }
 
-            CodegenResponse successResponse = ResponseContractValidator.requireSingleSuccessResponse(op);
-            ResponseContractValidator.requireProblemDetailsErrors(op);
+            CodegenResponse successResponse = ResponseContractValidator.requireSingleSuccessResponse(op, allModels);
+            ResponseContractValidator.requireProblemDetailsErrors(op, allModels);
 
             if (successResponse != null) {
                 op.vendorExtensions.put("hasSuccessResponse", true);
                 op.vendorExtensions.put("successResponseCode",
                         successResponse.code != null && !successResponse.code.isEmpty() ? successResponse.code : "200");
                 op.vendorExtensions.put("successResponseNoContent", "204".equals(successResponse.code));
+                op.vendorExtensions.put("successResponseResetContent", "205".equals(successResponse.code));
 
                 // Get response data type from different sources
                 String responseModel = ResponseContractValidator.getResponseDataType(successResponse);
@@ -1860,6 +1863,11 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                     // If no data type is found, we assume it's an object
                     op.vendorExtensions.put("isObjectResponse", true);
                     op.vendorExtensions.put("successResponseModel", "EmptyResponse");
+                    ensureRpcEmptyResponseSupportingFile(allModels);
+                    objs.put("hasRpcEmptyResponse", true);
+                    objs.put("rpcEmptyResponseNamespace", splitSchemas
+                            ? schemasPackageName
+                            : packageName + "." + modelPackage);
                 }
 
                 // Add response message if exists
@@ -1893,6 +1901,21 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         objs.put(HAS_REQUIRED_STRING_VALIDATION_EXTENSION, hasRequiredStringValidation);
 
         return super.postProcessOperationsWithModels(objs, allModels);
+    }
+
+    private void ensureRpcEmptyResponseSupportingFile(List<ModelMap> allModels) {
+        if (rpcEmptyResponseSupportingFileAdded || allModels.stream()
+                .map(ModelMap::getModel)
+                .anyMatch(model -> "EmptyResponse".equals(model.classname))) {
+            return;
+        }
+
+        String modelFolder = splitSchemas
+                ? sourceFolder + File.separator + schemasPackageName
+                : sourceFolder + File.separator + packageName + File.separator
+                        + modelPackage.replace('.', File.separatorChar);
+        supportingFiles.add(new SupportingFile("rpc-empty-response.mustache", modelFolder, "EmptyResponse.cs"));
+        rpcEmptyResponseSupportingFileAdded = true;
     }
 
     private boolean requiresNonBlankStringValidation(CodegenParameter parameter) {

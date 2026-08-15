@@ -1,0 +1,29 @@
+openapi: 3.0.3
+info:
+  title: Invalid composed success response
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getComposedResponse
+      responses:
+        "200":
+          description: Alternative success models
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ResolvedResponse"
+                  - $ref: "#/components/schemas/PendingResponse"
+components:
+  schemas:
+    ResolvedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+    PendingResponse:
+      type: object
+      properties:
+        retryAfterSeconds:
+          type: integer

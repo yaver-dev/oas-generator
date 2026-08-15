@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Invalid no-content body
+  version: 1.0.0
+paths:
+  /responses:
+    delete:
+      operationId: deleteWithBody
+      responses:
+        "204":
+          description: No content must not carry a body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string

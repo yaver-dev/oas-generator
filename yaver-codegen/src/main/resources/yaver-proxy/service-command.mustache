@@ -1,4 +1,6 @@
 using {{packageName}}.{{modelPackage}};
+{{#hasRpcEmptyResponse}}using EmptyResponse = global::{{rpcEmptyResponseNamespace}}.EmptyResponse;
+{{/hasRpcEmptyResponse}}
 
 namespace {{packageName}}.{{baseName}}.Service;
 {{#operations}}

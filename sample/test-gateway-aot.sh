@@ -3,9 +3,13 @@ set -euo pipefail
 
 PACKAGE_NAME="Yaver.Sample.Features"
 TARGET_FRAMEWORK="net10.0"
-FASTENDPOINTS_VERSION="8.1.0"
+FASTENDPOINTS_VERSION="${FASTENDPOINTS_VERSION:-8.2.0}"
 RIOK_MAPPERLY_VERSION="4.3.0"
-YAVER_RESULT_VERSION="2.1.0"
+YAVER_RESULT_VERSION="${YAVER_RESULT_VERSION:-2.3.1}"
+MESSAGEPACK_VERSION="${MESSAGEPACK_VERSION:-3.1.8}"
+YAVER_RESULT_NUGET_SOURCE="${YAVER_RESULT_NUGET_SOURCE:-}"
+YAVER_GENERATOR_JAR="${YAVER_GENERATOR_JAR:-../yaver-codegen/target/yaver-codegen.jar}"
+OPENAPI_GENERATOR_JAR="${OPENAPI_GENERATOR_JAR:-../cli/openapi-generator-cli.jar}"
 
 FIXTURE_PATH="fixtures/pairs-auth-admin.yaml"
 SPLIT_SCHEMAS="true"
@@ -69,7 +73,7 @@ echo "Generated output: $GENERATED_ROOT"
 echo "Smoke host: $SMOKE_ROOT"
 echo "Logs: $LOG_ROOT"
 
-java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \
+java -cp "$YAVER_GENERATOR_JAR:$OPENAPI_GENERATOR_JAR" \
   org.openapitools.codegen.OpenAPIGenerator \
   generate \
   -g yaver-cs-gateway \
@@ -81,18 +85,31 @@ java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \
   --additional-properties=fastEndpointsVersion=$FASTENDPOINTS_VERSION \
   --additional-properties=riokMapperlyVersion=$RIOK_MAPPERLY_VERSION \
   --additional-properties=yaverResultVersion=$YAVER_RESULT_VERSION \
+  --additional-properties=messagePackVersion=$MESSAGEPACK_VERSION \
   2>&1 | tee "$LOG_ROOT/generate.log"
 
 set +e
-dotnet restore "$GENERATED_PROJECT" 2>&1 | tee "$LOG_ROOT/restore.log"
+if [[ -n "$YAVER_RESULT_NUGET_SOURCE" ]]; then
+  dotnet restore "$GENERATED_PROJECT" \
+    --source "$YAVER_RESULT_NUGET_SOURCE" \
+    -p:NuGetAudit=false \
+    2>&1 | tee "$LOG_ROOT/restore.log"
+else
+  dotnet restore "$GENERATED_PROJECT" 2>&1 | tee "$LOG_ROOT/restore.log"
+fi
 RESTORE_EXIT=${PIPESTATUS[0]}
 
-dotnet build "$GENERATED_PROJECT" -c Release 2>&1 | tee "$LOG_ROOT/build.log"
+dotnet build "$GENERATED_PROJECT" -c Release --no-restore 2>&1 | tee "$LOG_ROOT/build.log"
 BUILD_EXIT=${PIPESTATUS[0]}
 set -e
 
 mkdir -p "$SMOKE_ROOT"
 dotnet new web -n Gateway.Aot.Smoke -o "$SMOKE_ROOT" --framework "$TARGET_FRAMEWORK" --force 2>&1 | tee "$LOG_ROOT/new-web.log"
+
+SCHEMA_PROJECT_REFERENCE=""
+if [[ "$SPLIT_SCHEMAS" == "true" ]]; then
+  SCHEMA_PROJECT_REFERENCE='    <ProjectReference Include="../../../gateway/'"$FIXTURE_STEM"'/'"$MODE_SUFFIX"'/src/Yaver.Sample.Schemas/Yaver.Sample.Schemas.csproj" />'
+fi
 
 cat > "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" <<EOF
 <Project Sdk="Microsoft.NET.Sdk.Web">
@@ -103,11 +120,13 @@ cat > "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" <<EOF
   </PropertyGroup>
 
   <ItemGroup>
-  <PackageReference Include="MessagePack" Version="3.1.7" />
+    <PackageReference Include="MessagePack" Version="$MESSAGEPACK_VERSION" />
+    <PackageReference Include="Yaver.Result" Version="$YAVER_RESULT_VERSION" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../../gateway/${FIXTURE_STEM}/${MODE_SUFFIX}/src/Yaver.Sample.Features/Yaver.Sample.Features.csproj" />
+$SCHEMA_PROJECT_REFERENCE
   </ItemGroup>
 </Project>
 EOF
@@ -178,6 +197,7 @@ IFormatterResolver resolver = CompositeResolver.Create(
   {
     GeneratedDtoMessagePackResolver.Instance,
     YaverResultTypedMessagePackResolver<CustomerDetail>.Instance,
+    YaverResultTypedMessagePackResolver<EmptyResponse>.Instance,
     YaverResultMessagePackResolver.Instance
   });
 
@@ -197,6 +217,17 @@ if (roundTrip.Value.Id != dto.Id)
 
 Console.WriteLine("MessagePack round-trip OK for Result<CustomerDetail>.");
 
+Result<EmptyResponse> emptyEnvelope = Result.Success(EmptyResponse.Instance);
+byte[] emptyPayload = MessagePackSerializer.Serialize(emptyEnvelope, options);
+Result<EmptyResponse> emptyRoundTrip = MessagePackSerializer.Deserialize<Result<EmptyResponse>>(emptyPayload, options);
+
+if (!emptyRoundTrip.IsSuccess || emptyRoundTrip.Value is null)
+{
+  throw new InvalidOperationException("MessagePack round-trip failed for Result<EmptyResponse>.");
+}
+
+Console.WriteLine("MessagePack round-trip OK for Result<EmptyResponse>.");
+
 var builder = WebApplication.CreateSlimBuilder(args);
 var app = builder.Build();
 app.MapGet("/", () => Results.Ok("gateway-aot-smoke"));
@@ -204,20 +235,41 @@ app.MapGet("/", () => Results.Ok("gateway-aot-smoke"));
 app.Run();
 EOF
 
-RID="osx-arm64"
-if [[ "$(uname -m)" != "arm64" ]]; then
-  RID="osx-x64"
-fi
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64) RID="osx-arm64" ;;
+  Darwin-x86_64) RID="osx-x64" ;;
+  Linux-aarch64|Linux-arm64) RID="linux-arm64" ;;
+  Linux-x86_64) RID="linux-x64" ;;
+  *)
+    echo "Unsupported Native AOT host: $(uname -s) $(uname -m)" >&2
+    exit 2
+    ;;
+esac
 
 PUBLISH_EXIT=0
 RUNTIME_EXIT=0
 RUNTIME_STATUS="skipped"
 if [[ $RESTORE_EXIT -eq 0 && $BUILD_EXIT -eq 0 ]]; then
+  if [[ -n "$YAVER_RESULT_NUGET_SOURCE" ]]; then
+    dotnet restore "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" \
+      -r "$RID" \
+      -p:PublishAot=true \
+      --source "$YAVER_RESULT_NUGET_SOURCE" \
+      -p:NuGetAudit=false \
+      2>&1 | tee "$LOG_ROOT/smoke-restore.log"
+  else
+    dotnet restore "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" \
+      -r "$RID" \
+      -p:PublishAot=true \
+      2>&1 | tee "$LOG_ROOT/smoke-restore.log"
+  fi
+
   set +e
   dotnet publish "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" \
     -c Release \
     -r "$RID" \
     --self-contained true \
+    --no-restore \
     -p:PublishAot=true \
     -warnaserror:IL2026,IL2070,IL2072,IL2075,IL3050 \
     2>&1 | tee "$LOG_ROOT/publish.log"
@@ -233,7 +285,7 @@ if [[ $RESTORE_EXIT -eq 0 && $BUILD_EXIT -eq 0 ]]; then
       RUNTIME_EXIT=91
       RUNTIME_STATUS="binary-missing"
     else
-      "$PUBLISHED_BINARY" > "$RUNTIME_LOG" 2>&1 &
+      ASPNETCORE_URLS="http://127.0.0.1:0" "$PUBLISHED_BINARY" > "$RUNTIME_LOG" 2>&1 &
       RUNTIME_PID=$!
 
       sleep "$RUNTIME_TIMEOUT_SECONDS"
@@ -254,10 +306,14 @@ if [[ $RESTORE_EXIT -eq 0 && $BUILD_EXIT -eq 0 ]]; then
 
       if ! grep -q "MessagePack round-trip OK for Result<CustomerDetail>." "$RUNTIME_LOG"; then
         echo "Runtime smoke did not print MessagePack round-trip success marker." >> "$RUNTIME_LOG"
-        if [[ "$RUNTIME_STATUS" == "timed-out" ]]; then
-          RUNTIME_EXIT=92
-          RUNTIME_STATUS="roundtrip-marker-missing"
-        fi
+        RUNTIME_EXIT=92
+        RUNTIME_STATUS="roundtrip-marker-missing"
+      fi
+
+      if ! grep -q "MessagePack round-trip OK for Result<EmptyResponse>." "$RUNTIME_LOG"; then
+        echo "Runtime smoke did not print EmptyResponse round-trip success marker." >> "$RUNTIME_LOG"
+        RUNTIME_EXIT=94
+        RUNTIME_STATUS="empty-response-marker-missing"
       fi
 
       if grep -Eiq "Unhandled exception|Exception:" "$RUNTIME_LOG"; then
@@ -342,7 +398,7 @@ if [[ $PUBLISH_EXIT -ne 0 ]]; then
   exit $PUBLISH_EXIT
 fi
 
-if [[ "$RUNTIME_STATUS" == "exception" || "$RUNTIME_STATUS" == "binary-missing" || "$RUNTIME_STATUS" == "roundtrip-marker-missing" || "$RUNTIME_STATUS" == "exited-early-nonzero" || "$RUNTIME_STATUS" == "exited-early-zero" ]]; then
+if [[ $RUNTIME_EXIT -ne 0 || "$RUNTIME_STATUS" != "timed-out" ]]; then
   echo "Runtime smoke failed with status: $RUNTIME_STATUS" >&2
   exit 4
 fi

@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  title: Invalid missing success response
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getWithoutSuccess
+      responses:
+        "404":
+          description: Not found

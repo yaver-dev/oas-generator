@@ -40,6 +40,15 @@ paths:
           description: No content
         "400":
           $ref: "#/components/responses/BadRequest"
+  /responses/reset-content:
+    post:
+      tags: [Responses]
+      operationId: resetResponse
+      responses:
+        "205":
+          description: Reset content
+        "400":
+          $ref: "#/components/responses/BadRequest"
 components:
   responses:
     BadRequest:

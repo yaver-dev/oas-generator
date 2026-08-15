@@ -31,6 +31,16 @@ tags:
   - name: AuthScopes
     description: External machine-access scope catalog administration
 paths:
+  /adm/auth/v1/aot/no-content:
+    delete:
+      tags:
+        - Customers
+      summary: Exercise a bodyless success response in generated-code smoke tests
+      operationId: completeAotNoContentSmoke
+      x-rpc-target: ExternalIdentity
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
   /adm/auth/v1/customers:
     get:
       tags:

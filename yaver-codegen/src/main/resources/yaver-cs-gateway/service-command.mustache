@@ -1,6 +1,8 @@
 {{#x-yaver-has-request-validation}}using FluentValidation;
 {{/x-yaver-has-request-validation}}
 {{#splitSchemas}}using {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}using {{packageName}}.{{modelPackage}};{{/splitSchemas}}
+{{#hasRpcEmptyResponse}}using EmptyResponse = global::{{rpcEmptyResponseNamespace}}.EmptyResponse;
+{{/hasRpcEmptyResponse}}
 
 namespace {{packageName}}.{{baseName}}.Service;
 {{#operations}}

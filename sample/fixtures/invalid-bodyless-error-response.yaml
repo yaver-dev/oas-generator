@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: Invalid bodyless error response
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getBodylessError
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "409":
+          description: Conflict without ProblemDetails
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string

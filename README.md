@@ -55,9 +55,10 @@ java -cp cli/openapi-generator-cli.jar:cli/yaver-generator-cli.jar \
 | ------------------------- | --------- | -------------------------------------------------------- |
 | `packageName`             | —         | Root namespace / project name                            |
 | `targetFramework`         | `net10.0` | .NET TFM                                                 |
-| `fastEndpointsVersion`    | —         | FastEndpoints NuGet version                              |
-| `riokMapperlyVersion`     | —         | Riok.Mapperly NuGet version                              |
-| `yaverResultVersion`      | `2.3.0`   | Yaver.Result NuGet version                               |
+| `fastEndpointsVersion`    | `8.2.0`   | FastEndpoints NuGet version                              |
+| `riokMapperlyVersion`     | `4.3.0`   | Riok.Mapperly NuGet version                              |
+| `yaverResultVersion`      | `2.3.1`   | Yaver.Result NuGet version                               |
+| `messagePackVersion`      | `3.1.8`   | MessagePack version used by `yaver-cs-gateway`           |
 | `splitSchemas`            | `false`   | Split DTOs/validators into a separate `.Schemas` project |
 | `fluentValidationVersion` | `12.1.1`  | FluentValidation version (used when `splitSchemas=true`) |
 
@@ -68,10 +69,15 @@ transport-generic:
 
 - every operation must declare exactly one concrete numeric `2xx` response;
 - the declared success status is emitted unchanged, including `201`;
-- a `204` preserves the FastEndpoints `Result<EmptyResponse>` RPC envelope,
-  while the HTTP endpoint sends no response body;
-- body-bearing `4xx` and `5xx` responses must use
+- `204` and `205` preserve the `Result<EmptyResponse>` RPC envelope, while the
+  HTTP endpoint suppresses the body and emits the declared status;
+- the generated RPC-safe `EmptyResponse` has a public constructor, keeps the
+  empty-map wire shape, and is source-generated for MessagePack in gateway
+  projects;
+- every `4xx`, `5xx`, and `default` response must use
   `application/problem+json` with the canonical `ProblemDetails` schema;
+- the validator checks the required canonical `ProblemDetails` and nested
+  `ProblemDetailsError` fields and types;
 - domain-specific error DTOs and multiple success alternatives fail generation.
 
 Services continue to return `Result<T>`. Yaver.Result and FastEndpoints map
@@ -94,9 +100,12 @@ This allows non-endpoint projects (e.g., gRPC services, background workers) to r
 
 Pushing a `v*` tag triggers the [GitHub Actions workflow](.github/workflows/relase.yml):
 
-1. Builds the Maven project
-2. Packages `openapi-generator-cli.jar` + `yaver-generator-cli.jar` into `codegen.cli.zip`
-3. Publishes as a GitHub Release
+1. Builds the Maven project and generator JAR
+2. Runs generated proxy/gateway compilation, response-contract negative tests,
+   dependency-default checks, and MessagePack `EmptyResponse` round trips
+3. Publishes and starts split and non-split gateway Native AOT smoke hosts
+4. Packages `openapi-generator-cli.jar` + `yaver-generator-cli.jar` into `codegen.cli.zip`
+5. Publishes as a GitHub Release
 
 Consumers download the release ZIP at:
 ```

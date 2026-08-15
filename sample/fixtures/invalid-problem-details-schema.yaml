@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: Invalid ProblemDetails schema
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getInvalidProblemDetails
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+    ProblemDetails:
+      type: object
+      required: [type, title, status, instance, errors]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        instance:
+          type: string
+        traceId:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProblemDetailsError"
+    ProblemDetailsError:
+      type: object
+      required: [name, reason]
+      properties:
+        name:
+          type: string
+        reason:
+          type: string
+        code:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          nullable: true

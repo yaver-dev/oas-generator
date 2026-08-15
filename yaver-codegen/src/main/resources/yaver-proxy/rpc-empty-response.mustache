@@ -1,0 +1,13 @@
+namespace {{packageName}}.{{modelPackage}};
+
+/// <summary>
+/// Empty payload used to preserve the RPC result envelope for bodyless HTTP responses.
+/// </summary>
+public sealed class EmptyResponse
+{
+    public static EmptyResponse Instance { get; } = new();
+
+    public EmptyResponse()
+    {
+    }
+}
