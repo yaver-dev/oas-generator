@@ -1,6 +1,8 @@
 #!/bin/bash
-mvn -f ./yaver-codegen/pom.xml clean install
-mv yaver-codegen/target/yaver-codegen.jar ./cli/yaver-generator-cli.jar
+set -euo pipefail
+
+mvn -f ./yaver-codegen/pom.xml clean package
+cp yaver-codegen/target/yaver-codegen.jar ./cli/yaver-generator-cli.jar
 
 # mkdir tmp
 # (
