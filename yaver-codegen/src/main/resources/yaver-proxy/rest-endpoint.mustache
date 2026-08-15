@@ -4,8 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using {{packageName}}.{{modelPackage}};
-{{#hasRpcEmptyResponse}}using EmptyResponse = global::{{rpcEmptyResponseNamespace}}.EmptyResponse;
-{{/hasRpcEmptyResponse}}
 
 namespace {{packageName}}.{{baseName}}.Api;
 public class {{baseName}}Api : Group
@@ -24,8 +22,10 @@ public class {{baseName}}Api : Group
 /// </remarks>
 {{/notes}}
 public class {{operationIdCamelCase}}Endpoint:Endpoint<
-	{{operationIdCamelCase}}Request,
+	{{operationIdCamelCase}}Request{{^vendorExtensions.successResponseBodyless}},
 	{{{returnType}}}{{^returnType}}Object{{/returnType}}> {
+	{{/vendorExtensions.successResponseBodyless}}{{#vendorExtensions.successResponseBodyless}}> {
+	{{/vendorExtensions.successResponseBodyless}}
 	public override void Configure() {
 		{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}");
 		Group<{{baseName}}Api>();
@@ -71,7 +71,7 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 			.ConfigureAwait(false);
 	}
 	{{/vendorExtensions.successResponseNoContent}}
-	{{#vendorExtensions.successResponseResetContent}}
+	{{#vendorExtensions.successResponseBodyless}}{{^vendorExtensions.successResponseNoContent}}
 	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct)
 	{
 		var result = await req.ToCommand()
@@ -80,7 +80,7 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 
 		if (result.Status == Yaver.Result.ResultStatus.Ok)
 		{
-			HttpContext.Response.StatusCode = 205;
+			HttpContext.Response.StatusCode = {{vendorExtensions.successResponseCode}};
 			await HttpContext.Response.CompleteAsync().ConfigureAwait(false);
 			return;
 		}
@@ -89,14 +89,14 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 			.SendAsync(HttpContext, cancellationToken: ct)
 			.ConfigureAwait(false);
 	}
-	{{/vendorExtensions.successResponseResetContent}}
-	{{^vendorExtensions.successResponseNoContent}}{{^vendorExtensions.successResponseResetContent}}
+	{{/vendorExtensions.successResponseNoContent}}{{/vendorExtensions.successResponseBodyless}}
+	{{^vendorExtensions.successResponseBodyless}}
 	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
 	await req.ToCommand()
 		.RemoteExecuteAsync(ct)
 		.SendAsync(HttpContext, {{vendorExtensions.successResponseCode}}, ct)
 		.ConfigureAwait(false);
-	{{/vendorExtensions.successResponseResetContent}}{{/vendorExtensions.successResponseNoContent}}
+	{{/vendorExtensions.successResponseBodyless}}
 }
 
 {{^hasParams}}

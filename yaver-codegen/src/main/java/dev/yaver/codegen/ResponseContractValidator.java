@@ -123,7 +123,7 @@ final class ResponseContractValidator {
                         && (response.code.startsWith("4") || response.code.startsWith("5")));
     }
 
-    private static boolean hasResponseBody(CodegenResponse response) {
+    static boolean hasResponseBody(CodegenResponse response) {
         Map<String, CodegenMediaType> content = response.getContent();
         return (content != null && !content.isEmpty())
                 || getResponseDataType(response) != null;

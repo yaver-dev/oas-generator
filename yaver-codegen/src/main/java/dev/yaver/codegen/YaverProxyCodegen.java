@@ -136,7 +136,6 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
     protected String fastEndpointsVersion = "8.2.0";
     protected String riokMapperlyVersion = "4.3.0";
     protected String yaverResultVersion = "2.3.1";
-    private boolean rpcEmptyResponseSupportingFileAdded = false;
 
     public YaverProxyCodegen() {
         super();
@@ -1333,20 +1332,18 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
                 op.vendorExtensions.put("hasSuccessResponse", true);
                 op.vendorExtensions.put("successResponseCode", successResponse.code);
                 op.vendorExtensions.put("successResponseNoContent", "204".equals(successResponse.code));
-                op.vendorExtensions.put("successResponseResetContent", "205".equals(successResponse.code));
+                boolean successResponseBodyless = !ResponseContractValidator.hasResponseBody(successResponse);
+                op.vendorExtensions.put("successResponseBodyless", successResponseBodyless);
 
                 // Get response data type from different sources
                 String responseModel = ResponseContractValidator.getResponseDataType(successResponse);
                 if (responseModel != null && !responseModel.isEmpty()) {
                     op.vendorExtensions.put("isObjectResponse", false);
                     op.vendorExtensions.put("successResponseModel", responseModel);
-                } else {
-                    // If no data type is found, we assume it's an object
-                    op.vendorExtensions.put("isObjectResponse", true);
-                    op.vendorExtensions.put("successResponseModel", "EmptyResponse");
-                    ensureRpcEmptyResponseSupportingFile(allModels);
-                    objs.put("hasRpcEmptyResponse", true);
-                    objs.put("rpcEmptyResponseNamespace", packageName + "." + modelPackage);
+                } else if (!successResponseBodyless) {
+                    throw new IllegalArgumentException(
+                            "Operation '" + op.operationId
+                                    + "' declares a success response body without a resolvable schema type.");
                 }
 
                 // Add response message if exists
@@ -1377,19 +1374,6 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
         }
 
         return super.postProcessOperationsWithModels(objs, allModels);
-    }
-
-    private void ensureRpcEmptyResponseSupportingFile(List<ModelMap> allModels) {
-        if (rpcEmptyResponseSupportingFileAdded || allModels.stream()
-                .map(ModelMap::getModel)
-                .anyMatch(model -> "EmptyResponse".equals(model.classname))) {
-            return;
-        }
-
-        String modelFolder = sourceFolder + File.separator + packageName + File.separator
-                + modelPackage.replace('.', File.separatorChar);
-        supportingFiles.add(new SupportingFile("rpc-empty-response.mustache", modelFolder, "EmptyResponse.cs"));
-        rpcEmptyResponseSupportingFileAdded = true;
     }
 
 }

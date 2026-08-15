@@ -22,7 +22,7 @@ if [[ -n "$YAVER_RESULT_NUGET_SOURCE" ]]; then
 		--source "$YAVER_RESULT_NUGET_SOURCE" \
 		-p:NuGetAudit=false
 else
-	dotnet restore out/src/Yaver.Sample/Yaver.Sample.csproj
+	dotnet restore out/src/Yaver.Sample/Yaver.Sample.csproj -p:NuGetAudit=false
 fi
 dotnet build out/src/Yaver.Sample/Yaver.Sample.csproj --no-restore
 # dotnet build out/src/Pairs.BO.Contracts/Pairs.BO.Contracts.csproj

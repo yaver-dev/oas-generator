@@ -176,7 +176,6 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     protected String fluentValidationVersion = "12.1.1";
     protected String messagePackVersion = "3.1.8";
     protected String schemasPackageName = null;
-    private boolean rpcEmptyResponseSupportingFileAdded = false;
 
     public YaverCsGateway() {
         super();
@@ -1852,22 +1851,18 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                 op.vendorExtensions.put("successResponseCode",
                         successResponse.code != null && !successResponse.code.isEmpty() ? successResponse.code : "200");
                 op.vendorExtensions.put("successResponseNoContent", "204".equals(successResponse.code));
-                op.vendorExtensions.put("successResponseResetContent", "205".equals(successResponse.code));
+                boolean successResponseBodyless = !ResponseContractValidator.hasResponseBody(successResponse);
+                op.vendorExtensions.put("successResponseBodyless", successResponseBodyless);
 
                 // Get response data type from different sources
                 String responseModel = ResponseContractValidator.getResponseDataType(successResponse);
                 if (responseModel != null && !responseModel.isEmpty()) {
                     op.vendorExtensions.put("isObjectResponse", false);
                     op.vendorExtensions.put("successResponseModel", responseModel);
-                } else {
-                    // If no data type is found, we assume it's an object
-                    op.vendorExtensions.put("isObjectResponse", true);
-                    op.vendorExtensions.put("successResponseModel", "EmptyResponse");
-                    ensureRpcEmptyResponseSupportingFile(allModels);
-                    objs.put("hasRpcEmptyResponse", true);
-                    objs.put("rpcEmptyResponseNamespace", splitSchemas
-                            ? schemasPackageName
-                            : packageName + "." + modelPackage);
+                } else if (!successResponseBodyless) {
+                    throw new IllegalArgumentException(
+                            "Operation '" + op.operationId
+                                    + "' declares a success response body without a resolvable schema type.");
                 }
 
                 // Add response message if exists
@@ -1901,21 +1896,6 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         objs.put(HAS_REQUIRED_STRING_VALIDATION_EXTENSION, hasRequiredStringValidation);
 
         return super.postProcessOperationsWithModels(objs, allModels);
-    }
-
-    private void ensureRpcEmptyResponseSupportingFile(List<ModelMap> allModels) {
-        if (rpcEmptyResponseSupportingFileAdded || allModels.stream()
-                .map(ModelMap::getModel)
-                .anyMatch(model -> "EmptyResponse".equals(model.classname))) {
-            return;
-        }
-
-        String modelFolder = splitSchemas
-                ? sourceFolder + File.separator + schemasPackageName
-                : sourceFolder + File.separator + packageName + File.separator
-                        + modelPackage.replace('.', File.separatorChar);
-        supportingFiles.add(new SupportingFile("rpc-empty-response.mustache", modelFolder, "EmptyResponse.cs"));
-        rpcEmptyResponseSupportingFileAdded = true;
     }
 
     private boolean requiresNonBlankStringValidation(CodegenParameter parameter) {

@@ -1709,9 +1709,6 @@ components:
     NoContent:
       description: No Content - operation succeeded with no response body
   schemas:
-    EmptyResponse:
-      type: object
-      additionalProperties: false
     ProblemDetails:
       type: object
       required:

@@ -88,43 +88,42 @@ restore_project() {
       --source "$YAVER_RESULT_NUGET_SOURCE" \
       -p:NuGetAudit=false
   else
-    dotnet restore "$project_file"
+    dotnet restore "$project_file" -p:NuGetAudit=false
   fi
 }
 
-assert_empty_response_round_trip() {
+assert_bodyless_result_round_trip() {
   local generator="$1"
   local generated_project="$2"
-  local empty_response_namespace="$3"
-  local schema_project="${4:-}"
   local smoke_dir="$OUTPUT_DIR/runtime-$generator"
 
   dotnet new console -n "$generator" -o "$smoke_dir" --framework net10.0 --no-restore
   dotnet add "$smoke_dir/$generator.csproj" reference "$generated_project"
-  if [[ -n "$schema_project" ]]; then
-    dotnet add "$smoke_dir/$generator.csproj" reference "$schema_project"
-  fi
   dotnet add "$smoke_dir/$generator.csproj" package MessagePack --version 3.1.8 --no-restore
   dotnet add "$smoke_dir/$generator.csproj" package Yaver.Result --version "$YAVER_RESULT_VERSION" --no-restore
 
   cat >"$smoke_dir/Program.cs" <<EOF
 using MessagePack;
-using MessagePack.Resolvers;
 using Yaver.Result;
-using RpcEmptyResponse = $empty_response_namespace.EmptyResponse;
 
 var options = MessagePackSerializerOptions.Standard
-    .WithResolver(ContractlessStandardResolver.Instance);
-var source = Result<RpcEmptyResponse>.Success(RpcEmptyResponse.Instance);
-var bytes = MessagePackSerializer.Serialize(source, options);
-var clone = MessagePackSerializer.Deserialize<Result<RpcEmptyResponse>>(bytes, options);
+    .WithYaverResultResolver<object>();
 
-if (!clone.IsSuccess || clone.Value is null)
+var successBytes = MessagePackSerializer.Serialize(Result.Success(), options);
+var success = MessagePackSerializer.Deserialize<Result>(successBytes, options);
+if (!success.IsSuccess)
 {
-    throw new InvalidOperationException("Result<EmptyResponse> MessagePack round-trip failed.");
+    throw new InvalidOperationException("Bodyless success Result MessagePack round-trip failed.");
 }
 
-Console.WriteLine("Result<EmptyResponse> MessagePack round-trip OK.");
+var conflictBytes = MessagePackSerializer.Serialize(Result.Conflict("rollout is already active"), options);
+var conflict = MessagePackSerializer.Deserialize<Result>(conflictBytes, options);
+if (conflict.Status != ResultStatus.Conflict || !conflict.Errors.Contains("rollout is already active"))
+{
+    throw new InvalidOperationException("Bodyless failure Result MessagePack round-trip failed.");
+}
+
+Console.WriteLine("Bodyless Result success and failure MessagePack round trips OK.");
 EOF
 
   restore_project "$smoke_dir/$generator.csproj"
@@ -151,18 +150,17 @@ for generator in yaver-proxy yaver-cs-gateway; do
   assert_contains "$api_file" "await HttpContext.Response.CompleteAsync().ConfigureAwait(false);"
   assert_contains "$api_file" ".SendAsync(HttpContext, cancellationToken: ct)"
   assert_contains "$command_file" "IRpcCommand<Result<StatusResponse>>"
-  assert_contains "$command_file" "IRpcCommand<Result<EmptyResponse>>"
+  assert_contains "$command_file" "DeleteResponseCommand : IRpcCommand<global::Yaver.Result.Result>"
+  assert_contains "$command_file" "ResetResponseCommand : IRpcCommand<global::Yaver.Result.Result>"
 
   empty_response_file="$(find "$output/src" -type f -name 'EmptyResponse.cs' -print -quit)"
-  if [[ -z "$empty_response_file" ]]; then
-    echo "Expected generated RPC-safe EmptyResponse for $generator" >&2
+  if [[ -n "$empty_response_file" ]]; then
+    echo "$generator must not generate an EmptyResponse transport workaround" >&2
     exit 1
   fi
-  assert_contains "$empty_response_file" "public sealed class EmptyResponse"
-  assert_contains "$empty_response_file" "public EmptyResponse()"
 
-  if grep -Fq "IRpcCommand<Yaver.Result.Result>" "$command_file"; then
-    echo "$generator must preserve the FastEndpoints EmptyResponse RPC envelope for 204" >&2
+  if grep -Fq "Result<EmptyResponse>" "$command_file"; then
+    echo "$generator must use the non-generic Result envelope for bodyless success responses" >&2
     exit 1
   fi
   if grep -Fq ".SendAsync(HttpContext, 204, ct)" "$api_file"; then
@@ -180,7 +178,7 @@ for generator in yaver-proxy yaver-cs-gateway; do
 
   restore_project "$project_file"
   dotnet build "$project_file" -c Release --nologo --no-restore
-  assert_empty_response_round_trip "$generator" "$project_file" "Yaver.Response.Contracts.Model"
+  assert_bodyless_result_round_trip "$generator" "$project_file"
 
   assert_invalid "$generator" "$MULTIPLE_SUCCESS_FIXTURE" \
     "must declare exactly one concrete 2xx response"
@@ -227,18 +225,18 @@ java -cp "$YAVER_GENERATOR_JAR:$OPENAPI_GENERATOR_JAR" \
 split_project="$(find "$split_output/src" -type f -name 'Yaver.Response.Contracts.Features.csproj' -print -quit)"
 split_schema_project="$(find "$split_output/src" -type f -name 'Yaver.Response.Contracts.Schemas.csproj' -print -quit)"
 split_empty_response="$(find "$split_output/src" -type f -path '*Yaver.Response.Contracts.Schemas/EmptyResponse.cs' -print -quit)"
-if [[ -z "$split_project" || -z "$split_schema_project" || -z "$split_empty_response" ]]; then
-  echo "Expected splitSchemas gateway project and EmptyResponse were not generated" >&2
+if [[ -z "$split_project" || -z "$split_schema_project" ]]; then
+  echo "Expected splitSchemas gateway projects were not generated" >&2
   exit 1
 fi
-assert_contains "$split_empty_response" "namespace Yaver.Response.Contracts.Schemas;"
-assert_contains "$split_empty_response" "public EmptyResponse()"
+if [[ -n "$split_empty_response" ]]; then
+  echo "splitSchemas gateway must not generate an EmptyResponse transport workaround" >&2
+  exit 1
+fi
 restore_project "$split_project"
 dotnet build "$split_project" -c Release --nologo --no-restore
-assert_empty_response_round_trip \
+assert_bodyless_result_round_trip \
   "yaver-cs-gateway-split" \
-  "$split_project" \
-  "Yaver.Response.Contracts.Schemas" \
-  "$split_schema_project"
+  "$split_project"
 
 echo "Response contract regression OK"

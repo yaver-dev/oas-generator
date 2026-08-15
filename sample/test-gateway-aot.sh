@@ -95,7 +95,7 @@ if [[ -n "$YAVER_RESULT_NUGET_SOURCE" ]]; then
     -p:NuGetAudit=false \
     2>&1 | tee "$LOG_ROOT/restore.log"
 else
-  dotnet restore "$GENERATED_PROJECT" 2>&1 | tee "$LOG_ROOT/restore.log"
+  dotnet restore "$GENERATED_PROJECT" -p:NuGetAudit=false 2>&1 | tee "$LOG_ROOT/restore.log"
 fi
 RESTORE_EXIT=${PIPESTATUS[0]}
 
@@ -104,12 +104,7 @@ BUILD_EXIT=${PIPESTATUS[0]}
 set -e
 
 mkdir -p "$SMOKE_ROOT"
-dotnet new web -n Gateway.Aot.Smoke -o "$SMOKE_ROOT" --framework "$TARGET_FRAMEWORK" --force 2>&1 | tee "$LOG_ROOT/new-web.log"
-
-SCHEMA_PROJECT_REFERENCE=""
-if [[ "$SPLIT_SCHEMAS" == "true" ]]; then
-  SCHEMA_PROJECT_REFERENCE='    <ProjectReference Include="../../../gateway/'"$FIXTURE_STEM"'/'"$MODE_SUFFIX"'/src/Yaver.Sample.Schemas/Yaver.Sample.Schemas.csproj" />'
-fi
+dotnet new web -n Gateway.Aot.Smoke -o "$SMOKE_ROOT" --framework "$TARGET_FRAMEWORK" --force --no-restore 2>&1 | tee "$LOG_ROOT/new-web.log"
 
 cat > "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" <<EOF
 <Project Sdk="Microsoft.NET.Sdk.Web">
@@ -126,7 +121,6 @@ cat > "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" <<EOF
 
   <ItemGroup>
     <ProjectReference Include="../../../gateway/${FIXTURE_STEM}/${MODE_SUFFIX}/src/Yaver.Sample.Features/Yaver.Sample.Features.csproj" />
-$SCHEMA_PROJECT_REFERENCE
   </ItemGroup>
 </Project>
 EOF
@@ -143,6 +137,7 @@ IRpcCommand<Result<CustomerDetail>> command = new GetCustomerCommand
 {
   CustomerId = Guid.NewGuid()
 };
+IRpcCommand<Result> bodylessCommand = new CompleteAotNoContentSmokeCommand();
 
 CustomerDetail dto = new()
 {
@@ -195,10 +190,9 @@ Result<CustomerDetail> envelope = Result.Success(dto);
 IFormatterResolver resolver = CompositeResolver.Create(
   new IFormatterResolver[]
   {
-    GeneratedDtoMessagePackResolver.Instance,
     YaverResultTypedMessagePackResolver<CustomerDetail>.Instance,
-    YaverResultTypedMessagePackResolver<EmptyResponse>.Instance,
-    YaverResultMessagePackResolver.Instance
+    YaverResultMessagePackResolver.Instance,
+    GeneratedDtoMessagePackResolver.Instance
   });
 
 MessagePackSerializerOptions options = MessagePackSerializerOptions.Standard.WithResolver(resolver);
@@ -217,16 +211,26 @@ if (roundTrip.Value.Id != dto.Id)
 
 Console.WriteLine("MessagePack round-trip OK for Result<CustomerDetail>.");
 
-Result<EmptyResponse> emptyEnvelope = Result.Success(EmptyResponse.Instance);
-byte[] emptyPayload = MessagePackSerializer.Serialize(emptyEnvelope, options);
-Result<EmptyResponse> emptyRoundTrip = MessagePackSerializer.Deserialize<Result<EmptyResponse>>(emptyPayload, options);
+Result bodylessSuccess = Result.Success();
+byte[] bodylessSuccessPayload = MessagePackSerializer.Serialize(bodylessSuccess, options);
+Result bodylessSuccessRoundTrip = MessagePackSerializer.Deserialize<Result>(bodylessSuccessPayload, options);
 
-if (!emptyRoundTrip.IsSuccess || emptyRoundTrip.Value is null)
+if (!bodylessSuccessRoundTrip.IsSuccess)
 {
-  throw new InvalidOperationException("MessagePack round-trip failed for Result<EmptyResponse>.");
+  throw new InvalidOperationException("MessagePack round-trip failed for bodyless success Result.");
 }
 
-Console.WriteLine("MessagePack round-trip OK for Result<EmptyResponse>.");
+Result bodylessConflict = Result.Conflict("rollout is already active");
+byte[] bodylessConflictPayload = MessagePackSerializer.Serialize(bodylessConflict, options);
+Result bodylessConflictRoundTrip = MessagePackSerializer.Deserialize<Result>(bodylessConflictPayload, options);
+
+if (bodylessConflictRoundTrip.Status != ResultStatus.Conflict ||
+    !bodylessConflictRoundTrip.Errors.Contains("rollout is already active"))
+{
+  throw new InvalidOperationException("MessagePack round-trip failed for bodyless failure Result.");
+}
+
+Console.WriteLine("MessagePack round-trip OK for bodyless Result success and failure.");
 
 var builder = WebApplication.CreateSlimBuilder(args);
 var app = builder.Build();
@@ -255,12 +259,15 @@ if [[ $RESTORE_EXIT -eq 0 && $BUILD_EXIT -eq 0 ]]; then
       -r "$RID" \
       -p:PublishAot=true \
       --source "$YAVER_RESULT_NUGET_SOURCE" \
+      --ignore-failed-sources \
       -p:NuGetAudit=false \
       2>&1 | tee "$LOG_ROOT/smoke-restore.log"
   else
     dotnet restore "$SMOKE_ROOT/Gateway.Aot.Smoke.csproj" \
       -r "$RID" \
       -p:PublishAot=true \
+      --ignore-failed-sources \
+      -p:NuGetAudit=false \
       2>&1 | tee "$LOG_ROOT/smoke-restore.log"
   fi
 
@@ -271,6 +278,8 @@ if [[ $RESTORE_EXIT -eq 0 && $BUILD_EXIT -eq 0 ]]; then
     --self-contained true \
     --no-restore \
     -p:PublishAot=true \
+    -p:BuildInParallel=false \
+    -m:1 \
     -warnaserror:IL2026,IL2070,IL2072,IL2075,IL3050 \
     2>&1 | tee "$LOG_ROOT/publish.log"
   PUBLISH_EXIT=${PIPESTATUS[0]}
@@ -310,10 +319,10 @@ if [[ $RESTORE_EXIT -eq 0 && $BUILD_EXIT -eq 0 ]]; then
         RUNTIME_STATUS="roundtrip-marker-missing"
       fi
 
-      if ! grep -q "MessagePack round-trip OK for Result<EmptyResponse>." "$RUNTIME_LOG"; then
-        echo "Runtime smoke did not print EmptyResponse round-trip success marker." >> "$RUNTIME_LOG"
+      if ! grep -q "MessagePack round-trip OK for bodyless Result success and failure." "$RUNTIME_LOG"; then
+        echo "Runtime smoke did not print bodyless Result round-trip success marker." >> "$RUNTIME_LOG"
         RUNTIME_EXIT=94
-        RUNTIME_STATUS="empty-response-marker-missing"
+        RUNTIME_STATUS="bodyless-result-marker-missing"
       fi
 
       if grep -Eiq "Unhandled exception|Exception:" "$RUNTIME_LOG"; then

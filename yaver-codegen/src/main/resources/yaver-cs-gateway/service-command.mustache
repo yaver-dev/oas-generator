@@ -1,15 +1,13 @@
 {{#x-yaver-has-request-validation}}using FluentValidation;
 {{/x-yaver-has-request-validation}}
 {{#splitSchemas}}using {{schemasPackageName}};{{/splitSchemas}}{{^splitSchemas}}using {{packageName}}.{{modelPackage}};{{/splitSchemas}}
-{{#hasRpcEmptyResponse}}using EmptyResponse = global::{{rpcEmptyResponseNamespace}}.EmptyResponse;
-{{/hasRpcEmptyResponse}}
 
 namespace {{packageName}}.{{baseName}}.Service;
 {{#operations}}
 {{#operation}}
 
 	{{#hasParams}}
-	public class {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>> {
+	public class {{operationIdCamelCase}}Command : IRpcCommand<{{#vendorExtensions.successResponseBodyless}}global::Yaver.Result.Result{{/vendorExtensions.successResponseBodyless}}{{^vendorExtensions.successResponseBodyless}}Result<{{{vendorExtensions.successResponseModel}}}>{{/vendorExtensions.successResponseBodyless}}> {
 		{{#pathParams}}
 		/// <summary>
 		/// {{description}}
@@ -46,7 +44,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 	}
 	{{/hasParams}}
 	{{^hasParams}}
-	public record {{operationIdCamelCase}}Command : IRpcCommand<Result<{{{vendorExtensions.successResponseModel}}}>>;
+	public record {{operationIdCamelCase}}Command : IRpcCommand<{{#vendorExtensions.successResponseBodyless}}global::Yaver.Result.Result{{/vendorExtensions.successResponseBodyless}}{{^vendorExtensions.successResponseBodyless}}Result<{{{vendorExtensions.successResponseModel}}}>{{/vendorExtensions.successResponseBodyless}}>;
 	{{/hasParams}}
 {{/operation}}
 {{/operations}}

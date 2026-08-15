@@ -30,7 +30,7 @@ restore_project() {
       --source "$YAVER_RESULT_NUGET_SOURCE" \
       -p:NuGetAudit=false
   else
-    dotnet restore "$project_file"
+    dotnet restore "$project_file" -p:NuGetAudit=false
   fi
 }
 

@@ -69,11 +69,10 @@ transport-generic:
 
 - every operation must declare exactly one concrete numeric `2xx` response;
 - the declared success status is emitted unchanged, including `201`;
-- `204` and `205` preserve the `Result<EmptyResponse>` RPC envelope, while the
-  HTTP endpoint suppresses the body and emits the declared status;
-- the generated RPC-safe `EmptyResponse` has a public constructor, keeps the
-  empty-map wire shape, and is source-generated for MessagePack in gateway
-  projects;
+- bodyless success responses use `IRpcCommand<Result>` so failures still cross
+  the RPC boundary without inventing a response DTO;
+- `204` and `205` emit the declared HTTP status with no response body; no
+  `EmptyResponse` transport workaround is generated;
 - every `4xx`, `5xx`, and `default` response must use
   `application/problem+json` with the canonical `ProblemDetails` schema;
 - the validator checks the required canonical `ProblemDetails` and nested
@@ -102,7 +101,8 @@ Pushing a `v*` tag triggers the [GitHub Actions workflow](.github/workflows/rela
 
 1. Builds the Maven project and generator JAR
 2. Runs generated proxy/gateway compilation, response-contract negative tests,
-   dependency-default checks, and MessagePack `EmptyResponse` round trips
+   dependency-default checks, and bodyless `Result` success/failure MessagePack
+   round trips
 3. Publishes and starts split and non-split gateway Native AOT smoke hosts
 4. Packages `openapi-generator-cli.jar` + `yaver-generator-cli.jar` into `codegen.cli.zip`
 5. Publishes as a GitHub Release
