@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Yaver response contract regression
+  version: 1.0.0
+tags:
+  - name: Responses
+paths:
+  /responses/ok:
+    get:
+      tags: [Responses]
+      operationId: getResponse
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /responses/created:
+    post:
+      tags: [Responses]
+      operationId: createResponse
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /responses/no-content:
+    delete:
+      tags: [Responses]
+      operationId: deleteResponse
+      responses:
+        "204":
+          description: No content
+        "400":
+          $ref: "#/components/responses/BadRequest"
+components:
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+    NotFound:
+      description: Not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+    Conflict:
+      description: Conflict
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+  schemas:
+    StatusResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+    ProblemDetails:
+      type: object
+      required: [type, title, status, instance, traceId, errors]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        instance:
+          type: string
+        traceId:
+          type: string
+        detail:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProblemDetailsError"
+    ProblemDetailsError:
+      type: object
+      required: [name, reason]
+      properties:
+        name:
+          type: string
+        reason:
+          type: string
+        code:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          nullable: true

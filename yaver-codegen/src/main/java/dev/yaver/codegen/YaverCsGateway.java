@@ -171,7 +171,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
     
     protected String fastEndpointsVersion = "8.1.0";
     protected String riokMapperlyVersion = "4.3.0";
-    protected String yaverResultVersion = "2.1.0";
+    protected String yaverResultVersion = "3.0.0";
     protected boolean splitSchemas = false;
     protected String fluentValidationVersion = "12.1.1";
     protected String messagePackVersion = "3.1.7";
@@ -1842,7 +1842,8 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                 bodyParam.vendorExtensions.put(HAS_VALIDATION_RULES_EXTENSION, hasBodyValidationRules);
             }
 
-            CodegenResponse successResponse = findSuccessResponse(op);
+            CodegenResponse successResponse = ResponseContractValidator.requireSingleSuccessResponse(op);
+            ResponseContractValidator.requireProblemDetailsErrors(op);
 
             if (successResponse != null) {
                 op.vendorExtensions.put("hasSuccessResponse", true);
@@ -1851,7 +1852,7 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
                 op.vendorExtensions.put("successResponseNoContent", "204".equals(successResponse.code));
 
                 // Get response data type from different sources
-                String responseModel = getResponseDataType(successResponse);
+                String responseModel = ResponseContractValidator.getResponseDataType(successResponse);
                 if (responseModel != null && !responseModel.isEmpty()) {
                     op.vendorExtensions.put("isObjectResponse", false);
                     op.vendorExtensions.put("successResponseModel", responseModel);
@@ -1908,50 +1909,4 @@ public class YaverCsGateway extends AbstractCSharpCodegen {
         return parameters.stream().anyMatch(parameter -> paramName.equals(parameter.paramName));
     }
 
-    /**
-     * Finds the success response (2xx status codes)
-     */
-    private CodegenResponse findSuccessResponse(CodegenOperation operation) {
-        for (CodegenResponse response : operation.responses) {
-            String code = response.code;
-            // Check for 2xx success codes
-            if (code != null && (code.equals("200") || code.equals("201") || code.equals("202") ||
-                    code.equals("204") || code.startsWith("2"))) {
-                return response;
-            }
-        }
-
-        if (!operation.responses.isEmpty()) {
-            return operation.responses.get(0);
-        }
-
-        return null;
-    }
-
-    /**
-     * Tries to get the response data type from different sources
-     */
-    private String getResponseDataType(CodegenResponse response) {
-        // If the response is a stream, return StreamResponse
-        // if (response.dataType != null &&
-        //         (response.dataType.equals("Stream") || response.dataType.equals("System.IO.Stream"))) {
-        //     return "StreamResponse";
-        // }
-        // First check dataType
-        if (response.dataType != null && !response.dataType.isEmpty()) {
-            return response.dataType;
-        }
-
-        // Then check baseType
-        if (response.baseType != null && !response.baseType.isEmpty()) {
-            return response.baseType;
-        }
-
-        // If containerType exists, check it
-        if (response.containerType != null && !response.containerType.isEmpty()) {
-            return response.containerType;
-        }
-
-        return null;
-    }
 }

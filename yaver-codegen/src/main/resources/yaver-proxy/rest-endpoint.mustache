@@ -51,11 +51,20 @@ public class {{operationIdCamelCase}}Endpoint:Endpoint<
 		{{/bodyParam}}
 	}
 	//{{#hasParams}}{{operationIdCamelCase}}Request{{/hasParams}}{{^hasParams}}EmptyRequest{{/hasParams}}
+	{{#vendorExtensions.successResponseNoContent}}
 	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
 	await req.ToCommand()
 		.RemoteExecuteAsync(ct)
-		.SendAsync(HttpContext, 200, ct)
+		.SendAsync(HttpContext, 204, ct)
 		.ConfigureAwait(false);
+	{{/vendorExtensions.successResponseNoContent}}
+	{{^vendorExtensions.successResponseNoContent}}
+	public override async Task HandleAsync({{operationIdCamelCase}}Request req, CancellationToken ct) =>
+	await req.ToCommand()
+		.RemoteExecuteAsync(ct)
+		.SendAsync(HttpContext, {{vendorExtensions.successResponseCode}}, ct)
+		.ConfigureAwait(false);
+	{{/vendorExtensions.successResponseNoContent}}
 }
 
 {{^hasParams}}

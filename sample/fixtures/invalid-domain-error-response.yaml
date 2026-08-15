@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  title: Invalid domain error response
+  version: 1.0.0
+paths:
+  /responses:
+    post:
+      operationId: createDomainResponse
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "409":
+          description: Domain-specific conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainConflictResponse"
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+    DomainConflictResponse:
+      type: object
+      properties:
+        conflictCode:
+          type: string

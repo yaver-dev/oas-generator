@@ -1663,58 +1663,89 @@ components:
     BadRequest:
       description: Bad Request - validation failed
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/schemas/ProblemDetails"
     Unauthorized:
       description: Unauthorized - missing or invalid portal web session
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/schemas/ProblemDetails"
     Forbidden:
       description: Forbidden - portal.admin role or CSRF validation required
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/schemas/ProblemDetails"
     NotFound:
       description: Resource not found
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/schemas/ProblemDetails"
     Conflict:
       description: Conflict - resource state does not allow this operation
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/schemas/ProblemDetails"
     Gone:
       description: Gone - single-use token was already consumed or expired
       content:
-        application/json:
+        application/problem+json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/schemas/ProblemDetails"
     NoContent:
       description: No Content - operation succeeded with no response body
   schemas:
     EmptyResponse:
       type: object
       additionalProperties: false
-    ErrorResponse:
+    ProblemDetails:
       type: object
+      required:
+        - type
+        - title
+        - status
+        - instance
+        - traceId
+        - errors
       properties:
-        statusCode:
-          type: integer
-        message:
+        type:
           type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        instance:
+          type: string
+        traceId:
+          type: string
+        detail:
+          type: string
+          nullable: true
         errors:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
+          type: array
+          items:
+            $ref: "#/components/schemas/ProblemDetailsError"
+    ProblemDetailsError:
+      type: object
+      required:
+        - name
+        - reason
+      properties:
+        name:
+          type: string
+        reason:
+          type: string
+        code:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          nullable: true
     EmployeeStatusEnum:
       type: string
       enum:

@@ -32,7 +32,7 @@ cd sample && ./test-gateway-aot.sh --split-schemas false
 cd sample && ./test-gateway-aot.sh --fixture fixtures/pairs-auth-admin.yaml --split-schemas true
 ```
 
-`build.sh` runs `mvn clean install` and copies the output JAR to `cli/yaver-generator-cli.jar`.
+`build.sh` runs `mvn clean package` and copies the output JAR to `cli/yaver-generator-cli.jar`.
 
 `sample/test-gateway-aot.sh` generates `yaver-cs-gateway` output to `sample/out/gateway/...`, creates a separate smoke host under `sample/out/gateway-aot-smoke/...`, then publishes with `PublishAot=true`.
 
@@ -57,9 +57,28 @@ java -cp cli/openapi-generator-cli.jar:cli/yaver-generator-cli.jar \
 | `targetFramework`         | `net10.0` | .NET TFM                                                 |
 | `fastEndpointsVersion`    | —         | FastEndpoints NuGet version                              |
 | `riokMapperlyVersion`     | —         | Riok.Mapperly NuGet version                              |
-| `yaverResultVersion`      | —         | Yaver.Result NuGet version                               |
+| `yaverResultVersion`      | `3.0.0`   | Yaver.Result NuGet version                               |
 | `splitSchemas`            | `false`   | Split DTOs/validators into a separate `.Schemas` project |
 | `fluentValidationVersion` | `12.1.1`  | FluentValidation version (used when `splitSchemas=true`) |
+
+### RPC bridge response contract
+
+`yaver-proxy` and `yaver-cs-gateway` deliberately keep the RPC result contract
+transport-generic:
+
+- every operation must declare exactly one concrete numeric `2xx` response;
+- the declared success status is emitted unchanged, including `201`;
+- a successful `204` sends no response body;
+- body-bearing `4xx` and `5xx` responses must use
+  `application/problem+json` with the canonical `ProblemDetails` schema;
+- domain-specific error DTOs and multiple success alternatives fail generation.
+
+Services continue to return `Result<T>`. Yaver.Result and FastEndpoints map
+failure statuses to RFC 9457 problem details, while service-provided safe error
+messages override the generic detail without changing the response type.
+
+Run `sample/test-response-contracts.sh` for the focused positive and negative
+generation regression suite.
 
 ### splitSchemas Feature
 

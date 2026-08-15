@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  title: Invalid multiple success responses
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getAmbiguousResponse
+      responses:
+        "200":
+          description: Resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedResponse"
+        "202":
+          description: Pending
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PendingResponse"
+components:
+  schemas:
+    ResolvedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+    PendingResponse:
+      type: object
+      properties:
+        retryAfterSeconds:
+          type: integer
