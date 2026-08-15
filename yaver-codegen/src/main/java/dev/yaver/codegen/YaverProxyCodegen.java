@@ -133,9 +133,9 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
     protected boolean needsCustomHttpMethod = false;
     protected boolean needsUriBuilder = false;
     
-    protected String fastEndpointsVersion = "7.1.1";
+    protected String fastEndpointsVersion = "8.2.0";
     protected String riokMapperlyVersion = "4.3.0";
-    protected String yaverResultVersion = "2.3.0";
+    protected String yaverResultVersion = "2.3.1";
 
     public YaverProxyCodegen() {
         super();
@@ -593,6 +593,7 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
 
         String inputFramework = (String) additionalProperties.getOrDefault(CodegenConstants.DOTNET_FRAMEWORK,
                 latestFramework.name);
+        additionalProperties.put(CodegenConstants.DOTNET_FRAMEWORK, inputFramework);
         String[] frameworks;
         List<FrameworkStrategy> strategies = new ArrayList<>();
 
@@ -645,6 +646,11 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
             this.riokMapperlyVersion = additionalProperties.get(RIOK_MAPPERLY_VERSION).toString();
         }
         additionalProperties.put(RIOK_MAPPERLY_VERSION, this.riokMapperlyVersion);
+
+        if (additionalProperties.containsKey(YAVER_RESULT_VERSION)) {
+            this.yaverResultVersion = additionalProperties.get(YAVER_RESULT_VERSION).toString();
+        }
+        additionalProperties.put(YAVER_RESULT_VERSION, this.yaverResultVersion);
 
         final AtomicReference<Boolean> excludeTests = new AtomicReference<>();
         syncBooleanProperty(additionalProperties, CodegenConstants.EXCLUDE_TESTS, excludeTests::set, false);
@@ -1319,23 +1325,25 @@ public class YaverProxyCodegen extends AbstractCSharpCodegen {
 
         for (CodegenOperation op : operationList) {
 
-            CodegenResponse successResponse = ResponseContractValidator.requireSingleSuccessResponse(op);
-            ResponseContractValidator.requireProblemDetailsErrors(op);
+            CodegenResponse successResponse = ResponseContractValidator.requireSingleSuccessResponse(op, allModels);
+            ResponseContractValidator.requireProblemDetailsErrors(op, allModels);
 
             if (successResponse != null) {
                 op.vendorExtensions.put("hasSuccessResponse", true);
                 op.vendorExtensions.put("successResponseCode", successResponse.code);
                 op.vendorExtensions.put("successResponseNoContent", "204".equals(successResponse.code));
+                boolean successResponseBodyless = !ResponseContractValidator.hasResponseBody(successResponse);
+                op.vendorExtensions.put("successResponseBodyless", successResponseBodyless);
 
                 // Get response data type from different sources
                 String responseModel = ResponseContractValidator.getResponseDataType(successResponse);
                 if (responseModel != null && !responseModel.isEmpty()) {
                     op.vendorExtensions.put("isObjectResponse", false);
                     op.vendorExtensions.put("successResponseModel", responseModel);
-                } else {
-                    // If no data type is found, we assume it's an object
-                    op.vendorExtensions.put("isObjectResponse", true);
-                    op.vendorExtensions.put("successResponseModel", "EmptyResponse");
+                } else if (!successResponseBodyless) {
+                    throw new IllegalArgumentException(
+                            "Operation '" + op.operationId
+                                    + "' declares a success response body without a resolvable schema type.");
                 }
 
                 // Add response message if exists

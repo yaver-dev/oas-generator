@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Invalid wildcard success response
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getWildcardSuccess
+      responses:
+        2XX:
+          description: Unspecified success status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string

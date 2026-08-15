@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: Invalid server error response
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getServerError
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+        "500":
+          description: Incorrect media type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+    ProblemDetails:
+      type: object

@@ -1,10 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-YAVER_RESULT_VERSION="${YAVER_RESULT_VERSION:-2.3.0}"
+YAVER_RESULT_VERSION="${YAVER_RESULT_VERSION:-2.3.1}"
 YAVER_RESULT_NUGET_SOURCE="${YAVER_RESULT_NUGET_SOURCE:-}"
+YAVER_GENERATOR_JAR="${YAVER_GENERATOR_JAR:-../yaver-codegen/target/yaver-codegen.jar}"
 
-java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \
+java -cp "$YAVER_GENERATOR_JAR":../cli/openapi-generator-cli.jar \
 	org.openapitools.codegen.OpenAPIGenerator \
 	generate \
 	-g yaver-proxy \
@@ -19,9 +20,9 @@ java -cp ../cli/yaver-generator-cli.jar:../cli/openapi-generator-cli.jar \
 if [[ -n "$YAVER_RESULT_NUGET_SOURCE" ]]; then
 	dotnet restore out/src/Yaver.Sample/Yaver.Sample.csproj \
 		--source "$YAVER_RESULT_NUGET_SOURCE" \
-		--source https://api.nuget.org/v3/index.json
+		-p:NuGetAudit=false
 else
-	dotnet restore out/src/Yaver.Sample/Yaver.Sample.csproj
+	dotnet restore out/src/Yaver.Sample/Yaver.Sample.csproj -p:NuGetAudit=false
 fi
 dotnet build out/src/Yaver.Sample/Yaver.Sample.csproj --no-restore
 # dotnet build out/src/Pairs.BO.Contracts/Pairs.BO.Contracts.csproj

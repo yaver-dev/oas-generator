@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: Invalid multiple success representations
+  version: 1.0.0
+paths:
+  /responses:
+    get:
+      operationId: getMultipleRepresentations
+      responses:
+        "200":
+          description: Multiple representations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResponse"
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      properties:
+        status:
+          type: string

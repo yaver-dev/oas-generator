@@ -15,5 +15,6 @@ echo "🚀 Running proxy test..."
 cd sample
 ./test-proxy.sh
 ./test-response-contracts.sh
+./test-generator-defaults.sh
 # ./test-fastendpoints.sh
 echo "✅ All tasks completed successfully!"

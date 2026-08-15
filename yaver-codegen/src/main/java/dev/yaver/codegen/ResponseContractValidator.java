@@ -7,8 +7,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.openapitools.codegen.CodegenMediaType;
+import org.openapitools.codegen.CodegenModel;
 import org.openapitools.codegen.CodegenOperation;
+import org.openapitools.codegen.CodegenProperty;
 import org.openapitools.codegen.CodegenResponse;
+import org.openapitools.codegen.model.ModelMap;
 
 /**
  * Validates the response contract supported by the Yaver RPC-to-HTTP bridge.
@@ -23,11 +26,13 @@ final class ResponseContractValidator {
     static final String PROBLEM_DETAILS_MODEL = "ProblemDetails";
 
     private static final Pattern EXACT_SUCCESS_CODE = Pattern.compile("2\\d{2}");
+    private static final List<String> REQUIRED_PROBLEM_DETAILS_PROPERTIES = List.of(
+            "type", "title", "status", "instance", "traceId", "errors");
 
     private ResponseContractValidator() {
     }
 
-    static CodegenResponse requireSingleSuccessResponse(CodegenOperation operation) {
+    static CodegenResponse requireSingleSuccessResponse(CodegenOperation operation, List<ModelMap> allModels) {
         List<CodegenResponse> successResponses = operation.responses.stream()
                 .filter(ResponseContractValidator::isSuccessResponse)
                 .collect(Collectors.toList());
@@ -51,14 +56,19 @@ final class ResponseContractValidator {
                             + response.code + "'.");
         }
 
+        requireSingleSuccessRepresentation(operation, response, allModels);
         return response;
     }
 
-    static void requireProblemDetailsErrors(CodegenOperation operation) {
+    static void requireProblemDetailsErrors(CodegenOperation operation, List<ModelMap> allModels) {
+        boolean hasProblemDetailsError = false;
+
         for (CodegenResponse response : operation.responses) {
-            if (!isErrorResponse(response) || !hasResponseBody(response)) {
+            if (!isErrorResponse(response)) {
                 continue;
             }
+
+            hasProblemDetailsError = true;
 
             Map<String, CodegenMediaType> content = response.getContent();
             List<String> mediaTypes = content == null
@@ -77,6 +87,14 @@ final class ResponseContractValidator {
                                 + " and model '" + responseModel + "'.");
             }
         }
+
+        if (hasProblemDetailsError) {
+            requireCanonicalProblemDetailsModels(operation, allModels);
+        }
+    }
+
+    static boolean isBodylessSuccess(CodegenResponse response) {
+        return response != null && ("204".equals(response.code) || "205".equals(response.code));
     }
 
     static String getResponseDataType(CodegenResponse response) {
@@ -105,10 +123,175 @@ final class ResponseContractValidator {
                         && (response.code.startsWith("4") || response.code.startsWith("5")));
     }
 
-    private static boolean hasResponseBody(CodegenResponse response) {
+    static boolean hasResponseBody(CodegenResponse response) {
         Map<String, CodegenMediaType> content = response.getContent();
         return (content != null && !content.isEmpty())
                 || getResponseDataType(response) != null;
+    }
+
+    private static void requireSingleSuccessRepresentation(
+            CodegenOperation operation, CodegenResponse response, List<ModelMap> allModels) {
+        Map<String, CodegenMediaType> content = response.getContent();
+        List<String> mediaTypes = content == null ? List.of() : new ArrayList<>(content.keySet());
+
+        if (isBodylessSuccess(response)) {
+            if (hasResponseBody(response)) {
+                throw new IllegalArgumentException(
+                        "Operation '" + operation.operationId + "' response '" + response.code
+                                + "' must not declare a response body.");
+            }
+            return;
+        }
+
+        if (mediaTypes.size() > 1) {
+            throw new IllegalArgumentException(
+                    "Operation '" + operation.operationId + "' response '" + response.code
+                            + "' must declare at most one success representation; found media types "
+                            + mediaTypes + ".");
+        }
+
+        if (mediaTypes.size() == 1) {
+            CodegenProperty schema = content.get(mediaTypes.get(0)).getSchema();
+            if (schema == null) {
+                throw new IllegalArgumentException(
+                        "Operation '" + operation.operationId + "' response '" + response.code
+                                + "' must declare exactly one schema for its success representation.");
+            }
+            CodegenModel responseModel = findModel(allModels, getResponseDataType(response));
+            if (hasAlternativeSchemas(schema) || hasAlternativeSchemas(responseModel)) {
+                throw new IllegalArgumentException(
+                        "Operation '" + operation.operationId + "' response '" + response.code
+                                + "' must not use oneOf or anyOf success alternatives.");
+            }
+        }
+    }
+
+    private static boolean hasAlternativeSchemas(CodegenProperty schema) {
+        if (schema.getComposedSchemas() == null) {
+            return false;
+        }
+
+        return (schema.getComposedSchemas().getOneOf() != null
+                && !schema.getComposedSchemas().getOneOf().isEmpty())
+                || (schema.getComposedSchemas().getAnyOf() != null
+                && !schema.getComposedSchemas().getAnyOf().isEmpty());
+    }
+
+    private static boolean hasAlternativeSchemas(CodegenModel model) {
+        if (model == null) {
+            return false;
+        }
+
+        return (model.oneOf != null && !model.oneOf.isEmpty())
+                || (model.anyOf != null && !model.anyOf.isEmpty())
+                || (model.getComposedSchemas() != null
+                && ((model.getComposedSchemas().getOneOf() != null
+                        && !model.getComposedSchemas().getOneOf().isEmpty())
+                    || (model.getComposedSchemas().getAnyOf() != null
+                        && !model.getComposedSchemas().getAnyOf().isEmpty())));
+    }
+
+    private static void requireCanonicalProblemDetailsModels(CodegenOperation operation, List<ModelMap> allModels) {
+        CodegenModel problemDetails = findModel(allModels, PROBLEM_DETAILS_MODEL);
+        CodegenModel problemDetailsError = findModel(allModels, "ProblemDetailsError");
+
+        if (problemDetails == null || problemDetailsError == null) {
+            throw new IllegalArgumentException(
+                    "Operation '" + operation.operationId
+                            + "' must define the canonical ProblemDetails and ProblemDetailsError schemas.");
+        }
+
+        for (String propertyName : REQUIRED_PROBLEM_DETAILS_PROPERTIES) {
+            CodegenProperty property = findProperty(problemDetails, propertyName);
+            if (property == null || !property.required) {
+                throw invalidProblemDetailsSchema(operation, propertyName + " must be required");
+            }
+        }
+
+        requireStringProperty(operation, problemDetails, "type");
+        requireStringProperty(operation, problemDetails, "title");
+        requireIntegerProperty(operation, problemDetails, "status");
+        requireStringProperty(operation, problemDetails, "instance");
+        requireStringProperty(operation, problemDetails, "traceId");
+
+        CodegenProperty errors = findProperty(problemDetails, "errors");
+        if (errors == null || !errors.isArray || errors.items == null
+                || !"ProblemDetailsError".equals(firstNonBlank(
+                        errors.items.complexType, errors.items.baseType, errors.items.dataType))) {
+            throw invalidProblemDetailsSchema(operation, "errors must be an array of ProblemDetailsError");
+        }
+
+        requireRequiredStringProperty(operation, problemDetailsError, "name");
+        requireRequiredStringProperty(operation, problemDetailsError, "reason");
+        requireOptionalStringProperty(operation, problemDetailsError, "code");
+        requireOptionalStringProperty(operation, problemDetailsError, "severity");
+    }
+
+    private static CodegenModel findModel(List<ModelMap> allModels, String modelName) {
+        return allModels.stream()
+                .map(ModelMap::getModel)
+                .filter(model -> modelName.equals(model.classname) || modelName.equals(model.name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static CodegenProperty findProperty(CodegenModel model, String propertyName) {
+        if (model == null || model.allVars == null) {
+            return null;
+        }
+
+        return model.allVars.stream()
+                .filter(property -> propertyName.equals(property.baseName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static void requireRequiredStringProperty(
+            CodegenOperation operation, CodegenModel model, String propertyName) {
+        CodegenProperty property = findProperty(model, propertyName);
+        if (property == null || !property.required || !property.isString) {
+            throw invalidProblemDetailsSchema(operation, propertyName + " must be a required string");
+        }
+    }
+
+    private static void requireOptionalStringProperty(
+            CodegenOperation operation, CodegenModel model, String propertyName) {
+        CodegenProperty property = findProperty(model, propertyName);
+        if (property == null || property.required || !property.isString) {
+            throw invalidProblemDetailsSchema(operation, propertyName + " must be an optional string");
+        }
+    }
+
+    private static void requireStringProperty(
+            CodegenOperation operation, CodegenModel model, String propertyName) {
+        CodegenProperty property = findProperty(model, propertyName);
+        if (property == null || !property.isString) {
+            throw invalidProblemDetailsSchema(operation, propertyName + " must be a string");
+        }
+    }
+
+    private static void requireIntegerProperty(
+            CodegenOperation operation, CodegenModel model, String propertyName) {
+        CodegenProperty property = findProperty(model, propertyName);
+        if (property == null || !property.isInteger) {
+            throw invalidProblemDetailsSchema(operation, propertyName + " must be an integer");
+        }
+    }
+
+    private static IllegalArgumentException invalidProblemDetailsSchema(
+            CodegenOperation operation, String reason) {
+        return new IllegalArgumentException(
+                "Operation '" + operation.operationId
+                        + "' must use the canonical ProblemDetails schema: " + reason + ".");
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private static String describeResponse(CodegenResponse response) {
