@@ -22,24 +22,24 @@ namespace {{packageName}}.{{apiPackage}}.{{operationId}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
 		[FromHeader(headerName: "{{baseName}}", isRequired: {{#required}}true{{/required}}{{^required}}false{{/required}})]
-		public {{dataType}}{{^required}}?{{/required}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}}{{^isNullable}}{{^required}}?{{/required}}{{/isNullable}} {{paramName}} { get; set; }
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/queryParams}}
 		{{#bodyParam}}
 		[FromBody]
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/bodyParam}}
 		{{#formParams}}
 		/// <summary>
@@ -49,7 +49,7 @@ namespace {{packageName}}.{{apiPackage}}.{{operationId}}
 		public Microsoft.AspNetCore.Http.IFormFile {{paramName}} { get; set; }
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/isFile}}
 		{{/formParams}}
 	}
