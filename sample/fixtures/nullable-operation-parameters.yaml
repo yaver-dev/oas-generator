@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+  title: Nullable operation parameter regression
+  version: 1.0.0
+tags:
+  - name: NullableParameters
+paths:
+  /nullable-parameters:
+    get:
+      tags: [NullableParameters]
+      operationId: inspectNullableParameters
+      parameters:
+        - name: nullableBoolean
+          in: query
+          schema:
+            type: boolean
+            nullable: true
+        - name: nullableInt32
+          in: query
+          schema:
+            type: integer
+            format: int32
+            nullable: true
+        - name: nullableInt64
+          in: query
+          schema:
+            type: integer
+            format: int64
+            nullable: true
+        - name: nullableDouble
+          in: query
+          schema:
+            type: number
+            format: double
+            nullable: true
+        - name: nullableUuid
+          in: query
+          schema:
+            type: string
+            format: uuid
+            nullable: true
+        - name: nullableDateTime
+          in: query
+          schema:
+            type: string
+            format: date-time
+            nullable: true
+        - name: nullableState
+          in: query
+          schema:
+            nullable: true
+            allOf:
+              - $ref: "#/components/schemas/ParameterState"
+        - name: nonNullableBoolean
+          in: query
+          schema:
+            type: boolean
+        - name: nullableValues
+          in: query
+          schema:
+            type: array
+            nullable: true
+            items:
+              type: integer
+              format: int32
+        - name: nonNullableValues
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NullableParameterResponse"
+components:
+  schemas:
+    ParameterState:
+      type: string
+      enum: [pending, active]
+    NullableParameterResponse:
+      type: object
+      required: [accepted]
+      properties:
+        accepted:
+          type: boolean

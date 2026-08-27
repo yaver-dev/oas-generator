@@ -10,22 +10,22 @@ namespace {{packageName}}.{{baseName}}.Service;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/queryParams}}
 		{{#bodyParam}}
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/bodyParam}}
 		{{#formParams}}
 		/// <summary>
@@ -36,7 +36,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 		public FileData {{paramName}} { get; set; } = FileData.Empty;
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}} {{paramName}} { get; set; }
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; }
 		{{/isFile}}
 		{{/formParams}}
 	}

@@ -12,22 +12,22 @@ namespace {{packageName}}.{{baseName}}.Service;
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
+		public {{{dataType}}}{{>NullConditionalParameter}}{{^isNullable}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}}{{/isNullable}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
 		{{/pathParams}}
 		{{#headerParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
+		public {{{dataType}}}{{>NullConditionalParameter}}{{^isNullable}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}}{{/isNullable}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
 		{{/headerParams}}
 		{{#queryParams}}
 		/// <summary>
 		/// {{description}}
 		/// </summary>
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}{{^defaultValue}}{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/defaultValue}}
+		public {{{dataType}}}{{>NullConditionalParameter}}{{^isNullable}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}}{{/isNullable}} {{paramName}} { get; set; }{{#defaultValue}} = {{{defaultValue}}};{{/defaultValue}}{{^defaultValue}}{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}{{/defaultValue}}
 		{{/queryParams}}
 		{{#bodyParam}}
-		public {{dataType}} {{paramName}} { get; set; } = default!;
+		public {{{dataType}}}{{>NullConditionalParameter}} {{paramName}} { get; set; } = default!;
 		{{/bodyParam}}
 		{{#formParams}}
 		/// <summary>
@@ -38,7 +38,7 @@ namespace {{packageName}}.{{baseName}}.Service;
 		public FileData{{^required}}?{{/required}} {{paramName}} { get; set; }{{#required}} = FileData.Empty{{/required}};
 		{{/isFile}}
 		{{^isFile}}
-		public {{dataType}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
+		public {{{dataType}}}{{>NullConditionalParameter}}{{^isNullable}}{{^required}}{{#isString}}?{{/isString}}{{^isString}}{{^isPrimitiveType}}?{{/isPrimitiveType}}{{/isString}}{{/required}}{{/isNullable}} {{paramName}} { get; set; }{{#required}}{{#vendorExtensions.x-yaver-guid-type}} = Guid.Empty;{{/vendorExtensions.x-yaver-guid-type}}{{^vendorExtensions.x-yaver-guid-type}}{{#vendorExtensions.x-yaver-string-type}} = default!;{{/vendorExtensions.x-yaver-string-type}}{{^vendorExtensions.x-yaver-string-type}}{{^isPrimitiveType}} = default!;{{/isPrimitiveType}}{{/vendorExtensions.x-yaver-string-type}}{{/vendorExtensions.x-yaver-guid-type}}{{/required}}
 		{{/isFile}}
 		{{/formParams}}
 	}
