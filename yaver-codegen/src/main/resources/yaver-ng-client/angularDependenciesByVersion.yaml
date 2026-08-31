@@ -1,0 +1,8 @@
+# Build-dependency versions for generated yaver-ng-client libraries, keyed by the
+# minimum Angular version they apply to. The highest applicable entry wins.
+# Angular 22.1 requires TypeScript >= 6.0 < 6.1 and ng-packagr 22.x.
+# zone.js is intentionally absent: generated clients are zoneless.
+"22.1.0":
+  tsVersion: "~6.0.3"
+  rxjsVersion: "^7.8.0"
+  ngPackagrVersion: "22.1.1"

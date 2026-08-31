@@ -36,7 +36,8 @@ paths:
       tags:
         - Customers
       summary: List customer auth subjects
-      description: Returns External customer auth/access subject summaries without CRM
+      description:
+        Returns External customer auth/access subject summaries without CRM
         profile data.
       operationId: listCustomers
       x-required-role: portal.admin
@@ -196,7 +197,8 @@ paths:
       tags:
         - Customers
       summary: List customer auth sessions
-      description: Returns ExternalIdentity refresh session projection for a customer
+      description:
+        Returns ExternalIdentity refresh session projection for a customer
         auth subject.
       operationId: listCustomerSessions
       x-required-role: portal.admin
@@ -226,7 +228,8 @@ paths:
       tags:
         - Customers
       summary: Revoke customer auth sessions
-      description: Revokes matching active ExternalIdentity refresh sessions for a
+      description:
+        Revokes matching active ExternalIdentity refresh sessions for a
         customer auth subject.
       operationId: revokeCustomerSessions
       x-required-role: portal.admin
@@ -264,7 +267,8 @@ paths:
       tags:
         - Customers
       summary: List customer trusted devices
-      description: Returns ExternalIdentity trusted device projection for a customer
+      description:
+        Returns ExternalIdentity trusted device projection for a customer
         auth subject.
       operationId: listCustomerTrustedDevices
       x-required-role: portal.admin
@@ -356,7 +360,8 @@ paths:
       tags:
         - B2BRepresentatives
       summary: List B2B representative auth subjects
-      description: Returns External B2B representative auth/access subject summaries
+      description:
+        Returns External B2B representative auth/access subject summaries
         without business profile data.
       operationId: listB2BRepresentatives
       x-required-role: portal.admin
@@ -388,7 +393,8 @@ paths:
       tags:
         - B2BRepresentatives
       summary: Get B2B representative auth subject detail
-      description: Returns External B2B representative auth/access detail without
+      description:
+        Returns External B2B representative auth/access detail without
         business profile data.
       operationId: getB2BRepresentative
       x-required-role: portal.admin
@@ -485,7 +491,8 @@ paths:
       tags:
         - B2BRepresentatives
       summary: Trigger B2B representative PIN reset
-      description: Starts the External B2B representative PIN reset foundation flow
+      description:
+        Starts the External B2B representative PIN reset foundation flow
         when available.
       operationId: triggerB2BRepresentativePinReset
       x-required-role: portal.admin
@@ -549,7 +556,8 @@ paths:
       tags:
         - B2BRepresentatives
       summary: Revoke B2B representative auth sessions
-      description: Revokes matching active ExternalIdentity refresh sessions for a B2B
+      description:
+        Revokes matching active ExternalIdentity refresh sessions for a B2B
         representative auth subject.
       operationId: revokeB2BRepresentativeSessions
       x-required-role: portal.admin
@@ -649,7 +657,8 @@ paths:
       tags:
         - B2BRepresentatives
       summary: List B2B representative auth audit events
-      description: Returns ExternalIdentity security events for a B2B representative
+      description:
+        Returns ExternalIdentity security events for a B2B representative
         auth subject ordered newest first.
       operationId: listB2BRepresentativeAuditEvents
       x-required-role: portal.admin
@@ -738,7 +747,8 @@ paths:
       tags:
         - AuthEmployees
       summary: Update employee profile and roles
-      description: Updates display name, preferred username, and role assignments for
+      description:
+        Updates display name, preferred username, and role assignments for
         an employee.
       operationId: updateAuthEmployee
       x-required-role: portal.admin
@@ -778,7 +788,8 @@ paths:
       tags:
         - AuthEmployees
       summary: Create employee invite
-      description: Creates and sends a Portal employee invite without returning raw
+      description:
+        Creates and sends a Portal employee invite without returning raw
         invite tokens.
       operationId: createAuthEmployeeInvite
       x-required-role: portal.admin
@@ -816,7 +827,8 @@ paths:
       tags:
         - AuthEmployees
       summary: Resend employee invite
-      description: Revokes the previous pending invite token, creates a new pending
+      description:
+        Revokes the previous pending invite token, creates a new pending
         delivery, and returns metadata without raw tokens.
       operationId: resendEmployeeInvite
       x-required-role: portal.admin
@@ -950,7 +962,8 @@ paths:
       tags:
         - AuthEmployees
       summary: Trigger employee password reset
-      description: Sends an employee password reset delivery via the PortalIdentity
+      description:
+        Sends an employee password reset delivery via the PortalIdentity
         delivery abstraction.
       operationId: triggerEmployeePasswordReset
       x-required-role: portal.admin
@@ -1013,7 +1026,8 @@ paths:
       tags:
         - AuthEmployees
       summary: Revoke employee auth sessions
-      description: Publishes a PortalIdentity subject-level session revocation marker
+      description:
+        Publishes a PortalIdentity subject-level session revocation marker
         and deactivates matching token records when available.
       operationId: revokeEmployeeSessions
       x-required-role: portal.admin
@@ -1081,7 +1095,8 @@ paths:
       tags:
         - AuthIntegrations
       summary: List integrations
-      description: Returns External integrations and their active PAT metadata without
+      description:
+        Returns External integrations and their active PAT metadata without
         raw secrets.
       operationId: listAuthIntegrations
       x-required-role: portal.admin
@@ -1213,7 +1228,8 @@ paths:
       tags:
         - AuthIntegrations
       summary: Disable integration
-      description: Disables an External integration and revokes its active PAT plus
+      description:
+        Disables an External integration and revokes its active PAT plus
         pending retrievals.
       operationId: disableAuthIntegration
       x-required-role: portal.admin
@@ -1249,7 +1265,8 @@ paths:
       tags:
         - AuthIntegrations
       summary: Enable integration
-      description: Re-activates a disabled External integration without restoring
+      description:
+        Re-activates a disabled External integration without restoring
         revoked PATs.
       operationId: enableAuthIntegration
       x-required-role: portal.admin
@@ -1315,7 +1332,8 @@ paths:
       tags:
         - AuthPats
       summary: Create integration PAT
-      description: Creates a pending one-time PAT retrieval for an integration. Raw
+      description:
+        Creates a pending one-time PAT retrieval for an integration. Raw
         PAT secret is not returned by this operation.
       operationId: createAuthIntegrationPat
       x-required-role: portal.admin
@@ -1357,7 +1375,8 @@ paths:
       tags:
         - AuthPats
       summary: Rotate integration PAT
-      description: Revokes the active PAT, creates a replacement, and returns one-time
+      description:
+        Revokes the active PAT, creates a replacement, and returns one-time
         retrieval metadata without raw PAT secret.
       operationId: rotateAuthIntegrationPat
       x-required-role: portal.admin
@@ -1399,7 +1418,8 @@ paths:
       tags:
         - AuthPats
       summary: Revoke active integration PAT
-      description: Revokes the active PAT for an integration and pending retrievals
+      description:
+        Revokes the active PAT for an integration and pending retrievals
         for that PAT.
       operationId: revokeAuthIntegrationPat
       x-required-role: portal.admin
@@ -1435,7 +1455,8 @@ paths:
       tags:
         - AuthPats
       summary: Complete one-time PAT retrieval
-      description: Anonymous single-use retrieval endpoint guarded by a high-entropy
+      description:
+        Anonymous single-use retrieval endpoint guarded by a high-entropy
         token and server-side TTL. This is the only admin-flow operation that
         returns a raw PAT secret.
       operationId: completeAuthPatRetrieval
@@ -1492,7 +1513,8 @@ paths:
       tags:
         - AuthExternalRoles
       summary: List External human role catalog
-      description: Returns the ExternalIdentity-backed catalog of assignable customer
+      description:
+        Returns the ExternalIdentity-backed catalog of assignable customer
         and representative roles.
       operationId: listExternalAuthRoles
       x-required-role: portal.admin
@@ -1776,7 +1798,8 @@ components:
         sessionId:
           type: string
           nullable: true
-          description: Optional session identifier. When omitted, all active sessions for
+          description:
+            Optional session identifier. When omitted, all active sessions for
             the subject are revoked.
         reason:
           type: string
@@ -2270,7 +2293,8 @@ components:
       properties:
         key:
           type: string
-          description: Canonical capability scope key. Application-controlled, not
+          description:
+            Canonical capability scope key. Application-controlled, not
             admin-created.
         displayName:
           type: string
@@ -2773,7 +2797,8 @@ components:
           type: string
           format: uri
           nullable: true
-          description: Returned only when a development/test delivery provider exposes
+          description:
+            Returned only when a development/test delivery provider exposes
             local links.
       required:
         - inviteId
@@ -2821,7 +2846,8 @@ components:
           type: string
           format: uri
           nullable: true
-          description: Returned only when a development/test delivery provider exposes
+          description:
+            Returned only when a development/test delivery provider exposes
             local links.
       required:
         - accepted
@@ -2831,12 +2857,14 @@ components:
       type: apiKey
       in: cookie
       name: __Host-portal-session
-      description: Portal web session cookie. Bearer, mobile, and PAT authentication
+      description:
+        Portal web session cookie. Bearer, mobile, and PAT authentication
         are not accepted for this surface.
     csrfToken:
       type: apiKey
       in: header
       name: X-CSRF-Token
-      description: Double-submit CSRF header required for unsafe Portal web session
+      description:
+        Double-submit CSRF header required for unsafe Portal web session
         requests. The value must match the active __Host-portal-csrf cookie
         bound to the server-side Portal session.

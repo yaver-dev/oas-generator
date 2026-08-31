@@ -1,0 +1,210 @@
+import { HttpParams } from '@angular/common/http';
+
+/**
+ * Serialization helpers shared by the httpResource query layer and the
+ * Observable command layer. Internal to the generated client; these are not
+ * exported from the package root.
+ */
+
+/**
+ * Standard parameter styles defined by OpenAPI spec
+ */
+export type StandardParamStyle =
+  | 'matrix'
+  | 'label'
+  | 'form'
+  | 'simple'
+  | 'spaceDelimited'
+  | 'pipeDelimited'
+  | 'deepObject';
+
+/**
+ * The OpenAPI standard {@link StandardParamStyle}s may be extended by custom styles by the user.
+ */
+export type ParamStyle = StandardParamStyle | string;
+
+/**
+ * Standard parameter locations defined by OpenAPI spec
+ */
+export type ParamLocation = 'query' | 'header' | 'path' | 'cookie';
+
+/**
+ * The parameter to encode.
+ */
+export interface Param {
+  name: string;
+  value: unknown;
+  in: ParamLocation;
+  style: ParamStyle;
+  explode: boolean;
+  dataType: string;
+  dataFormat: string | undefined;
+}
+
+/**
+ * Encodes a path parameter.
+ *
+ * Date-time values are serialized as ISO 8601; everything else is stringified
+ * and URI-encoded. This matches the historical wire behavior of the generated
+ * clients.
+ */
+export const encodeParam = (param: Param): string => {
+  const value =
+    param.dataFormat === 'date-time' && param.value instanceof Date
+      ? (param.value as Date).toISOString()
+      : param.value;
+
+  return encodeURIComponent(String(value));
+};
+/**
+ * Select the correct accept content-type to use for a request.
+ * If no content type is found return the first found type if the contentTypes is not empty.
+ * @param accepts - the array of content types that are available for selection.
+ * @returns the selected content-type or <code>undefined</code> if no selection could be made.
+ */
+export const selectHeaderAccept = (accepts: string[]): string | undefined => {
+  if (accepts.length === 0) {
+    return undefined;
+  }
+
+  const type = accepts.find((x: string) => isJsonMime(x));
+  if (type === undefined) {
+    return accepts[0];
+  }
+  return type;
+};
+
+/**
+ * Check if the given MIME is a JSON MIME.
+ * JSON MIME examples:
+ *   application/json
+ *   application/json; charset=UTF8
+ *   APPLICATION/JSON
+ *   application/vnd.company+json
+ * @param mime - MIME (Multipurpose Internet Mail Extensions)
+ * @return True if the given MIME is JSON, false otherwise.
+ */
+export const isJsonMime = (mime: string): boolean => {
+  const jsonMime: RegExp = new RegExp(
+    '^(application/json|[^;/ \t]+/[^;/ \t]+[+]json)[ \t]*(;.*)?$',
+    'i'
+  );
+  return (
+    mime !== null &&
+    (jsonMime.test(mime) ||
+      mime.toLowerCase() === 'application/json-patch+json')
+  );
+};
+
+/**
+ * Select the correct content-type to use for a request.
+ * If no content type is found return the first found type if the contentTypes is not empty
+ * @param contentTypes - the array of content types that are available for selection
+ * @returns the selected content-type or <code>undefined</code> if no selection could be made.
+ */
+export const selectHeaderContentType = (
+  contentTypes: string[]
+): string | undefined => {
+  if (contentTypes.length === 0) {
+    return undefined;
+  }
+
+  const type = contentTypes.find((x: string) => isJsonMime(x));
+  if (type === undefined) {
+    return contentTypes[0];
+  }
+  return type;
+};
+
+/**
+ * @param consumes string[] mime-types
+ * @return true: consumes contains 'multipart/form-data', false: otherwise
+ */
+export const canConsumeForm = (consumes: string[]): boolean => {
+  const form = 'multipart/form-data';
+  for (const consume of consumes) {
+    if (form === consume) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * Appends a value to a `FormData` or `HttpParams` form target.
+ *
+ * `HttpParams` is immutable, so the (possibly new) target is returned.
+ * Blob values are only representable in `FormData`; all other values are
+ * stringified, matching the historical wire behavior of the generated client.
+ */
+export const appendFormValue = (
+  target: FormData | HttpParams,
+  name: string,
+  value: unknown
+): FormData | HttpParams => {
+  if (target instanceof FormData) {
+    target.append(name, value instanceof Blob ? value : String(value));
+    return target;
+  }
+  return target.append(name, value as string | number | boolean);
+};
+
+/**
+ * Appends a parameter value to {@link HttpParams}.
+ *
+ * Arrays are appended as repeated keys; plain objects are expanded into
+ * dot-separated keys; Dates are serialized as ISO date (yyyy-MM-dd).
+ */
+export const addToHttpParams = (
+  httpParams: HttpParams,
+  value: unknown,
+  key?: string
+): HttpParams => {
+  if (typeof value === 'object' && !(value instanceof Date) && value !== null) {
+    httpParams = addToHttpParamsRecursive(httpParams, value);
+  } else {
+    httpParams = addToHttpParamsRecursive(httpParams, value, key);
+  }
+  return httpParams;
+};
+
+const addToHttpParamsRecursive = (
+  httpParams: HttpParams,
+  value?: unknown,
+  key?: string
+): HttpParams => {
+  if (value == null) {
+    return httpParams;
+  }
+
+  if (typeof value === 'object') {
+    if (Array.isArray(value)) {
+      (value as unknown[]).forEach(
+        (elem) => (httpParams = addToHttpParamsRecursive(httpParams, elem, key))
+      );
+    } else if (value instanceof Date) {
+      if (key != null) {
+        httpParams = httpParams.append(
+          key,
+          (value as Date).toISOString().substring(0, 10)
+        );
+      } else {
+        throw Error('key may not be null if value is Date');
+      }
+    } else {
+      Object.keys(value as Record<string, unknown>).forEach(
+        (k) =>
+          (httpParams = addToHttpParamsRecursive(
+            httpParams,
+            (value as Record<string, unknown>)[k],
+            key != null ? `${key}.${k}` : k
+          ))
+      );
+    }
+  } else if (key != null) {
+    httpParams = httpParams.append(key, value as string | number | boolean);
+  } else {
+    throw Error('key may not be null if value is not object or array');
+  }
+  return httpParams;
+};

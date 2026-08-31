@@ -1,0 +1,31 @@
+/**
+ * Typed testing helpers for consumers of this generated client.
+ *
+ * This entrypoint has no production side effects and no runtime dependency on
+ * the root entrypoint: the configuration object is a plain value, so tests can
+ * register it via the application provider from the root entrypoint.
+ */
+import type { {{configurationClassName}} } from '{{{npmName}}}';
+
+export type { {{configurationClassName}} } from '{{{npmName}}}';
+
+/**
+ * Builds a {@link {{configurationClassName}}} for tests.
+ *
+ * Use together with `{{providerFnName}}` from the root entrypoint and
+ * `provideHttpClient()` / `provideHttpClientTesting()`:
+ *
+ * ```ts
+ * TestBed.configureTestingModule({
+ *   providers: [
+ *     provideZonelessChangeDetection(),
+ *     provideHttpClient(),
+ *     provideHttpClientTesting(),
+ *     {{providerFnName}}(yaverTestClientConfig('http://test.api')),
+ *   ],
+ * });
+ * ```
+ */
+export function yaverTestClientConfig(basePath: string, withCredentials = false): {{configurationClassName}} {
+    return { basePath, withCredentials };
+}

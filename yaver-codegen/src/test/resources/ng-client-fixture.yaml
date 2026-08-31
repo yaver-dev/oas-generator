@@ -1,0 +1,475 @@
+openapi: 3.0.3
+info:
+  title: Yaver NG Client Fixture API
+  description: |
+    Representative fixture covering the yaver-ng-client operation classification
+    matrix, parameter serialization shapes, form constraints and vendor
+    extensions.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:5000
+tags:
+  - name: Tenants
+    description: Tenant administration
+  - name: Reports
+    description: Binary reports and streams
+paths:
+  /tenants:
+    get:
+      tags: [Tenants]
+      summary: List tenants
+      operationId: listTenants
+      parameters:
+        - name: term
+          in: query
+          description: Free-text filter
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Tenant status filter (nullable)
+          schema:
+            type: string
+            nullable: true
+            enum: [active, disabled]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: createdAfter
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: tags
+          in: query
+          description: Repeated tags (csv collection format)
+          schema:
+            type: array
+            items:
+              type: string
+        - name: X-Request-Id
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tenant page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Tenants]
+      summary: Create tenant
+      operationId: createTenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTenantRequest"
+      responses:
+        "201":
+          description: Created tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantDetail"
+        "400":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /tenants/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Get tenant detail
+      operationId: getTenant
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+      responses:
+        "200":
+          description: Tenant detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Tenants]
+      summary: Partially update tenant
+      operationId: updateTenant
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+      requestBody:
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: "#/components/schemas/UpdateTenantRequest"
+      responses:
+        "200":
+          description: Updated tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantDetail"
+    delete:
+      tags: [Tenants]
+      summary: Delete tenant
+      operationId: deleteTenant
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+      responses:
+        "204":
+          description: Deleted
+  /tenants/{tenantId}/contacts:
+    get:
+      tags: [Tenants]
+      summary: List tenant contacts (explicit query mode)
+      description: |
+        Declares x-yaver-ng-mode: query explicitly. The operation would be
+        classified as a query anyway; the extension makes the intent durable.
+      operationId: listTenantContacts
+      x-yaver-ng-mode: query
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+      responses:
+        "200":
+          description: Contacts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactListResponse"
+  /tenants/{tenantId}/logo:
+    put:
+      tags: [Tenants]
+      summary: Upload tenant logo
+      description: Multipart upload; generates an events variant for progress.
+      operationId: uploadTenantLogo
+      parameters:
+        - $ref: "#/components/parameters/TenantId"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                label:
+                  type: string
+      responses:
+        "200":
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantLogo"
+  /search-tenants:
+    get:
+      tags: [Tenants]
+      summary: Search tenants (forced command escape hatch)
+      description: |
+        GET returning JSON but declared x-yaver-ng-mode: command. This is the
+        documented escape hatch for reads with side effects or metering.
+      operationId: searchTenants
+      x-yaver-ng-mode: command
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantListResponse"
+  /reports/{reportId}:
+    get:
+      tags: [Reports]
+      summary: Download a report (binary)
+      operationId: downloadReport
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: PDF report
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  /reports/export:
+    post:
+      tags: [Reports]
+      summary: Export report archive (binary)
+      operationId: exportReports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportRequest"
+      responses:
+        "200":
+          description: Archive
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /events/stream:
+    get:
+      tags: [Reports]
+      summary: Server-sent event stream
+      operationId: streamEvents
+      responses:
+        "200":
+          description: Event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+  /audit/log:
+    post:
+      tags: [Reports]
+      summary: Fire-and-forget audit entry (no response body)
+      operationId: logAuditEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        "204":
+          description: Logged
+  /free-form:
+    post:
+      tags: [Reports]
+      summary: Arbitrary JSON passthrough
+      operationId: submitFreeForm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Echo
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+components:
+  parameters:
+    TenantId:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+    NotFound:
+      description: Not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetails"
+  schemas:
+    ProblemDetails:
+      type: object
+      properties:
+        title:
+          type: string
+        status:
+          type: integer
+    Contact:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          pattern: "^[+0-9 ()-]{6,20}$"
+    ContactListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contact"
+    TenantStatus:
+      type: string
+      enum: [active, disabled]
+    TenantSummary:
+      type: object
+      required: [tenantId, name, status]
+      properties:
+        tenantId:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: "#/components/schemas/TenantStatus"
+        createdAt:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+    TenantListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TenantSummary"
+        total:
+          type: integer
+    TenantLogo:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+    TenantQuota:
+      type: object
+      properties:
+        maxUsers:
+          type: integer
+          minimum: 1
+          maximum: 100000
+    TenantDetail:
+      type: object
+      required: [tenantId, name, status]
+      properties:
+        tenantId:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: "#/components/schemas/TenantStatus"
+        quota:
+          $ref: "#/components/schemas/TenantQuota"
+        metadata:
+          type: object
+          description: Arbitrary tenant metadata
+          additionalProperties: true
+        nullableNote:
+          type: string
+          nullable: true
+    CreateTenantRequest:
+      type: object
+      required: [name, plan, adminEmail]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          x-yaver-form:
+            label: Tenant name
+            placeholder: Acme Inc.
+            control: text
+        plan:
+          type: string
+          enum: [starter, pro, enterprise]
+          x-yaver-form:
+            label: Plan
+            control: select
+            options:
+              - value: starter
+                label: Starter
+              - value: pro
+                label: Pro
+              - value: enterprise
+                label: Enterprise
+        adminEmail:
+          type: string
+          format: email
+          maxLength: 254
+          x-yaver-form:
+            label: Admin e-mail
+            control: email
+        notes:
+          type: string
+          x-yaver-form:
+            label: Notes
+            control: textarea
+            placeholder: Optional notes
+        maxUsers:
+          type: integer
+          minimum: 1
+          maximum: 100000
+        homepage:
+          type: string
+          nullable: true
+          maxLength: 200
+        labels:
+          type: array
+          description: Optional labels
+          items:
+            type: string
+            minLength: 1
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contact"
+        primaryContact:
+          $ref: "#/components/schemas/Contact"
+        metadata:
+          type: object
+          additionalProperties: true
+    UpdateTenantRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+        nullableNote:
+          type: string
+          nullable: true
+        quota:
+          $ref: "#/components/schemas/TenantQuota"
+    ExportRequest:
+      type: object
+      required: [from]
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date

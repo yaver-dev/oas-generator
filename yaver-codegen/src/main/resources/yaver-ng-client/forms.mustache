@@ -1,0 +1,159 @@
+{{>licenseInfo}}
+/**
+ * Typed Angular Signal Forms validation schemas for request models.
+ *
+ * - Validators are generated from standard OpenAPI constraints
+ *   (`required`, `minLength`, `maxLength`, `pattern`, `minimum`, `maximum`,
+ *   `format: email`).
+ * - `required` is only emitted for required, non-nullable properties.
+ * - Nullable and optional properties are validated inside an
+ *   `applyWhenValue` guard so that `null`/`undefined` values do not fail
+ *   constraint validation.
+ * - No default form values are invented; optional fields stay optional.
+ * - UI metadata lives in `./form-meta` and only exists for properties that
+ *   declare the `x-yaver-form` vendor extension.
+ */
+{{#hasFormSchemas}}
+import {
+  applyEach,
+  apply,
+  applyWhenValue,
+  email,
+  maxLength,
+  minLength,
+  min,
+  max,
+  pattern,
+  required,
+  schema,
+} from '@angular/forms/signals';
+
+import type {
+{{#formImports}}
+  {{.}},
+{{/formImports}}
+} from '{{{npmName}}}';
+
+{{#formSchemas}}
+{{#description}}
+/**
+ * {{description}}
+ */
+{{/description}}
+export const {{schemaName}} = schema<{{classname}}>((p) => {
+{{#props}}
+{{#hasRequired}}
+    required(p.{{{propName}}});
+{{/hasRequired}}
+{{#showDirect}}
+    {{#direct.hasMinLength}}
+    minLength({{direct.path}}, {{direct.minLength}});
+    {{/direct.hasMinLength}}
+    {{#direct.hasMaxLength}}
+    maxLength({{direct.path}}, {{direct.maxLength}});
+    {{/direct.hasMaxLength}}
+    {{#direct.hasPattern}}
+    pattern({{direct.path}}, new RegExp('{{{direct.patternEscaped}}}'));
+    {{/direct.hasPattern}}
+    {{#direct.hasMin}}
+    min({{direct.path}}, {{direct.min}});
+    {{/direct.hasMin}}
+    {{#direct.hasMax}}
+    max({{direct.path}}, {{direct.max}});
+    {{/direct.hasMax}}
+    {{#direct.isEmail}}
+    email({{direct.path}});
+    {{/direct.isEmail}}
+    {{#direct.nestedSchemaName}}
+    apply({{direct.path}}, {{direct.nestedSchemaName}});
+    {{/direct.nestedSchemaName}}
+    {{#direct.itemSchemaName}}
+    applyEach({{direct.path}}, {{direct.itemSchemaName}});
+    {{/direct.itemSchemaName}}
+    {{#direct.hasItemValidators}}
+    applyEach({{direct.path}}, (item) => {
+        {{#direct.itemValidators}}
+        {{#hasMinLength}}
+        minLength(item, {{minLength}});
+        {{/hasMinLength}}
+        {{#hasMaxLength}}
+        maxLength(item, {{maxLength}});
+        {{/hasMaxLength}}
+        {{#hasPattern}}
+        pattern(item, new RegExp('{{{patternEscaped}}}'));
+        {{/hasPattern}}
+        {{#hasMin}}
+        min(item, {{min}});
+        {{/hasMin}}
+        {{#hasMax}}
+        max(item, {{max}});
+        {{/hasMax}}
+        {{#isEmail}}
+        email(item);
+        {{/isEmail}}
+        {{/direct.itemValidators}}
+    });
+    {{/direct.hasItemValidators}}
+{{/showDirect}}
+{{#hasGuarded}}
+    applyWhenValue({{guarded.guardPath}}, (v): v is NonNullable<{{{guarded.baseType}}}> => v != null, (v) => {
+        {{#guarded.hasMinLength}}
+        minLength(v, {{guarded.minLength}});
+        {{/guarded.hasMinLength}}
+        {{#guarded.hasMaxLength}}
+        maxLength(v, {{guarded.maxLength}});
+        {{/guarded.hasMaxLength}}
+        {{#guarded.hasPattern}}
+        pattern(v, new RegExp('{{{guarded.patternEscaped}}}'));
+        {{/guarded.hasPattern}}
+        {{#guarded.hasMin}}
+        min(v, {{guarded.min}});
+        {{/guarded.hasMin}}
+        {{#guarded.hasMax}}
+        max(v, {{guarded.max}});
+        {{/guarded.hasMax}}
+        {{#guarded.isEmail}}
+        email(v);
+        {{/guarded.isEmail}}
+        {{#guarded.nestedSchemaName}}
+        apply(v, {{guarded.nestedSchemaName}});
+        {{/guarded.nestedSchemaName}}
+        {{#guarded.itemSchemaName}}
+        applyEach(v, {{guarded.itemSchemaName}});
+        {{/guarded.itemSchemaName}}
+        {{#guarded.hasItemValidators}}
+        applyEach(v, (item) => {
+            {{#guarded.itemValidators}}
+            {{#hasMinLength}}
+            minLength(item, {{minLength}});
+            {{/hasMinLength}}
+            {{#hasMaxLength}}
+            maxLength(item, {{maxLength}});
+            {{/hasMaxLength}}
+            {{#hasPattern}}
+            pattern(item, new RegExp('{{{patternEscaped}}}'));
+            {{/hasPattern}}
+            {{#hasMin}}
+            min(item, {{min}});
+            {{/hasMin}}
+            {{#hasMax}}
+            max(item, {{max}});
+            {{/hasMax}}
+            {{#isEmail}}
+            email(item);
+            {{/isEmail}}
+            {{/guarded.itemValidators}}
+        });
+        {{/guarded.hasItemValidators}}
+    });
+{{/hasGuarded}}
+{{/props}}
+});
+{{/formSchemas}}
+{{/hasFormSchemas}}
+{{^hasFormSchemas}}
+// No request models in this API declare form-compatible validation
+// constraints. This entrypoint is intentionally still generated so that
+// `import ... from '<package>/forms'` always resolves.
+export {};
+{{/hasFormSchemas}}
