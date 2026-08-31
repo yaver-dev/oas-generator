@@ -1,0 +1,320 @@
+{{>licenseInfo}}
+import { Injectable, inject, assertInInjectionContext } from '@angular/core';
+import { HttpClient, HttpEvent, HttpParams, HttpResponse, httpResource } from '@angular/common/http';
+import type { HttpResourceRef, HttpResourceRequest } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { {{configurationClassName}}, {{configurationTokenName}} } from '../configuration';
+import { CustomHttpParameterCodec } from '../internal/encoder';
+import {
+  addToHttpParams,
+  appendFormValue,
+  encodeParam,
+  selectHeaderAccept,
+  selectHeaderContentType,
+} from '../internal/param';
+import { COLLECTION_FORMATS } from '../internal/variables';
+import type { InternalRequest } from '../internal/request';
+
+{{#imports}}
+import { {{ classname }} } from '../models/models';
+{{/imports}}
+
+{{#operations}}
+{{#operation}}
+/**
+ * Parameters for the `{{nickname}}` operation.
+ */
+export interface {{vendorExtensions.paramsInterfaceName}} {
+{{#allParams}}
+{{#description}}
+    /** {{.}} */
+{{/description}}
+    readonly {{paramName}}{{#isHeaderParam}}?{{/isHeaderParam}}{{^isHeaderParam}}{{^required}}?{{/required}}{{/isHeaderParam}}: {{{dataType}}}{{#isNullable}} | null{{/isNullable}};
+{{/allParams}}
+}
+
+{{/operation}}
+
+{{#operation}}
+/**
+ * Builds the internal request descriptor for `{{nickname}}`.
+ *
+ * @internal Not part of the public API of this package.
+ */
+function build{{vendorExtensions.operationIdPascal}}Request(
+    params: {{vendorExtensions.paramsInterfaceName}},
+    config: {{configurationClassName}},
+): InternalRequest {
+{{#allParams}}
+{{#required}}
+{{^isHeaderParam}}
+    if (params.{{paramName}} === null || params.{{paramName}} === undefined) {
+        throw new Error('Required parameter {{paramName}} was null or undefined when calling {{nickname}}.');
+    }
+{{/isHeaderParam}}
+{{/required}}
+{{/allParams}}
+    const headers: Record<string, string> = {};
+{{#headerParams}}
+{{#isArray}}
+    if (params.{{paramName}}) {
+        headers['{{baseName}}'] = [...params.{{paramName}}].join(COLLECTION_FORMATS['{{collectionFormat}}']);
+    }
+{{/isArray}}
+{{^isArray}}
+    if (params.{{paramName}} !== undefined && params.{{paramName}} !== null) {
+        headers['{{baseName}}'] = String(params.{{paramName}});
+    }
+{{/isArray}}
+{{/headerParams}}
+{{#hasProduces}}
+    // to determine the Accept header
+    const httpHeaderAccepts: string[] = [
+    {{#produces}}
+        '{{{mediaType}}}',
+    {{/produces}}
+    ];
+    const httpHeaderAcceptSelected = selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected !== undefined) {
+        headers['Accept'] = httpHeaderAcceptSelected;
+    }
+{{/hasProduces}}
+{{#hasQueryParams}}
+    let query = new HttpParams({ encoder: new CustomHttpParameterCodec() });
+{{#queryParams}}
+{{#isArray}}
+    if (params.{{paramName}}) {
+    {{#isCollectionFormatMulti}}
+        params.{{paramName}}.forEach((element) => {
+            query = addToHttpParams(query, element, '{{baseName}}');
+        });
+    {{/isCollectionFormatMulti}}
+    {{^isCollectionFormatMulti}}
+        query = addToHttpParams(query, [...params.{{paramName}}].join(COLLECTION_FORMATS['{{collectionFormat}}']), '{{baseName}}');
+    {{/isCollectionFormatMulti}}
+    }
+{{/isArray}}
+{{^isArray}}
+    if (params.{{paramName}} !== undefined && params.{{paramName}} !== null) {
+        query = addToHttpParams(query, params.{{paramName}}, '{{baseName}}');
+    }
+{{/isArray}}
+{{/queryParams}}
+{{/hasQueryParams}}
+{{#bodyParam}}
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    {{#consumes}}
+        '{{{mediaType}}}',
+    {{/consumes}}
+    ];
+    const httpContentTypeSelected = selectHeaderContentType(consumes);
+    if (httpContentTypeSelected !== undefined) {
+        headers['Content-Type'] = httpContentTypeSelected;
+    }
+    const body: unknown = params.{{bodyParam.paramName}};
+{{/bodyParam}}
+{{#hasFormParams}}
+{{^bodyParam}}
+    const consumes: string[] = [
+    {{#consumes}}
+        '{{{mediaType}}}',
+    {{/consumes}}
+    ];
+{{/bodyParam}}
+    const useForm = {{vendorExtensions.useFormData}};
+    let body: unknown;
+    let formParams: FormData | HttpParams;
+    if (useForm) {
+        formParams = new FormData();
+    } else {
+        formParams = new HttpParams({ encoder: new CustomHttpParameterCodec() });
+    }
+{{#formParams}}
+{{#isArray}}
+    if (params.{{paramName}}) {
+    {{#isCollectionFormatMulti}}
+        params.{{paramName}}.forEach((element) => {
+            formParams = appendFormValue(formParams, '{{baseName}}', element);
+        });
+    {{/isCollectionFormatMulti}}
+    {{^isCollectionFormatMulti}}
+        if (useForm) {
+            params.{{paramName}}.forEach((element) => {
+                formParams = appendFormValue(formParams, '{{baseName}}', element);
+            });
+        } else {
+            formParams = appendFormValue(formParams, '{{baseName}}', [...params.{{paramName}}].join(COLLECTION_FORMATS['{{collectionFormat}}']));
+        }
+    {{/isCollectionFormatMulti}}
+    }
+{{/isArray}}
+{{^isArray}}
+    if (params.{{paramName}} !== undefined) {
+        formParams = appendFormValue(formParams, '{{baseName}}', {{#isModel}}useForm ? new Blob([JSON.stringify(params.{{paramName}})], { type: 'application/json' }) : params.{{paramName}}{{/isModel}}{{^isModel}}params.{{paramName}}{{/isModel}});
+    }
+{{/isArray}}
+{{/formParams}}
+    body = formParams;
+{{/hasFormParams}}
+    const path = `{{{vendorExtensions.pathWithParams}}}`;
+    return {
+        method: '{{httpMethod}}',
+        path,
+        headers,
+{{#hasQueryParams}}
+        query,
+{{/hasQueryParams}}
+{{#vendorExtensions.hasRequestBody}}
+        body,
+{{/vendorExtensions.hasRequestBody}}
+        responseType: '{{vendorExtensions.responseType}}',
+        reportProgress: {{vendorExtensions.hasEventsVariant}},
+    };
+}
+
+{{/operation}}
+
+{{#hasApiClass}}
+{{#description}}
+/**
+ * {{description}}
+ */
+{{/description}}
+@Injectable({ providedIn: 'root' })
+export class {{classname}} {
+    private readonly http = inject(HttpClient);
+    private readonly config = inject({{configurationTokenName}});
+
+{{#operation}}
+{{#vendorExtensions.isCommandOperation}}
+    /**
+{{#summary}}
+     * {{.}}
+{{/summary}}
+{{#notes}}
+     * {{.}}
+{{/notes}}
+{{#vendorExtensions.errorStatuses}}
+     * Error responses are surfaced through the Observable error channel as
+     * {@link HttpErrorResponse}; possible status codes: {{vendorExtensions.errorStatuses}}.
+{{/vendorExtensions.errorStatuses}}
+     * @param params Operation parameters.
+     * @returns The response body.
+     */
+    {{vendorExtensions.methodName}}(params: {{vendorExtensions.paramsInterfaceName}}): Observable<{{vendorExtensions.commandValueType}}> {
+        const request = build{{vendorExtensions.operationIdPascal}}Request(params, this.config);
+        return this.http.request{{#vendorExtensions.isJsonResponseType}}<{{vendorExtensions.commandValueType}}>{{/vendorExtensions.isJsonResponseType}}(request.method, `${this.config.basePath}${request.path}`, {
+            body: request.body,
+            params: request.query,
+            headers: request.headers,
+            responseType: '{{vendorExtensions.responseType}}',
+            withCredentials: this.config.withCredentials ?? false,
+        });
+    }
+
+{{/vendorExtensions.isCommandOperation}}
+{{#vendorExtensions.hasResponseVariant}}
+    /**
+{{#summary}}
+     * {{.}}
+{{/summary}}
+     * Full-response variant of {@link {{classname}}.{{vendorExtensions.methodName}} }.
+     * @param params Operation parameters.
+     * @returns The full {@link HttpResponse}.
+     */
+    {{vendorExtensions.methodName}}Response(params: {{vendorExtensions.paramsInterfaceName}}): Observable<HttpResponse<{{vendorExtensions.commandValueType}}>> {
+        const request = build{{vendorExtensions.operationIdPascal}}Request(params, this.config);
+        return this.http.request{{#vendorExtensions.isJsonResponseType}}<{{vendorExtensions.commandValueType}}>{{/vendorExtensions.isJsonResponseType}}(request.method, `${this.config.basePath}${request.path}`, {
+            body: request.body,
+            params: request.query,
+            headers: request.headers,
+            responseType: '{{vendorExtensions.responseType}}',
+            withCredentials: this.config.withCredentials ?? false,
+            observe: 'response',
+        });
+    }
+
+{{/vendorExtensions.hasResponseVariant}}
+{{#vendorExtensions.hasEventsVariant}}
+    /**
+{{#summary}}
+     * {{.}}
+{{/summary}}
+     * Event variant of {@link {{classname}}.{{vendorExtensions.methodName}} } with progress reporting.
+     * @param params Operation parameters.
+     * @returns The stream of {@link HttpEvent}s including progress.
+     */
+    {{vendorExtensions.methodName}}Events(params: {{vendorExtensions.paramsInterfaceName}}): Observable<HttpEvent<{{vendorExtensions.commandValueType}}>> {
+        const request = build{{vendorExtensions.operationIdPascal}}Request(params, this.config);
+        return this.http.request{{#vendorExtensions.isJsonResponseType}}<{{vendorExtensions.commandValueType}}>{{/vendorExtensions.isJsonResponseType}}(request.method, `${this.config.basePath}${request.path}`, {
+            body: request.body,
+            params: request.query,
+            headers: request.headers,
+            responseType: '{{vendorExtensions.responseType}}',
+            withCredentials: this.config.withCredentials ?? false,
+            observe: 'events',
+            reportProgress: true,
+        });
+    }
+
+{{/vendorExtensions.hasEventsVariant}}
+{{/operation}}
+}
+
+{{/hasApiClass}}
+{{#hasQueryOperations}}
+{{#operation}}
+{{#vendorExtensions.isResourceOperation}}
+/**
+ * Reactive parameters for the `{{nickname}}` query.
+ */
+export interface {{vendorExtensions.resourceOptionsName}} {
+    /** Debug name for the underlying resource (shown in Angular DevTools). Defaults to `{{nickname}}`. */
+    readonly debugName?: string;
+}
+
+/**
+ * Creates an {@link HttpResourceRef} for the `{{nickname}}` operation.
+ *
+ * Must be called in an injection context (component or service field
+ * initializer, factory, constructor). The returned resource:
+ * - issues an HTTP {{httpMethod}} request with the given parameters,
+ * - returns to `idle` (with value `undefined`) when the params factory
+ *   returns `undefined`,
+ * - re-issues the request whenever the params factory produces a new value,
+ * - is destroyed together with the enclosing injector.
+ *
+ * @param params Reactive factory producing the operation parameters, or `undefined` to keep the resource idle.
+ * @param options Optional resource options.
+ */
+export function {{vendorExtensions.resourceFnName}}(
+    params: () => {{vendorExtensions.paramsInterfaceName}} | undefined,
+    options?: {{vendorExtensions.resourceOptionsName}},
+): HttpResourceRef<{{vendorExtensions.resourceValueType}} | undefined> {
+    assertInInjectionContext({{vendorExtensions.resourceFnName}});
+    const config = inject({{configurationTokenName}});
+    return httpResource<{{vendorExtensions.resourceValueType}}>(() => {
+        const current = params();
+        if (current === undefined) {
+            return undefined;
+        }
+        const request = build{{vendorExtensions.operationIdPascal}}Request(current, config);
+        const httpRequest: HttpResourceRequest = {
+            url: `${config.basePath}${request.path}`,
+            method: request.method.toUpperCase(),
+            headers: request.headers,
+            withCredentials: config.withCredentials ?? false,
+        };
+        if (request.query !== undefined) {
+            httpRequest.params = request.query;
+        }
+        return httpRequest;
+    }, { debugName: options?.debugName ?? '{{nickname}}' });
+}
+
+{{/vendorExtensions.isResourceOperation}}
+{{/operation}}
+{{/hasQueryOperations}}
+{{/operations}}

@@ -1,0 +1,46 @@
+import { InjectionToken, EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
+
+/**
+ * Runtime configuration contract for the generated client.
+ *
+ * The application owns the HTTP stack (`provideHttpClient`, interceptors,
+ * backend selection, transfer cache). This configuration only covers what the
+ * generated client itself needs.
+ */
+export interface {{configurationClassName}} {
+    /** Base URL of the API, without trailing path duplication. Requests are `basePath + path`. */
+    readonly basePath: string;
+    /** Sets the `withCredentials` flag on outgoing requests. Defaults to `false`. */
+    readonly withCredentials?: boolean;
+}
+
+/** Injection token holding the client configuration. */
+export const {{configurationTokenName}} = new InjectionToken<{{configurationClassName}}>('{{configurationTokenName}}');
+
+/**
+ * Provides the generated client configuration.
+ *
+ * ```ts
+ * bootstrapApplication(AppComponent, {
+ *   providers: [
+ *     // the application itself configures the HTTP stack:
+ *     provideHttpClient(),
+ *     {{providerFnName}}({ basePath: environment.apiUrl }),
+ *   ],
+ * });
+ * ```
+ *
+ * The generated client never calls `provideHttpClient()` and never configures
+ * interceptors; it only consumes the configuration registered here.
+ */
+export function {{providerFnName}}(config: {{configurationClassName}}): EnvironmentProviders {
+    if (config === null || config === undefined || typeof config !== 'object') {
+        throw new Error('{{providerFnName}}: a configuration object is required.');
+    }
+    if (typeof config.basePath !== 'string' || config.basePath.length === 0) {
+        throw new Error('{{providerFnName}}: basePath is required and must be a non-empty string.');
+    }
+    return makeEnvironmentProviders([
+        { provide: {{configurationTokenName}}, useValue: config },
+    ]);
+}

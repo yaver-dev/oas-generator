@@ -17,5 +17,6 @@ cd sample
 ./test-response-contracts.sh
 ./test-nullable-operation-parameters.sh
 ./test-generator-defaults.sh
+./test-ng-client.sh
 # ./test-fastendpoints.sh
 echo "✅ All tasks completed successfully!"

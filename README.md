@@ -12,6 +12,7 @@ Built on top of **openapi-generator 7.21.0**, targeting **Java 21** and **Maven*
 | `yaver-proxy`            | C#         | gRPC service contracts + Mapperly mappers                    |
 | `yaver-fetch-client`     | TypeScript | Modern Fetch API client (ESM, middleware support, TS ≥ 5.9)  |
 | `yaver-ts-angular`       | TypeScript | Angular client library (Angular 9.x–18.x, ng-packagr build)  |
+| `yaver-ng-client`            | TypeScript | Final Angular 22.1 client: zoneless, `httpResource` queries, Observable commands, Signal Forms schemas, APF package (see [docs/yaver-ng-client.md](docs/yaver-ng-client.md)) |
 
 ## Build
 
@@ -30,6 +31,10 @@ cd sample && ./test-gateway-aot.sh --split-schemas false
 
 # Run against explicit fixture
 cd sample && ./test-gateway-aot.sh --fixture fixtures/pairs-auth-admin.yaml --split-schemas true
+
+# Full yaver-ng-client pipeline: generate -> ng-packagr build -> quality gates
+# -> npm pack -> determinism -> wire check -> zoneless consumer tests (local + tarball)
+sample/test-ng-client.sh
 ```
 
 `build.sh` runs `mvn clean package` and copies the output JAR to `cli/yaver-generator-cli.jar`.
@@ -116,7 +121,14 @@ https://github.com/yaver-dev/oas-generator/releases/download/<tag>/codegen.cli.z
 
 ```
 cli/                          # Runtime JARs (openapi-generator-cli + built output)
-sample/                       # Sample specs and test scripts
+sample/                       # Sample specs, fixtures and test scripts
+  fixtures/ng-client.yaml         #   representative fixture for yaver-ng-client
+  ng-client-consumer/             #   zoneless Angular 22 consumer fixture (Vitest)
+  test-ng-client.sh               #   full yaver-ng-client test pipeline
+  ng-client-quality-gate.py       #   static gates over built dist artifacts
+  ng-client-wire-check.py         #   wire-equivalence check vs yaver-ts-angular
+docs/                         # Generator documentation
+  yaver-ng-client.md
 yaver-codegen/                # Maven project with all custom generators
   src/main/java/dev/yaver/codegen/
     YaverCsFastendpoints.java
@@ -124,8 +136,10 @@ yaver-codegen/                # Maven project with all custom generators
     YaverFetchClient.java
     YaverProxyCodegen.java
     YaverTsAngular.java
+    YaverNgClient.java
   src/main/resources/
     yaver-cs-gateway/         # Mustache templates for C# gateway generator
     yaver-fetch-client/       # Mustache templates for Fetch client
+    yaver-ng-client/              # Mustache templates for the Angular 22 generator
     ...
 ```

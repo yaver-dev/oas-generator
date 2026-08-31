@@ -1,0 +1,75 @@
+import type { Schema } from '@angular/forms/signals';
+
+/**
+ * Explicit, validated UI metadata for form fields.
+ *
+ * Metadata is generated ONLY from the documented `x-yaver-form` vendor
+ * extension. The generator never infers labels, control types, placeholders
+ * or layout from ordinary OpenAPI fields.
+ */
+export type YaverFormControl =
+    | 'text'
+    | 'textarea'
+    | 'number'
+    | 'email'
+    | 'password'
+    | 'checkbox'
+    | 'select'
+    | 'date'
+    | 'hidden';
+
+/** UI metadata for a single field. */
+export interface YaverFormFieldMeta {
+    readonly label?: string;
+    readonly placeholder?: string;
+    readonly control?: YaverFormControl;
+    readonly options?: ReadonlyArray<YaverFieldOption>;
+}
+
+/** A select option declared via `x-yaver-form.options`. */
+export interface YaverFieldOption {
+    readonly value: string;
+    readonly label: string;
+}
+
+/**
+ * Reusable validation schema contract: a value accepted by
+ * {@link https://angular.dev/api/forms/signals/form form(...)}.
+ */
+export type YaverFormSchema<T> = Schema<T>;
+
+{{#hasFormSchemas}}
+{{#formSchemas}}
+{{#hasMeta}}
+import type { {{classname}} } from '{{{npmName}}}';
+
+/**
+ * Explicit UI metadata for `{{classname}}` properties, generated only from the
+ * `x-yaver-form` vendor extension. There is intentionally no metadata for
+ * properties without that extension.
+ */
+export const {{metaName}}: Readonly<Partial<Record<keyof {{classname}}, YaverFormFieldMeta>>> = {
+{{#metaProps}}
+    {{name}}: {
+{{#label}}
+        label: '{{label}}',
+{{/label}}
+{{#placeholder}}
+        placeholder: '{{placeholder}}',
+{{/placeholder}}
+{{#control}}
+        control: '{{control}}',
+{{/control}}
+{{#hasOptions}}
+        options: [
+{{#options}}
+            { value: '{{value}}', label: '{{label}}' },
+{{/options}}
+        ],
+{{/hasOptions}}
+    },
+{{/metaProps}}
+};
+{{/hasMeta}}
+{{/formSchemas}}
+{{/hasFormSchemas}}

@@ -1,0 +1,27 @@
+/**
+ * Internal, typed request descriptor used by both transport paths:
+ * {@link https://angular.dev/api/common/http/httpResource httpResource} query
+ * resources and {@link HttpClient} Observable command APIs.
+ *
+ * This module is internal to the generated client and must not be imported
+ * directly by applications.
+ */
+import { HttpParams } from '@angular/common/http';
+
+/** @internal */
+export interface InternalRequest {
+    /** HTTP method, lowercase (e.g. `get`, `post`). */
+    readonly method: string;
+    /** Path relative to the client base path, with path parameters already interpolated. */
+    readonly path: string;
+    /** Serialized query parameters (empty when the operation has no query parameters). */
+    readonly query?: HttpParams;
+    /** Request headers (no `Accept`/`Content-Type` when the operation declares none). */
+    readonly headers: Record<string, string>;
+    /** Request body: JSON value, `FormData`, `HttpParams`, `Blob` or `undefined`. */
+    readonly body?: unknown;
+    /** Angular response type. Queries always use `json`. */
+    readonly responseType: 'json' | 'text' | 'blob';
+    /** Whether HTTP progress events are meaningful for this operation. */
+    readonly reportProgress: boolean;
+}
